@@ -1,0 +1,279 @@
+# GOUABO — plateforme de boutiques en ligne + administration
+
+Une plateforme, plusieurs espaces :
+
+- **La page d'accueil** (`/`) présente les produits de **tous les
+  administrateurs** ; chaque boutique a aussi sa page (`/#/boutique/<adresse>`).
+  Panier, commande, paiement, suivi et ticket de caisse téléchargeable.
+- **« Mon espace »** (bouton de la page d'accueil → `/admin/`) : connexion de
+  l'administrateur ou du vendeur à son tableau de bord, ou création d'un nouvel
+  espace administrateur.
+- **Chaque administrateur a son propre espace**, totalement séparé des autres :
+  ses produits, stocks, clients, ventes, finances, marketing et **ses vendeurs**,
+  dont il suit l'activité. Chaque vendeur ne voit que ses propres ventes.
+
+```
+moncommerce-complet/
+├── boutique/           → site client (index.html, boutique.jsx, boutique.css)
+├── admin/              → administration (index.html, app.jsx, styles.css)
+├── partage/            → code commun (ticket de caisse, PDF, QR code)
+└── backend/            → API Express + SQLite, sert aussi les deux sites
+    ├── server.js
+    ├── db/  lib/  routes/
+    └── README.md
+```
+
+
+## GOUABO : packs vendeur, portail propriétaire et agents IA
+
+GOUABO est une place de marché : chaque vendeur ouvre son espace (portail
+administrateur dédié à ses produits) et paie un pack annuel.
+
+| Pack | Prix | Contenu |
+|---|---|---|
+| Essentiel | 20 000 FCFA / an | Portail complet, sans agents IA. 1 mois d'essai gratuit, puis payant. |
+| Premium | 35 000 FCFA / an | Portail + agents IA et automatisation complète de la relation client. |
+
+- **Inscription** : page d'accueil → « Devenir vendeur » → choix du pack → essai gratuit de 30 jours (sans agents).
+- **Paiement** : le vendeur envoie le montant par Mobile Money, puis déclare l'ID de transaction dans sa page **Abonnement**.
+- **Portail propriétaire** (`/proprietaire/`, code `PROPRIETAIRE_CODE`) : validation des paiements (active le pack pour un an),
+  mise à niveau, prolongation, suspension / réactivation, tarifs, durée de l'essai et numéros Mobile Money.
+- **Sans essai ni pack en cours**, le portail du vendeur est verrouillé (seule la page Abonnement reste accessible) et ses produits ne sont plus affichés.
+- **Agents IA** (pack Premium, page « Agents IA ») :
+  - *Agent Campagnes* : newsletters, promotions et relances programmées (jour, heure, audience, canaux) ;
+  - *Agent Messages* : répond aux messages envoyés depuis la page de la boutique, seul ou après validation ;
+  - *Agent Alertes* : SMS à l'administrateur et au vendeur à chaque vente, commande en ligne, paiement ou livraison.
+- La rédaction sur mesure utilise l'API Claude (`ANTHROPIC_API_KEY`). Sans clé, les agents envoient des modèles de messages standards.
+  Sans fournisseur SMS / SMTP configuré, les envois sont simulés (journalisés).
+
+## Liens de paiement des opérateurs
+
+Dans **Paramètres → Boutique en ligne**, l'administrateur de chaque boutique renseigne, pour Wave,
+Orange Money, MTN MoMo et Moov Money, son numéro marchand et/ou son **lien de paiement** (adresse https).
+À la commande, le client voit un bouton « Payer … avec Wave » qui ouvre ce lien, puis saisit l'ID de transaction.
+
+Le portail propriétaire affiche seul les **alertes** (fins de souscription des agents IA, essais qui se terminent,
+état du service) et reçoit la **clé IA** (section « Service des agents IA ») ; les vendeurs ne voient aucun message technique.
+
+## 1. Démarrer
+
+Il faut **Node.js 20 ou plus récent** (aucun Python ni serveur SQL : la base
+SQLite est un simple fichier).
+
+```bash
+cd backend
+npm install
+cp .env.example .env     # puis remplacez JWT_SECRET par une longue chaîne aléatoire
+npm start
+```
+
+- Boutique client : **http://localhost:4000/**
+- Administration : **http://localhost:4000/admin/**
+
+Depuis la page d'accueil, **Mon espace → Créer mon espace** ouvre un espace
+administrateur (nom, nom de la boutique, téléphone, mot de passe). Chaque
+personne qui s'inscrit ainsi obtient un espace distinct. La connexion se fait
+par téléphone + mot de passe ; un numéro = un compte sur toute la plateforme.
+
+Une installation d'une version précédente (une seule base) est reprise
+automatiquement : elle devient le premier espace, sans perte de données.
+
+### Données de test
+
+Quand la plateforme est vide, **quatre boutiques de test** sont créées au
+démarrage : « Petit Chic Abidjan » (vêtements pour enfants : tenues chic, pyjamas,
+chaussettes, layette — mise en avant, ses produits apparaissent en premier sur la
+page d'accueil), « Belle Ivoire Cosmétiques » (maquillage, parfums,
+manucure-pédicure), « Éclat Karité » (soins naturels et produits capillaires) et
+« Reine des Mèches » (perruques, tissages, mèches à tresser). Soit
+4 administrateurs, 5 vendeurs, 49 produits avec photos, des clients et quelques ventes. L'écran **Mon espace**
+propose alors ces comptes de test : un clic suffit pour entrer. Tout est défini
+dans `backend/db/donnees-test.js`.
+
+Les photos sont des images d'illustration de la banque libre
+[Unsplash](https://unsplash.com/license), affichées depuis `images.unsplash.com`.
+Pour de vraies ventes, remplacez-les par les photos de vos propres produits
+(Produits → modifier → Image).
+
+Ces comptes sont publics : pour une utilisation réelle, mettez `DONNEES_TEST=0`
+(ou choisissez votre mot de passe avec `MOT_DE_PASSE_TEST`).
+
+## 2. La boutique en ligne
+
+Tout ce que voit le client vient de la base : produits actifs, photos, prix et
+stock réels. Une commande passée sur le site apparaît immédiatement dans
+l'administration (badge « En ligne », notification, liste « À traiter »).
+
+- **Panier** conservé sur l'appareil du client ; prix et stock **revérifiés par
+  le serveur** à la validation (un prix modifié dans le navigateur est ignoré,
+  un article épuisé entre-temps est signalé et le panier corrigé).
+- **Livraison** : frais fixes, livraison offerte à partir d'un montant, zone
+  desservie (*Paramètres → Boutique en ligne*).
+- **Fiche client** créée automatiquement, ou retrouvée par son numéro de téléphone.
+- **Suivi de commande** : lien personnel (Reçue → Confirmée → En livraison →
+  Livrée), état du paiement, ticket de caisse PDF avec QR code, bouton WhatsApp
+  vers la boutique. « Mes commandes » retrouve les commandes passées depuis
+  l'appareil.
+- La boutique peut être **fermée** aux commandes d'un clic.
+
+### Paiements proposés au client
+
+| Mode | Fonctionnement | Confirmation |
+|---|---|---|
+| **À la livraison** | Le client paie le livreur (espèces ou Mobile Money) | Vous encaissez depuis la commande (« Encaisser le paiement ») |
+| **Transfert Mobile Money** | Le client envoie le montant sur **vos numéros** Orange Money / MTN MoMo / Moov Money / Wave, puis saisit l'ID de transaction reçu par SMS | Vous vérifiez votre relevé puis cliquez « J'ai bien reçu le paiement » |
+| **Paiement en ligne (CinetPay)** | Page de paiement sécurisée CinetPay (Orange, MTN, Moov, Wave) | **Automatique** (webhook authentifié + revérification auprès de CinetPay) |
+
+Les numéros Mobile Money se renseignent dans *Paramètres → Boutique en ligne* ;
+un opérateur sans numéro n'est pas proposé.
+
+### Activer le paiement en ligne CinetPay
+
+1. Ouvrez un compte marchand sur [cinetpay.com](https://cinetpay.com) et
+   récupérez votre **clé API** et votre **mot de passe API**.
+2. Dans `backend/.env` :
+   ```
+   CINETPAY_API_KEY=sk_test_...        # sk_test_ = bac à sable, sk_live_ = production
+   CINETPAY_API_PASSWORD=...
+   PUBLIC_URL=https://www.votre-boutique.ci
+   ```
+3. Redémarrez le serveur : l'option « Payer en ligne » apparaît sur le site.
+
+`PUBLIC_URL` doit être une adresse **publique en HTTPS** : CinetPay y renvoie
+le client après paiement et y envoie sa notification
+(`/api/boutique/paiements/cinetpay/notification`). En local, sans adresse
+publique, le paiement est quand même confirmé au retour du client sur sa page
+de suivi (le serveur interroge CinetPay). Un paiement non finalisé après 60 min
+est annulé et le stock libéré.
+
+L'intégration suit l'API CinetPay v1 du SDK officiel
+([cinetpay-go](https://github.com/cinetpay/cinetpay-go)).
+
+## 3. L'administration
+
+- **Accueil** : indicateurs, courbe des ventes, priorités (commandes en ligne,
+  paiements à vérifier ou à encaisser, stock faible…).
+- **Commandes** (caisse et en ligne, une ou plusieurs lignes), **Produits**
+  (photos téléversées), **Clients**, **Ventes**, **Finances**.
+- **Caisse** : espèces avec monnaie à rendre, Orange Money, MTN MoMo, Moov Money,
+  Wave, carte bancaire, paiement à la livraison ; ticket imprimable (80 mm),
+  PDF, WhatsApp, SMS.
+- **Paramètres** : informations imprimées sur les tickets, boutique en ligne,
+  équipe (comptes vendeurs), sauvegarde / restauration.
+
+### Deux rôles : administrateur et vendeur
+
+| | Administrateur | Vendeur |
+|---|---|---|
+| Caisse, commandes, clients, tickets | ✔ | ✔ |
+| Produits : prix, contenu détaillé des packs, promotions | ✔ | lecture seule |
+| **Stocks** : réceptions (avec dépense), sorties, inventaire, journal | ✔ | — |
+| **Marketing** : campagnes, message hebdomadaire, promotions | ✔ | — |
+| **Finances** : dépenses, coûts d'achat, bénéfices | ✔ | — |
+| Supprimer une commande ou un client | ✔ | — |
+
+Les restrictions sont appliquées par le serveur (403), pas seulement masquées
+dans l'interface. L'administrateur crée ses vendeurs dans la page **Vendeurs**,
+où il suit leurs ventes (en caisse et via leur lien), change leur mot de passe
+ou les désactive.
+
+### Espaces, vendeurs et lien de promotion
+- **Un espace par administrateur** : une base de données par espace
+  (`<DB_PATH>-espaces/`), plus un annuaire des boutiques et des comptes
+  (`<DB_PATH>-plateforme.db`). Aucune donnée n'est partagée entre espaces.
+- **Le vendeur fait la promotion des produits** de son administrateur : son
+  tableau de bord affiche son **lien de promotion**
+  (`/#/boutique/<adresse>?v=<vendeur>`). Toute commande passée par ce lien lui
+  est attribuée et apparaît dans son espace et dans le suivi de l'administrateur.
+- **Une commande = une boutique** : le panier ne mélange pas les produits de
+  deux boutiques (livraison et paiement sont propres à chacune).
+
+### Tickets de caisse
+1. Avant validation, la vente (caisse ou boutique en ligne) est présentée sous
+   forme de **ticket provisoire** (« récapitulatif — non validé »).
+2. Après validation, le **ticket définitif s'affiche en PDF** (téléchargeable,
+   imprimable). Le vendeur peut aussi l'imprimer en 80 mm, l'envoyer par
+   **WhatsApp**, **e-mail** ou **SMS** au client.
+
+### Le contrôle par les tickets
+- **Pas de vente sans ticket** : chaque vente (caisse, B2B, boutique en ligne)
+  reçoit un ticket numéroté `T-000001`, `T-000002`… Un numéro n'est jamais
+  réutilisé : un ticket supprimé laisse un trou visible dans la série.
+- **Le vendeur doit remettre le ticket** : après une vente, la fenêtre ne se ferme
+  qu'une fois le ticket imprimé, téléchargé ou envoyé. Chaque action est
+  journalisée (qui, quoi, quand).
+- **Page « Tickets de caisse »** : tickets émis, tickets non remis, ventes par
+  vendeur, **écoulement des articles d'après les tickets**, journal filtrable et
+  export CSV. Le vendeur n'y voit que ses propres tickets.
+- **Lots** : un produit peut indiquer ses *articles par lot* (lot de 3 = 3). Le
+  ticket, les commandes et le stock affichent alors le nombre d'articles
+  réellement sortis (2 lots de 3 = 6 articles).
+- **Ticket = étiquette de colis** : il porte le contact du client, l'adresse et le
+  montant de la livraison. « Monnaie rendue » n'apparaît que s'il y en a eu.
+
+### Suivi des livraisons
+Page **Livraisons** : chaque commande en ligne et chaque vente avec l'option
+« Livraison » est un colis suivi de la boutique jusqu'au client.
+- Onglets *À préparer*, *En livraison*, *En retard*, *Livrés* ; recherche par
+  téléphone, lieu ou article ; filtre par livreur.
+- **Livreurs** (créés par l'administrateur) : chaque colis est confié à un livreur
+  avec une date prévue, un par un ou plusieurs à la fois.
+- **Départ → Livré** : un colis payable à la livraison est encaissé au moment où
+  il est marqué livré. **Échec** (client absent, injoignable…) : le colis revient
+  « à préparer », la tentative est comptée, la vente et le stock ne bougent pas.
+- **Feuille de route** par livreur (adresses, contacts, montants à encaisser) :
+  à imprimer, copier ou envoyer au livreur par WhatsApp. Un bouton prévient le
+  client par WhatsApp (livreur, date, montant à régler).
+- Indicateurs : colis à préparer, en cours, livrés du jour, argent à encaisser,
+  frais de livraison perçus, et tableau par livreur.
+
+### Enregistrer une vente
+Contact (téléphone), nom facultatif, adresse, ville → catégorie → clic sur
+l'article → quantité. Options : **livraison** (frais ajoutés au ticket) et **vente
+B2B**. Le client est reconnu à son numéro. La liste des commandes montre
+directement contact, article, quantité, montant, lieu de livraison et statut.
+
+### Marketing et fidélisation
+- Le client accepte (case à cocher) de recevoir les offres lors de son achat ;
+  chaque message contient un lien **STOP** de désinscription (`/#/stop/…`).
+- **Message automatique** chaque semaine (jour et heure réglables, lundi 8 h
+  par défaut) : bonne semaine + nouveautés + promotions en cours.
+- **Lancer une promotion** : remise en % ou prix fixe sur les produits choisis,
+  date de fin, et alerte automatique des clients abonnés (SMS / e-mail).
+- **Plan de fidélisation** : VIP, clients fidèles, inactifs, nouveaux clients.
+- Sans fournisseur SMS (`SMS_PROVIDER_*`) ni serveur e-mail (`SMTP_*`), les
+  envois sont **simulés** (journalisés, marqués « Simulé » dans l'historique).
+
+Si l'administration est ouverte sans serveur, elle propose un **mode démo**
+dont les données restent dans le navigateur.
+
+## 4. Mise en ligne (Render)
+
+Le fichier `render.yaml` décrit tout le déploiement : instance `0.5c-512mb`
+(région Francfort), disque persistant de 1 Go monté sur `/var/data` pour la
+bases (`DB_PATH`) et les photos (`UPLOADS_DIR`), secret `JWT_SECRET`
+généré automatiquement.
+
+1. Sur [render.com](https://render.com), créez un compte en vous connectant
+   avec GitHub et ajoutez un moyen de paiement (le disque exige une instance
+   payante).
+2. **New → Blueprint**, choisissez le dépôt `moncommerce`, puis **Apply**.
+3. Ouvrez `https://<votre-service>.onrender.com/`, puis **Mon espace → Créer
+   mon espace** pour ouvrir votre espace administrateur.
+4. Facultatif : définissez `CODE_INVITATION` dans **Environment** pour réserver
+   la création d'espaces aux personnes à qui vous donnez ce code (sinon
+   l'inscription est ouverte à tous).
+5. Facultatif : nom de domaine personnalisé (service → **Settings → Custom
+   Domains**, puis renseignez `PUBLIC_URL`), clés CinetPay dans **Environment**.
+
+**Démo gratuite (instance « Free »)** : pas de disque, donc les données sont
+effacées à chaque redémarrage ou mise en veille, et le message hebdomadaire ne
+part pas pendant la veille. Renseignez `COMPTE_ADMIN_*` et `COMPTE_VENDEUR_*`
+dans **Environment** pour que les deux comptes soient recréés automatiquement.
+
+Chaque `git push` sur `main` redéploie automatiquement. Les données sont sur le
+disque et ne sont pas touchées par les redéploiements. Pensez à télécharger
+régulièrement une sauvegarde depuis *Paramètres → Données*.
+
+Toutes les routes de l'API sont documentées dans `backend/README.md`.
+L'ancienne interface (v1) est conservée dans `frontend-v1-sauvegarde/`.

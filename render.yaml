@@ -1,0 +1,38 @@
+# Déploiement Render (Blueprint) — https://render.com/docs/blueprint-spec
+# Render → New → Blueprint → choisir ce dépôt → Apply.
+services:
+  - type: web
+    name: gouabo
+    runtime: node
+    # Instance gratuite : pas de disque persistant, les données sont réinitialisées à chaque redémarrage.
+    # Pour une utilisation réelle (abonnements payants), passez à une instance payante avec un disque.
+    plan: free
+    region: frankfurt
+    buildCommand: cd backend && npm ci
+    startCommand: cd backend && npm start
+    healthCheckPath: /api/sante
+    autoDeployTrigger: commit
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: NODE_ENV
+        value: production
+      # Secrets générés par Render
+      - key: JWT_SECRET
+        generateValue: true
+      # À renseigner dans le tableau de bord Render (facultatif)
+      - key: PUBLIC_URL
+        sync: false
+      # Réserve la création d'espaces administrateur à ceux qui ont ce code (vide = inscription ouverte)
+      - key: CODE_INVITATION
+        sync: false
+      # Portail propriétaire (/proprietaire/) : votre code d'accès, 8 caractères minimum
+      - key: PROPRIETAIRE_CODE
+        sync: false
+      # Agents IA du pack Premium (clé de l'API Claude) — facultatif
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: CINETPAY_API_KEY
+        sync: false
+      - key: CINETPAY_API_PASSWORD
+        sync: false

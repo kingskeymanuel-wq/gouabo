@@ -1,0 +1,1280 @@
+import React, { useState, useEffect, useMemo, useCallback, useRef, useContext, createContext } from "react";
+import { createRoot } from "react-dom/client";
+import { createPortal } from "react-dom";
+import {
+  ShoppingBag, ShoppingCart, Search, X, Plus, Minus, Trash2, ArrowLeft, ArrowRight, Check, CheckCircle2, Clock,
+  Truck, PackageCheck, XCircle, Phone, MapPin, Mail, MessageSquare, ShieldCheck, Smartphone, CreditCard, Banknote,
+  Copy, Download, Printer, AlertCircle, AlertTriangle, Info, Receipt, Store, User, ChevronRight, Loader2, Sparkles, Package, Tag, FileText, BellOff, Bell, LayoutDashboard, ChevronDown, UserPlus, Bot, Crown, Send,
+} from "lucide-react";
+import { fmt, fmtNum, lignesTicket, telechargerTicketPdf, urlTicketPdf, pdfIntegrable, genererQr, cheminQr, lienTicket, telInternational } from "/partage/ticket.js";
+
+/* =====================================================================
+   GOUABO — page d'accueil de la plateforme et boutiques en ligne
+   La page d'accueil présente les produits de TOUS les administrateurs ; chaque
+   boutique a aussi sa propre page (#/boutique/<adresse>). Une commande concerne
+   une seule boutique. « Mon espace » mène au tableau de bord (administrateur ou vendeur).
+   ===================================================================== */
+
+const API = (window.MONCOMMERCE_API_URL || "").replace(/\/$/, "");
+const PANIER_KEY = "boutique-panier";
+const COMMANDES_KEY = "boutique-mes-commandes";
+const CLIENT_KEY = "boutique-client";
+const REF_KEY = "boutique-vendeurs"; // lien de promotion suivi : { idBoutique: idVendeur }
+const PLATEFORME = "GOUABO";
+/* Réglages neutres quand aucune boutique n'est concernée (page d'accueil de la plateforme) */
+const CONFIG_PLATEFORME = {
+  id: null, slug: null, plateforme: true, ouverte: true,
+  boutique: { nom: PLATEFORME, slogan: "", adresse: "", telephone: "", whatsapp: "", message: "" },
+  livraison: { frais: 0, gratuite_des: 0, zone: "" },
+  paiements: { livraison: true, transfert: [], en_ligne: false, en_ligne_test: false },
+};
+
+const cx = (...a) => a.filter(Boolean).join(" ");
+const norm = (s) => (s || "").toString().normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+const lire = (k, def) => { try { const r = localStorage.getItem(k); return r ? JSON.parse(r) : def; } catch { return def; } };
+const ecrire = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* stockage indisponible */ } };
+const urlImage = (img) => (img && img.startsWith("/uploads/") ? API + img : img);
+const fmtDate = (iso) => new Date(iso).toLocaleString("fr-FR", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" });
+
+async function api(methode, chemin, corps) {
+  let res;
+  try {
+    res = await fetch(API + chemin, { method: methode, headers: { "Content-Type": "application/json" }, body: corps ? JSON.stringify(corps) : undefined });
+  } catch {
+    throw Object.assign(new Error("Connexion impossible. Vérifiez votre accès Internet et réessayez."), { statut: 0 });
+  }
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) throw Object.assign(new Error(json.erreur || `Erreur ${res.status}`), { statut: res.status, details: json });
+  return json;
+}
+
+/* Moyens de paiement : apparence (couleurs des opérateurs) */
+const OPERATEURS = {
+  "Orange Money": { couleur: "#ff7900", sigle: "OM" },
+  "MTN MoMo": { couleur: "#ffcb05", sigle: "MTN", texte: "#1a1a1a" },
+  "Moov Money": { couleur: "#0066b3", sigle: "MV" },
+  "Wave": { couleur: "#1dc8ff", sigle: "W" },
+};
+const LogoOperateur = ({ mode, taille = 28 }) => {
+  const o = OPERATEURS[mode] || { couleur: "#8a8a8a", sigle: "?" };
+  return <span className="pay-logo" style={{ background: o.couleur, color: o.texte || "#fff", width: taille, height: taille, fontSize: taille * 0.36 }}>{o.sigle}</span>;
+};
+
+/* =====================================================================
+   État global : configuration, catalogue, panier, navigation, toasts
+   ===================================================================== */
+const Ctx = createContext(null);
+const useBoutique = () => useContext(Ctx);
+
+function parseHash() {
+  const h = location.hash.replace(/^#\/?/, "");
+  const [chemin, requete = ""] = h.split("?");
+  const [page = "", id = null] = chemin.split("/").filter(Boolean);
+  return { page, id: id ? decodeURIComponent(id) : null, vendeur: new URLSearchParams(requete).get("v") };
+}
+function useRoute() {
+  const [r, setR] = useState(parseHash);
+  useEffect(() => { const f = () => { setR(parseHash()); window.scrollTo({ top: 0 }); }; addEventListener("hashchange", f); return () => removeEventListener("hashchange", f); }, []);
+  const go = useCallback((page, id) => { location.hash = "/" + (page || "") + (id ? "/" + encodeURIComponent(id) : ""); }, []);
+  return [r, go];
+}
+
+/* =====================================================================
+   Composants de base
+   ===================================================================== */
+function Btn({ children, variant = "secondary", size, icon: Icon, iconRight: IconR, loading, full, className, ...rest }) {
+  return (
+    <button type="button" {...rest} disabled={rest.disabled || loading}
+      className={cx("btn", `btn-${variant}`, size && `btn-${size}`, full && "btn-full", !children && "btn-icon", loading && "is-loading", className)}>
+      {loading && <span className="spinner" />}
+      {Icon && <Icon size={size === "sm" ? 14 : 16} strokeWidth={2.2} />}
+      {children && <span>{children}</span>}
+      {IconR && <IconR size={16} strokeWidth={2.2} />}
+    </button>
+  );
+}
+const Badge = ({ tone = "neutral", children, dot }) => <span className={cx("badge", `badge-${tone}`)}>{dot && <span className="badge-dot" />}{children}</span>;
+function Field({ label, error, help, children, optional, className }) {
+  return (
+    <div className={cx("field", error && "has-error", className)}>
+      <label className="label">{label}{optional && <span className="optional"> (facultatif)</span>}</label>
+      {children}
+      {error ? <div className="field-error"><AlertCircle size={14} />{error}</div> : help ? <div className="help">{help}</div> : null}
+    </div>
+  );
+}
+function Input({ icon: Icon, suffix, size, className, ...rest }) {
+  return (
+    <div className={cx("input-wrap", size === "lg" && "input-lg", className)}>
+      {Icon && <Icon size={16} className="input-icon" />}
+      <input className="input" {...rest} />
+      {suffix && <span className="input-affix">{suffix}</span>}
+    </div>
+  );
+}
+function Stepper({ value, onChange, min = 1, max = 99 }) {
+  return (
+    <div className="stepper">
+      <button type="button" onClick={() => onChange(Math.max(min, value - 1))} disabled={value <= min} aria-label="Diminuer"><Minus size={14} /></button>
+      <input value={value} inputMode="numeric" aria-label="Quantité" onChange={(e) => { const n = parseInt(e.target.value.replace(/\D/g, ""), 10); onChange(Math.min(max, Math.max(min, isNaN(n) ? min : n))); }} />
+      <button type="button" onClick={() => onChange(Math.min(max, value + 1))} disabled={value >= max} aria-label="Augmenter"><Plus size={14} /></button>
+    </div>
+  );
+}
+const ImageProduit = ({ p, className }) => (p?.image
+  ? <img className={cx("img-produit", className)} src={urlImage(p.image)} alt={p.nom} loading="lazy" />
+  : <div className={cx("img-produit img-vide", `tint-${p?.teinte ?? 6}`, className)}><span>{p?.emoji || "📦"}</span></div>);
+
+function Toasts({ items, fermer }) {
+  return createPortal(
+    <div className="toasts" role="status" aria-live="polite">
+      {items.map((t) => (
+        <div key={t.id} className={cx("toast", t.ton && `toast-${t.ton}`)}>
+          {t.ton === "critical" ? <AlertCircle size={18} className="toast-icon" /> : <CheckCircle2 size={18} className="toast-icon" />}
+          <div className="toast-text"><strong>{t.titre}</strong>{t.desc && <span>{t.desc}</span>}</div>
+          {t.action && <button className="toast-action" onClick={() => { t.action.onClick(); fermer(t.id); }}>{t.action.label}</button>}
+          <button className="toast-close" onClick={() => fermer(t.id)} aria-label="Fermer"><X size={15} /></button>
+        </div>
+      ))}
+    </div>,
+    document.body,
+  );
+}
+
+/* =====================================================================
+   En-tête, pied de page
+   ===================================================================== */
+function BandeauInfo() {
+  const { config } = useBoutique();
+  const l = config.livraison;
+  const msg = config.plateforme ? "Les produits de toutes nos boutiques · paiement à la livraison ou par Mobile Money"
+    : !config.ouverte ? "Cette boutique ne prend pas de commandes pour le moment."
+    : l.gratuite_des > 0 ? `Livraison offerte dès ${fmt(l.gratuite_des)} d'achat${l.zone ? " · " + l.zone : ""}`
+    : l.zone ? `Livraison : ${l.zone}` : "Paiement à la livraison ou par Mobile Money";
+  return <div className={cx("annonce", !config.ouverte && "fermee")}>{msg}</div>;
+}
+
+/* « Mon espace » : accès au tableau de bord de l'administrateur ou du vendeur */
+function MonEspace() {
+  const [ouvert, setOuvert] = useState(false);
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!ouvert) return;
+    const h = (e) => { if (!ref.current?.contains(e.target)) setOuvert(false); };
+    const k = (e) => e.key === "Escape" && setOuvert(false);
+    document.addEventListener("mousedown", h); addEventListener("keydown", k);
+    return () => { document.removeEventListener("mousedown", h); removeEventListener("keydown", k); };
+  }, [ouvert]);
+  return (
+    <div className="v-espace" ref={ref}>
+      <button className="btn btn-primary v-espace-btn" onClick={() => setOuvert((o) => !o)} aria-haspopup="menu" aria-expanded={ouvert}>
+        <LayoutDashboard size={16} /><span>Mon espace</span><ChevronDown size={14} />
+      </button>
+      {ouvert && (
+        <div className="v-espace-menu" role="menu">
+          <a role="menuitem" href="/admin/?espace=admin"><ShieldCheck size={17} /><span><b>Mon espace administrateur</b><small>Produits, stocks, vendeurs, finances</small></span></a>
+          <a role="menuitem" href="/admin/?espace=vendeur"><User size={17} /><span><b>Mon espace vendeur</b><small>Mes ventes et mon lien de promotion</small></span></a>
+          <div className="pop-sep" />
+          <a role="menuitem" href="#/devenir-vendeur" onClick={() => setOuvert(false)}><Crown size={17} /><span><b>Devenir vendeur</b><small>1 mois d'essai gratuit, puis pack annuel</small></span></a>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function EnTete() {
+  const { config, nbArticles, ouvrirPanier, recherche, setRecherche, go, route, bump } = useBoutique();
+  const [chercher, setChercher] = useState(false);
+  return (
+    <header className="v-header">
+      <div className="v-header-in">
+        <a href="#/" className="v-logo" onClick={() => setRecherche("")}>
+          <span className="brand-mark"><ShoppingBag size={16} strokeWidth={2.4} /></span>
+          <span className="truncate">{PLATEFORME}</span>
+        </a>
+        <div className={cx("v-search", chercher && "ouvert")}>
+          <Search size={16} className="input-icon" />
+          <input value={recherche} onChange={(e) => { setRecherche(e.target.value); if (route.page) go(""); }} placeholder="Rechercher un produit…" aria-label="Rechercher" />
+          {recherche && <button className="input-clear" onClick={() => setRecherche("")} aria-label="Effacer"><X size={13} /></button>}
+        </div>
+        <nav className="v-actions">
+          <button className="v-icon only-mobile" onClick={() => setChercher((c) => !c)} aria-label="Rechercher"><Search size={20} /></button>
+          <a href="#/devenir-vendeur" className="v-lien v-lien-or hide-sm"><Crown size={16} />Devenir vendeur</a>
+          <a href="#/mes-commandes" className="v-lien hide-sm"><Receipt size={17} />Mes commandes</a>
+          <MonEspace />
+          <button className={cx("v-icon v-panier", bump && "bump")} onClick={ouvrirPanier} aria-label={`Panier, ${nbArticles} article(s)`}>
+            <ShoppingCart size={21} />
+            {nbArticles > 0 && <span className="v-compteur">{nbArticles}</span>}
+          </button>
+        </nav>
+      </div>
+    </header>
+  );
+}
+
+function PiedDePage() {
+  const { config } = useBoutique();
+  const b = config.boutique;
+  const modes = [...config.paiements.transfert.map((t) => t.mode)];
+  return (
+    <footer className="v-footer">
+      <div className="v-footer-in">
+        <div>
+          <div className="v-logo"><span className="brand-mark"><ShoppingBag size={16} strokeWidth={2.4} /></span>{b.nom}</div>
+          {b.slogan && <p className="muted" style={{ marginTop: 8 }}>{b.slogan}</p>}
+        </div>
+        <div className="stack-sm" hidden={!b.adresse && !b.telephone && !b.whatsapp}>
+          <div className="strong">Nous contacter</div>
+          {b.adresse && <div className="row muted"><MapPin size={14} />{b.adresse}</div>}
+          {b.telephone && <a className="row" href={`tel:${b.telephone.replace(/\s/g, "")}`}><Phone size={14} />{b.telephone}</a>}
+          {b.whatsapp && <a className="row" href={`https://wa.me/${telInternational(b.whatsapp)}`} target="_blank" rel="noopener"><MessageSquare size={14} />WhatsApp</a>}
+        </div>
+        <div className="stack-sm">
+          <div className="strong">Paiements acceptés</div>
+          <div className="row" style={{ flexWrap: "wrap" }}>
+            <span className="chip-pay"><Banknote size={14} />À la livraison</span>
+            {modes.map((m) => <span key={m} className="chip-pay"><LogoOperateur mode={m} taille={18} />{m}</span>)}
+            {config.paiements.en_ligne && <span className="chip-pay"><CreditCard size={14} />Paiement en ligne</span>}
+          </div>
+        </div>
+      </div>
+      <div className="v-footer-bas">
+        <span>© {new Date().getFullYear()} {PLATEFORME}{config.plateforme ? "" : " · " + b.nom}</span>
+        <span className="row" style={{ gap: 14, flexWrap: "wrap" }}><a href="/admin/?espace=admin">Mon espace administrateur</a><a href="/admin/?espace=vendeur">Mon espace vendeur</a><a href="#/devenir-vendeur">Devenir vendeur</a></span>
+      </div>
+    </footer>
+  );
+}
+
+/* =====================================================================
+   Accueil GOUABO : vendeuses, commerciaux et packs vendeur
+   ===================================================================== */
+const photo = (id, l = 640, h = 760) => `https://images.unsplash.com/photo-${id}?w=${l}&h=${h}&fit=crop&crop=faces&q=75&auto=format`;
+const PHOTOS = {
+  comptoir: "1687422808311-a776f467a468", marche: "1773858441067-de99ed159a95", boutique: "1687422808384-c896d0efd4ab", etal: "1687422809654-579d81c29d32",
+  commercial: "1758519291037-db9ec86cda69", costume: "1676119451563-0c4a1a37e019", equipe: "1739303987830-ca19742b19bc", terrain: "1763739530599-44d1f6369a32",
+};
+const AVANTAGES_PACK = {
+  essentiel: ["Votre portail administrateur, dédié à vos produits", "Vos produits sur la page d'accueil GOUABO", "Stocks, tickets de caisse, livraisons, finances", "Espaces pour vos vendeurs, avec suivi de leurs ventes", "Campagnes SMS et e-mail lancées à la main"],
+  premium: ["Tout le pack Essentiel", "Agent Campagnes : newsletters et promotions programmées", "Agent Messages : réponses automatiques à vos clients", "Agent Alertes : SMS à vous et à votre vendeur à chaque vente", "Automatisation complète de la relation client"],
+};
+
+function HeroGouabo({ versProduits }) {
+  return (
+    <section className="g-hero">
+      <div className="g-hero-in">
+        <div className="g-hero-texte">
+          <span className="g-pastille"><Sparkles size={14} />La place de marché des vendeuses et des commerciaux</span>
+          <h1>Vendez plus.<br /><em>GOUABO s'occupe du reste.</em></h1>
+          <p>Publiez vos produits, suivez vos vendeurs, vos stocks et vos tickets de caisse depuis votre téléphone. Vos clients commandent ici, et paient à la livraison ou par Mobile Money.</p>
+          <div className="g-hero-actions">
+            <a className="g-btn g-btn-or" href="#/devenir-vendeur">Devenir vendeur — 1 mois gratuit<ArrowRight size={18} /></a>
+            <button className="g-btn g-btn-clair" onClick={versProduits}><ShoppingBag size={17} />Voir les produits</button>
+          </div>
+          <ul className="g-hero-preuves">
+            <li><Check size={15} />Essai gratuit, sans paiement</li>
+            <li><Check size={15} />Orange, MTN, Moov, Wave</li>
+            <li><Check size={15} />Agents IA en option</li>
+          </ul>
+        </div>
+        <div className="g-mosaique" aria-hidden="true">
+          <img className="g-m1" src={photo(PHOTOS.comptoir)} alt="" loading="eager" />
+          <img className="g-m2" src={photo(PHOTOS.commercial, 520, 420)} alt="" loading="eager" />
+          <img className="g-m3" src={photo(PHOTOS.marche, 520, 420)} alt="" loading="eager" />
+          <div className="g-bulle g-b1"><span className="g-bulle-ic vert"><Receipt size={15} /></span><span><b>Nouvelle vente</b><small>Ticket T-000128 · 15 000 FCFA</small></span></div>
+          <div className="g-bulle g-b2"><span className="g-bulle-ic or"><Bot size={15} /></span><span><b>Agent Alertes</b><small>SMS envoyé à la vendeuse</small></span></div>
+          <div className="g-bulle g-b3"><span className="g-bulle-ic bleu"><Truck size={15} /></span><span><b>Colis livré</b><small>Cocody · payé à la livraison</small></span></div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function PourQui() {
+  const profils = [
+    { titre: "Vendeuses", accroche: "Du marché à la boutique, vendez aussi en ligne.", img: PHOTOS.boutique, points: ["Vos articles en photo, visibles par tous les clients", "Un ticket de caisse pour chaque vente", "Vos stocks toujours à jour"] },
+    { titre: "Commerciaux", accroche: "Faites la promotion, encaissez vos ventes.", img: PHOTOS.costume, points: ["Votre lien de promotion personnel", "Chaque vente vous est attribuée", "Votre espace vendeur sur téléphone"] },
+    { titre: "Gérants et équipes", accroche: "Gardez le contrôle sur toute l'activité.", img: PHOTOS.equipe, points: ["Suivi des ventes de chaque vendeur", "Livraisons, livreurs et feuilles de route", "Finances et rentabilité"] },
+  ];
+  return (
+    <section className="g-section">
+      <div className="g-titre"><span>Pour qui ?</span><h2>Fait pour celles et ceux qui vendent</h2></div>
+      <div className="g-profils">
+        {profils.map((p, i) => (
+          <article key={p.titre} className="g-profil" style={{ "--i": i }}>
+            <div className="g-profil-photo"><img src={photo(p.img, 640, 520)} alt={p.titre} loading="lazy" /><h3>{p.titre}</h3></div>
+            <div className="g-profil-corps">
+              <p>{p.accroche}</p>
+              <ul>{p.points.map((x) => <li key={x}><Check size={15} />{x}</li>)}</ul>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function PacksVendeur() {
+  const [f, setF] = useState(null);
+  useEffect(() => { api("GET", "/api/boutique/formules").then(setF).catch(() => {}); }, []);
+  const ess = f?.essentiel || { prix: 20000, essai_jours: 30 }, pre = f?.premium || { prix: 35000 };
+  const mois = ess.essai_jours >= 28 && ess.essai_jours <= 31 ? "1 mois" : `${ess.essai_jours} jours`;
+  return (
+    <section className="g-packs" id="devenir-vendeur">
+      <div className="g-packs-in">
+        <div className="g-titre clair"><span>Devenez vendeur</span><h2>Votre portail administrateur, dédié à vos produits</h2><p>Un abonnement par an, sans commission sur vos ventes.{ess.essai_jours > 0 ? ` Commencez par ${mois} d'essai gratuit.` : ""}</p></div>
+        <div className="g-packs-grille">
+          <article className="g-pack">
+            <div className="g-pack-tete"><span className="g-pack-ic"><Store size={20} /></span><div><h3>Pack Essentiel</h3><small>Pour démarrer et vendre</small></div></div>
+            <div className="g-prix"><strong>{fmtNum(ess.prix)}</strong><span>FCFA<br />par an</span></div>
+            {ess.essai_jours > 0 && <div className="g-essai"><Clock size={15} />{mois} d'essai gratuit, puis payant</div>}
+            <ul>{AVANTAGES_PACK.essentiel.map((x) => <li key={x}><Check size={16} />{x}</li>)}<li className="non"><X size={16} />Sans agents IA</li></ul>
+            <a className="g-btn g-btn-sombre" href="/admin/?creer=1&plan=essentiel">Commencer mon essai gratuit<ArrowRight size={17} /></a>
+          </article>
+          <article className="g-pack g-pack-premium">
+            <span className="g-ruban">Le plus complet</span>
+            <div className="g-pack-tete"><span className="g-pack-ic"><Crown size={20} /></span><div><h3>Pack Premium</h3><small>Agents IA inclus</small></div></div>
+            <div className="g-prix"><strong>{fmtNum(pre.prix)}</strong><span>FCFA<br />par an</span></div>
+            <div className="g-essai"><Bot size={15} />Automatisation complète de vos clients</div>
+            <ul>{AVANTAGES_PACK.premium.map((x) => <li key={x}><Check size={16} />{x}</li>)}</ul>
+            <a className="g-btn g-btn-or" href="/admin/?creer=1&plan=premium">Choisir le pack Premium<ArrowRight size={17} /></a>
+          </article>
+        </div>
+        <div className="g-etapes">
+          {[[UserPlus, "Créez votre espace", "Votre nom, votre boutique, votre numéro : c'est ouvert en 2 minutes."], [Package, "Publiez vos produits", "Photos, prix, stocks. Ils apparaissent sur la page d'accueil."], [Smartphone, "Payez par Mobile Money", "À la fin de l'essai, réglez votre pack : GOUABO l'active pour un an."]].map(([I, t, d], i) => (
+            <div key={t}><span>{i + 1}</span><div><b><I size={15} />{t}</b><small>{d}</small></div></div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* « Écrire à la boutique » : le message arrive à l'agent Messages de la boutique (pack Premium) */
+function ContactBoutique({ slug, nomBoutique }) {
+  const { toast } = useBoutique();
+  const [f, setF] = useState({ nom: "", coordonnee: "", message: "" });
+  const [etat, setEtat] = useState(""); // "" | envoi | envoye
+  const envoyer = async (e) => {
+    e.preventDefault();
+    const c = f.coordonnee.trim();
+    setEtat("envoi");
+    try {
+      await api("POST", "/api/boutique/contact", { boutique: slug, nom: f.nom.trim(), message: f.message.trim(), ...(c.includes("@") ? { email: c } : { telephone: c }) });
+      setEtat("envoye");
+    } catch (err) { setEtat(""); toast({ titre: "Message non envoyé", desc: err.message, ton: "critical" }); }
+  };
+  return (
+    <section className="v-section g-contact">
+      <div className="g-contact-carte">
+        <div><h2><MessageSquare size={20} /> Écrire à {nomBoutique}</h2><p className="muted">Une question sur un produit, une livraison ? La boutique vous répond rapidement.</p></div>
+        {etat === "envoye" ? <div className="banner banner-success"><CheckCircle2 size={16} /><div><b>Message envoyé.</b> {nomBoutique} vous répondra très vite.</div></div> : (
+          <form onSubmit={envoyer} className="stack">
+            <div className="g-contact-champs">
+              <Field label="Votre nom"><Input icon={User} value={f.nom} onChange={(e) => setF({ ...f, nom: e.target.value })} required minLength={2} /></Field>
+              <Field label="E-mail ou téléphone" help="Pour vous répondre."><Input icon={Phone} value={f.coordonnee} onChange={(e) => setF({ ...f, coordonnee: e.target.value })} required /></Field>
+            </div>
+            <Field label="Votre message"><textarea className="textarea" rows={3} value={f.message} onChange={(e) => setF({ ...f, message: e.target.value })} required minLength={8} /></Field>
+            <div className="row" style={{ justifyContent: "flex-end" }}><Btn type="submit" variant="primary" icon={Send} loading={etat === "envoi"}>Envoyer</Btn></div>
+          </form>
+        )}
+      </div>
+    </section>
+  );
+}
+
+/* =====================================================================
+   Accueil : bannière + catalogue
+   ===================================================================== */
+function CarteProduit({ p, i }) {
+  const { ajouter, go, quantiteDans } = useBoutique();
+  const dansPanier = quantiteDans(p.id);
+  return (
+    <article className="v-carte" style={{ "--i": i }}>
+      <a href={`#/produit/${encodeURIComponent(p.id)}`} className="v-carte-media">
+        <ImageProduit p={p} />
+        {!p.disponible && <span className="v-etiquette epuise">Épuisé</span>}
+        {p.disponible && p.stock <= 5 && <span className="v-etiquette">Plus que {p.stock}</span>}
+        {p.remise > 0 && <span className="v-etiquette promo">−{p.remise} %</span>}
+      </a>
+      <div className="v-carte-corps">
+        <a href={`#/produit/${encodeURIComponent(p.id)}`} className="v-carte-nom">{p.nom}</a>
+        <a href={`#/boutique/${p.boutique_slug}`} className="v-carte-boutique"><Store size={12} />{p.boutique_nom}</a>
+        {p.description && <p className="v-carte-desc">{p.description}</p>}
+        {p.pieces_par_lot > 1 && <span className="v-lot">Lot de {p.pieces_par_lot} articles</span>}
+        <div className="v-carte-bas">
+          <span className="v-prix">{fmt(p.prix)}{p.remise > 0 && <s className="v-prix-barre">{fmt(p.prix_normal)}</s>}</span>
+          <Btn size="sm" variant={dansPanier ? "secondary" : "primary"} icon={dansPanier ? Check : Plus} disabled={!p.disponible || dansPanier >= p.stock}
+            onClick={() => ajouter(p, 1)}>{dansPanier ? `${dansPanier} au panier` : "Ajouter"}</Btn>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function PageAccueil({ slug, ancre }) {
+  const { config, boutiques, recherche, setRecherche, ...reste } = useBoutique();
+  // Page d'une boutique : uniquement ses produits ; accueil : ceux de tous les administrateurs
+  const produits = slug ? reste.produits.filter((p) => p.boutique_slug === slug) : reste.produits;
+  const avecProduits = boutiques.filter((x) => reste.produits.some((p) => p.boutique_id === x.id));
+  const [tri, setTri] = useState("nouveautes");
+  const [dispo, setDispo] = useState(false);
+  const [cat, setCat] = useState("");
+  useEffect(() => setCat(""), [slug]);
+  const catalogueRef = useRef(null);
+  // #/devenir-vendeur : on descend jusqu'aux packs
+  useEffect(() => {
+    if (!ancre) return;
+    const t = setTimeout(() => document.getElementById(ancre)?.scrollIntoView({ behavior: "smooth" }), 150);
+    return () => clearTimeout(t);
+  }, [ancre]);
+  const liste = useMemo(() => {
+    let l = produits.filter((p) => (!dispo || p.disponible) && (!cat || p.categorie === cat) && norm(p.nom + " " + p.description + " " + (p.categorie || "")).includes(norm(recherche)));
+    if (tri === "prix-asc") l = [...l].sort((a, b) => a.prix - b.prix);
+    if (tri === "prix-desc") l = [...l].sort((a, b) => b.prix - a.prix);
+    if (tri === "populaires") l = [...l].sort((a, b) => b.ventes - a.ventes);
+    // Les produits épuisés passent en fin de liste
+    return [...l.filter((p) => p.disponible), ...l.filter((p) => !p.disponible)];
+  }, [produits, recherche, tri, dispo, cat]);
+  const categories = [...new Set(produits.map((p) => p.categorie).filter(Boolean))].sort((a, b) => a.localeCompare(b, "fr"));
+  const b = config.boutique;
+  const promos = produits.filter((p) => p.remise > 0 && p.disponible);
+
+  if (slug && config.plateforme) {
+    return <div className="v-section"><div className="empty"><div className="empty-icon"><Store size={26} /></div><h3>Boutique introuvable</h3><p>Cette adresse ne correspond à aucune boutique.</p><a className="btn btn-primary" href="#/">Voir toutes les boutiques</a></div></div>;
+  }
+
+  return (
+    <>
+      {!recherche && !slug && (
+        <>
+          <HeroGouabo versProduits={() => catalogueRef.current?.scrollIntoView({ behavior: "smooth" })} />
+          <PourQui />
+          <PacksVendeur />
+        </>
+      )}
+      {!recherche && slug && (
+        <section className="v-hero">
+          <div className="v-hero-in">
+            {slug ? <a className="v-retour" href="#/"><ArrowLeft size={16} />Toutes les boutiques</a> : null}
+            <span className="v-hero-tag">{slug ? <><Store size={14} />Boutique</> : <><Sparkles size={14} />Commandez en ligne</>}</span>
+            <h1>{slug ? b.nom : `Bienvenue sur ${PLATEFORME}`}</h1>
+            <p>{slug
+              ? <>{b.slogan ? b.slogan + ". " : ""}{config.livraison.zone ? `Livraison ${config.livraison.zone}. ` : ""}Payez à la livraison ou par Mobile Money{config.paiements.en_ligne ? ", en toute sécurité" : ""}.</>
+              : <>Tous les produits de nos {avecProduits.length > 1 ? avecProduits.length + " boutiques" : "boutiques"} au même endroit. Payez à la livraison ou par Mobile Money.</>}</p>
+            <div className="row" style={{ flexWrap: "wrap", gap: 10 }}>
+              <Btn variant="brand" size="lg" iconRight={ArrowRight} onClick={() => catalogueRef.current?.scrollIntoView({ behavior: "smooth" })}>Voir les produits</Btn>
+              {b.whatsapp && <a className="btn btn-secondary btn-lg" href={`https://wa.me/${telInternational(b.whatsapp)}`} target="_blank" rel="noopener"><MessageSquare size={16} /><span>Nous écrire</span></a>}
+            </div>
+          </div>
+          <div className="v-garanties">
+            <div><Truck size={20} /><span><b>Livraison</b>{slug ? <>{config.livraison.frais ? ` ${fmt(config.livraison.frais)}` : " offerte"}{config.livraison.gratuite_des > 0 ? `, offerte dès ${fmt(config.livraison.gratuite_des)}` : ""}</> : " à domicile, selon la boutique"}</span></div>
+            <div><Smartphone size={20} /><span><b>Mobile Money</b> Orange, MTN, Moov, Wave</span></div>
+            <div><Banknote size={20} /><span><b>Paiement à la livraison</b> en espèces</span></div>
+            <div><Receipt size={20} /><span><b>Ticket de caisse</b> téléchargeable</span></div>
+          </div>
+        </section>
+      )}
+
+      {!slug && !recherche && avecProduits.length > 1 && (
+        <section className="v-section v-boutiques">
+          <div className="v-section-tete"><h2>Nos boutiques</h2></div>
+          <div className="v-boutiques-liste">
+            {avecProduits.map((x) => (
+              <a key={x.id} href={`#/boutique/${x.slug}`} className="v-boutique-carte">
+                <span className="v-boutique-logo">{x.boutique.nom.trim().slice(0, 1).toUpperCase()}</span>
+                <span className="grow"><b className="truncate">{x.boutique.nom}</b><small>{reste.produits.filter((p) => p.boutique_id === x.id).length} produit(s){x.ouverte ? "" : " · fermée"}</small></span>
+                <ChevronRight size={16} />
+              </a>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {!recherche && promos.length > 0 && (
+        <section className="v-section v-promos">
+          <div className="v-section-tete"><h2><Tag size={20} /> Promotions en cours</h2></div>
+          <div className="v-grille">{promos.map((p, i) => <CarteProduit key={p.id} p={p} i={i} />)}</div>
+        </section>
+      )}
+
+      <section className="v-section" ref={catalogueRef}>
+        <div className="v-section-tete">
+          <h2>{recherche ? `Résultats pour « ${recherche} »` : slug ? `Les produits de ${b.nom}` : "Tous les produits"}</h2>
+          <div className="row" style={{ flexWrap: "wrap" }}>
+            <label className="checkbox"><input type="checkbox" checked={dispo} onChange={(e) => setDispo(e.target.checked)} /><span className="checkbox-box"><Check size={12} strokeWidth={3} /></span><span>En stock uniquement</span></label>
+            <div className="select-wrap">
+              <select className="select" value={tri} onChange={(e) => setTri(e.target.value)} aria-label="Trier">
+                <option value="nouveautes">Nouveautés</option>
+                <option value="populaires">Meilleures ventes</option>
+                <option value="prix-asc">Prix croissant</option>
+                <option value="prix-desc">Prix décroissant</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        {categories.length > 1 && (
+          <div className="v-categories">
+            <button className={cx("chip", !cat && "on")} onClick={() => setCat("")}>Tout</button>
+            {categories.map((k) => <button key={k} className={cx("chip", cat === k && "on")} onClick={() => setCat(k)}>{k}</button>)}
+          </div>
+        )}
+        {liste.length === 0 ? (
+          <div className="empty"><div className="empty-icon"><Search size={26} /></div><h3>Aucun produit trouvé</h3><p>{recherche ? "Essayez un autre mot." : slug ? "Cette boutique n'a pas encore publié de produit." : "Aucun produit n'est encore en vente. Vous vendez ? Devenez vendeur et publiez vos produits."}</p>{recherche ? <Btn onClick={() => setRecherche("")}>Voir tous les produits</Btn> : !slug && <a className="btn btn-primary" href="#/devenir-vendeur">Devenir vendeur</a>}</div>
+        ) : (
+          <div className="v-grille">{liste.map((p, i) => <CarteProduit key={p.id} p={p} i={i} />)}</div>
+        )}
+      </section>
+      {slug && config.contact && !recherche && <ContactBoutique slug={slug} nomBoutique={b.nom} />}
+    </>
+  );
+}
+
+/* =====================================================================
+   Fiche produit
+   ===================================================================== */
+function PageProduit({ id }) {
+  const { produits, ajouter, quantiteDans, go, ouvrirPanier, config } = useBoutique();
+  const p = produits.find((x) => x.id === id);
+  const [qte, setQte] = useState(1);
+  if (!p) return <div className="v-section"><div className="empty"><div className="empty-icon"><Package size={26} /></div><h3>Produit introuvable</h3><p>Il a peut-être été retiré du catalogue.</p><Btn variant="primary" onClick={() => go("")}>Retour à la boutique</Btn></div></div>;
+  const dejaPris = quantiteDans(p.id);
+  const restant = Math.max(0, p.stock - dejaPris);
+  const autres = produits.filter((x) => x.id !== p.id && x.disponible).slice(0, 4);
+  return (
+    <div className="v-section">
+      <button className="v-retour" onClick={() => history.length > 1 ? history.back() : go("")}><ArrowLeft size={16} />Retour</button>
+      <div className="v-fiche">
+        <div className="v-fiche-media"><ImageProduit p={p} /></div>
+        <div className="v-fiche-infos">
+          <a href={`#/boutique/${p.boutique_slug}`} className="v-carte-boutique"><Store size={13} />Vendu par {p.boutique_nom}</a>
+          <h1>{p.nom}</h1>
+          <div className="v-fiche-prix">{fmt(p.prix)}{p.remise > 0 && <><s className="v-prix-barre">{fmt(p.prix_normal)}</s><span className="v-remise">−{p.remise} %</span></>}</div>
+          {p.remise > 0 && p.promo_fin && <div className="subtle">Offre valable jusqu'au {new Date(p.promo_fin).toLocaleDateString("fr-FR", { day: "numeric", month: "long" })}</div>}
+          {p.disponible ? (
+            <Badge tone={p.stock <= 5 ? "warning" : "success"} dot>{p.stock <= 5 ? `Plus que ${p.stock} en stock` : "En stock"}</Badge>
+          ) : <Badge tone="critical" dot>Épuisé</Badge>}
+          {p.description && <p className="v-fiche-desc">{p.description}</p>}
+          {p.contenu?.length > 0 && (
+            <div className="v-contenu">
+              <div className="v-contenu-titre">Ce pack contient</div>
+              <ul>{p.contenu.map((x, k) => <li key={k}><Check size={15} />{x}</li>)}</ul>
+            </div>
+          )}
+          {p.disponible && config.ouverte && (
+            <div className="stack-sm" style={{ marginTop: 8 }}>
+              <div className="row" style={{ gap: 12 }}>
+                <Stepper value={Math.min(qte, Math.max(1, restant))} onChange={setQte} max={Math.max(1, restant)} />
+                {dejaPris > 0 && <span className="subtle">{dejaPris} déjà dans votre panier</span>}
+              </div>
+              <div className="row" style={{ flexWrap: "wrap" }}>
+                <Btn variant="primary" size="lg" icon={ShoppingCart} disabled={restant <= 0} onClick={() => { ajouter(p, Math.min(qte, restant)); setQte(1); }}>Ajouter au panier</Btn>
+                <Btn variant="brand" size="lg" disabled={restant <= 0 && dejaPris === 0} onClick={() => { if (restant > 0) ajouter(p, Math.min(qte, restant), true); go("commander"); }}>Acheter maintenant</Btn>
+              </div>
+            </div>
+          )}
+          <ul className="v-rassurance">
+            <li><Truck size={16} />Livraison {config.livraison.zone || "à domicile"}{config.livraison.frais ? ` · ${fmt(config.livraison.frais)}` : ""}</li>
+            <li><Banknote size={16} />Paiement à la livraison possible</li>
+            <li><Smartphone size={16} />Orange Money, MTN MoMo, Moov Money, Wave</li>
+            <li><Receipt size={16} />Ticket de caisse téléchargeable après l'achat</li>
+          </ul>
+        </div>
+      </div>
+      {autres.length > 0 && (
+        <>
+          <h2 className="v-sous-titre">Vous aimerez aussi</h2>
+          <div className="v-grille">{autres.map((x, i) => <CarteProduit key={x.id} p={x} i={i} />)}</div>
+        </>
+      )}
+    </div>
+  );
+}
+
+/* =====================================================================
+   Panier (tiroir latéral)
+   ===================================================================== */
+function calculTotaux(lignes, config) {
+  const sousTotal = lignes.reduce((s, l) => s + l.p.prix * l.quantite, 0);
+  const l = config.livraison;
+  const frais = lignes.length === 0 ? 0 : l.gratuite_des > 0 && sousTotal >= l.gratuite_des ? 0 : l.frais;
+  return { sousTotal, frais, total: sousTotal + frais, manquePourGratuite: l.gratuite_des > 0 && l.frais > 0 ? Math.max(0, l.gratuite_des - sousTotal) : 0 };
+}
+
+function TiroirPanier() {
+  const { panierOuvert, fermerPanier, lignes, changerQuantite, retirer, configPanier: config, go } = useBoutique();
+  const [monte, setMonte] = useState(panierOuvert);
+  const [ferme, setFerme] = useState(false);
+  useEffect(() => {
+    if (panierOuvert) { setMonte(true); setFerme(false); return; }
+    if (!monte) return;
+    setFerme(true);
+    const t = setTimeout(() => { setMonte(false); setFerme(false); }, 220);
+    return () => clearTimeout(t);
+  }, [panierOuvert]);
+  useEffect(() => {
+    if (!panierOuvert) return;
+    const h = (e) => e.key === "Escape" && fermerPanier();
+    addEventListener("keydown", h);
+    return () => removeEventListener("keydown", h);
+  }, [panierOuvert]);
+  if (!monte) return null;
+  const t = calculTotaux(lignes, config);
+  return createPortal(
+    <div className={cx("overlay v-tiroir-overlay", ferme && "closing")}>
+      <div className="backdrop" onMouseDown={fermerPanier} />
+      <aside className="v-tiroir" role="dialog" aria-label="Panier">
+        <div className="modal-head"><h2>Votre panier{lignes.length ? <small className="v-panier-boutique"> · {config.boutique.nom}</small> : null}</h2><button className="icon-btn" onClick={fermerPanier} aria-label="Fermer"><X size={18} /></button></div>
+        {lignes.length === 0 ? (
+          <div className="empty" style={{ flex: 1 }}>
+            <div className="empty-icon"><ShoppingCart size={26} /></div>
+            <h3>Votre panier est vide</h3>
+            <p>Parcourez le catalogue et ajoutez vos articles.</p>
+            <Btn variant="primary" onClick={() => { fermerPanier(); go(""); }}>Continuer mes achats</Btn>
+          </div>
+        ) : (
+          <>
+            <div className="v-tiroir-lignes">
+              {t.manquePourGratuite > 0 && (
+                <div className="v-gratuite">
+                  <span>Plus que <b>{fmt(t.manquePourGratuite)}</b> pour la livraison offerte</span>
+                  <div className="progress"><span style={{ width: `${Math.min(100, (t.sousTotal / config.livraison.gratuite_des) * 100)}%` }} /></div>
+                </div>
+              )}
+              {lignes.map(({ p, quantite }) => (
+                <div key={p.id} className="v-ligne">
+                  <a href={`#/produit/${encodeURIComponent(p.id)}`} onClick={fermerPanier}><ImageProduit p={p} className="mini" /></a>
+                  <div className="grow">
+                    <div className="strong">{p.nom}</div>
+                    <div className="subtle num">{fmt(p.prix)}</div>
+                    <div className="row" style={{ marginTop: 6 }}>
+                      <Stepper value={quantite} onChange={(q) => changerQuantite(p.id, q)} max={Math.max(1, p.stock)} />
+                      <button className="icon-btn danger" onClick={() => retirer(p.id)} aria-label="Retirer"><Trash2 size={15} /></button>
+                    </div>
+                  </div>
+                  <div className="num strong">{fmt(p.prix * quantite)}</div>
+                </div>
+              ))}
+            </div>
+            <div className="v-tiroir-pied">
+              <div className="summary-line"><span>Sous-total</span><span className="num">{fmt(t.sousTotal)}</span></div>
+              <div className="summary-line"><span>Livraison</span><span className="num">{t.frais ? fmt(t.frais) : "Offerte"}</span></div>
+              <div className="summary-total"><span className="strong">Total</span><strong>{fmt(t.total)}</strong></div>
+              <Btn variant="brand" size="lg" full iconRight={ArrowRight} disabled={!config.ouverte} onClick={() => { fermerPanier(); go("commander"); }}>
+                {config.ouverte ? "Passer la commande" : "Commandes fermées"}
+              </Btn>
+            </div>
+          </>
+        )}
+      </aside>
+    </div>,
+    document.body,
+  );
+}
+
+/* =====================================================================
+   Commande : coordonnées, livraison, paiement
+   ===================================================================== */
+function PageCommander() {
+  const { lignes, configPanier: config, go, viderPanier, recharger, toast, synchroniserPanier } = useBoutique();
+  const memo = lire(CLIENT_KEY, {});
+  const [c, setC] = useState({ nom: memo.nom || "", telephone: memo.telephone || "", email: memo.email || "", adresse: memo.adresse || "", ville: memo.ville || "", instructions: "" });
+  const modes = [
+    { cle: "livraison", titre: "Paiement à la livraison", desc: "Payez en espèces ou par Mobile Money au livreur.", icone: Banknote },
+    ...(config.paiements.transfert.length ? [{ cle: "transfert", titre: "Transfert Mobile Money", desc: "Payez par le lien ou sur le numéro de la boutique, puis indiquez la référence.", icone: Smartphone }] : []),
+    ...(config.paiements.en_ligne ? [{ cle: "en_ligne", titre: "Orange Money / MTN MoMo — portail sécurisé", desc: "Entrez votre numéro, puis confirmez avec votre code secret sur votre téléphone.", icone: ShieldCheck }] : []),
+  ];
+  const [mode, setMode] = useState(modes[0].cle);
+  const [op, setOp] = useState(config.paiements.transfert[0]?.mode || "");
+  const [tr, setTr] = useState({ telephone: memo.telephone || "", reference: "" });
+  const [err, setErr] = useState({});
+  const [envoi, setEnvoi] = useState(false);
+  const [erreurGlobale, setErreurGlobale] = useState("");
+  const [consentement, setConsentement] = useState(!!memo.consentement);
+  const [apercu, setApercu] = useState(false);
+  const t = calculTotaux(lignes, config);
+  const set = (k, v) => { setC((x) => ({ ...x, [k]: v })); setErr((e) => ({ ...e, [k]: null })); };
+  const operateur = config.paiements.transfert.find((o) => o.mode === op);
+  const [portail, setPortail] = useState(false);
+
+  if (lignes.length === 0) {
+    return <div className="v-section"><div className="empty"><div className="empty-icon"><ShoppingCart size={26} /></div><h3>Votre panier est vide</h3><Btn variant="primary" onClick={() => go("")}>Voir les produits</Btn></div></div>;
+  }
+
+  const valider = async (e) => {
+    e.preventDefault();
+    const x = {};
+    if (c.nom.trim().length < 2) x.nom = "Indiquez votre nom complet.";
+    if (c.telephone.replace(/\D/g, "").length < 8) x.telephone = "Numéro de téléphone invalide.";
+    if (c.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c.email)) x.email = "Adresse e-mail invalide.";
+    if (mode === "en_ligne" && !c.email) x.email = "Obligatoire pour le paiement en ligne.";
+    if (c.adresse.trim().length < 3) x.adresse = "Indiquez le quartier, la rue ou un repère.";
+    if (mode === "transfert") {
+      if (tr.telephone.replace(/\D/g, "").length < 8) x.trTel = `Numéro ${op} qui a envoyé l'argent.`;
+      if (tr.reference.trim().length < 4) x.trRef = "ID de transaction reçu par SMS.";
+    }
+    setErr(x);
+    if (Object.keys(x).length) { document.querySelector(".has-error")?.scrollIntoView({ behavior: "smooth", block: "center" }); return; }
+    // Étape intermédiaire : récapitulatif sous forme de ticket provisoire
+    setApercu(true);
+  };
+
+  const ticketProvisoire = () => ({
+    provisoire: true, boutique: config.boutique, numero: null, date: new Date().toISOString(), statut: "en_attente", client: c.nom.trim(), canal: "en_ligne",
+    contact: c.telephone.trim(), adresse_livraison: [c.adresse.trim(), c.ville.trim()].filter(Boolean).join(", "),
+    lignes: lignes.map(({ p, quantite }) => ({ nom: p.nom, quantite, prix_unitaire: p.prix, total: p.prix * quantite, pieces_par_lot: p.pieces_par_lot || 1, articles: quantite * (p.pieces_par_lot || 1) })),
+    sous_total: t.sousTotal, frais_livraison: t.frais, total: t.total,
+    paiement: { mode: mode === "transfert" ? op : mode === "en_ligne" ? "Paiement en ligne" : "À la livraison", statut: mode === "livraison" ? "en_attente" : mode === "transfert" ? "a_verifier" : "en_cours", reference: mode === "transfert" ? tr.reference : null },
+    lien: null,
+  });
+
+  const confirmer = async () => {
+    setEnvoi(true); setErreurGlobale("");
+    ecrire(CLIENT_KEY, { nom: c.nom, telephone: c.telephone, email: c.email, adresse: c.adresse, ville: c.ville, consentement });
+    try {
+      const r = await api("POST", "/api/boutique/commandes", {
+        boutique: config.id,
+        // Commande arrivée par le lien de promotion d'un vendeur de cette boutique
+        vendeur: lire(REF_KEY, {})[config.id] || undefined,
+        client: { ...c, consentement },
+        lignes: lignes.map((l) => ({ pack_id: l.p.pid, quantite: l.quantite })),
+        paiement: mode === "transfert" ? { mode, operateur: op, telephone: tr.telephone, reference: tr.reference } : { mode },
+      });
+      ecrire(COMMANDES_KEY, [{ jeton: r.jeton, numero: r.numero, date: new Date().toISOString() }, ...lire(COMMANDES_KEY, []).filter((o) => o.jeton !== r.jeton)].slice(0, 30));
+      viderPanier();
+      recharger();
+      if (r.redirection) { location.href = r.redirection; return; }
+      sessionStorage.setItem("boutique-nouvelle", r.jeton);
+      go("commande", r.jeton);
+    } catch (e2) {
+      setEnvoi(false);
+      setApercu(false);
+      if (e2.details?.indisponibles) {
+        await recharger();
+        synchroniserPanier(e2.details.indisponibles);
+        toast({ titre: "Panier mis à jour", desc: e2.message, ton: "critical" });
+      }
+      setErreurGlobale(e2.message);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  return (
+    <form className="v-section v-checkout" onSubmit={valider} noValidate>
+      <div className="v-checkout-form">
+        <button type="button" className="v-retour" onClick={() => go("")}><ArrowLeft size={16} />Continuer mes achats</button>
+        <h1 className="v-titre">Finaliser la commande</h1>
+        <p className="muted" style={{ marginTop: -8, marginBottom: 14 }}><Store size={14} style={{ verticalAlign: -2 }} /> Commande passée auprès de <b>{config.boutique.nom}</b></p>
+        {erreurGlobale && <div className="banner banner-critical"><AlertCircle size={16} /><div>{erreurGlobale}</div></div>}
+
+        <section className="card v-etape">
+          <h2><span className="n">1</span>Vos coordonnées</h2>
+          <div className="form-grid">
+            <Field label="Nom complet" error={err.nom} className="full"><Input icon={User} value={c.nom} onChange={(e) => set("nom", e.target.value)} autoComplete="name" placeholder="Ex : Aïcha Koné" /></Field>
+            <Field label="Téléphone" error={err.telephone} help="Le livreur vous appellera sur ce numéro."><Input icon={Phone} value={c.telephone} onChange={(e) => set("telephone", e.target.value)} inputMode="tel" autoComplete="tel" placeholder="07 00 00 00 00" /></Field>
+            <Field label="E-mail" optional={mode !== "en_ligne"} error={err.email} help="Pour recevoir votre ticket de caisse par e-mail."><Input icon={Mail} value={c.email} onChange={(e) => set("email", e.target.value)} inputMode="email" autoComplete="email" placeholder="vous@exemple.com" /></Field>
+          </div>
+          <label className="checkbox v-consentement">
+            <input type="checkbox" checked={consentement} onChange={(e) => setConsentement(e.target.checked)} />
+            <span className="checkbox-box"><Check size={12} strokeWidth={3} /></span>
+            <span>J'accepte de recevoir les promotions et nouveautés de {config.boutique.nom} par SMS{c.email ? " et e-mail" : ""}. <span className="subtle">Désinscription possible à tout moment via le lien STOP.</span></span>
+          </label>
+        </section>
+
+        <section className="card v-etape">
+          <h2><span className="n">2</span>Livraison</h2>
+          <div className="form-grid">
+            <Field label="Adresse de livraison" error={err.adresse} className="full" help="Quartier, rue, point de repère."><Input icon={MapPin} value={c.adresse} onChange={(e) => set("adresse", e.target.value)} autoComplete="street-address" placeholder="Ex : Angré 8e tranche, près de la pharmacie" /></Field>
+            <Field label="Ville / commune" optional><Input value={c.ville} onChange={(e) => set("ville", e.target.value)} autoComplete="address-level2" placeholder="Ex : Cocody, Abidjan" /></Field>
+            <Field label="Instructions" optional><Input value={c.instructions} onChange={(e) => set("instructions", e.target.value)} placeholder="Ex : appeler avant de passer" /></Field>
+          </div>
+          {config.livraison.zone && <p className="subtle" style={{ marginTop: 10 }}><Truck size={13} style={{ verticalAlign: -2 }} /> {config.livraison.zone}</p>}
+        </section>
+
+        <section className="card v-etape">
+          <h2><span className="n">3</span>Paiement</h2>
+          <div className="v-modes">
+            {modes.map((m) => (
+              <label key={m.cle} className={cx("v-mode", mode === m.cle && "actif")}>
+                <input type="radio" name="mode" checked={mode === m.cle} onChange={() => setMode(m.cle)} />
+                <span className="v-mode-radio" />
+                <m.icone size={20} />
+                <span className="grow"><b>{m.titre}</b><small>{m.desc}</small></span>
+              </label>
+            ))}
+          </div>
+
+          {mode === "transfert" && operateur && (
+            <div className="pay-detail" style={{ marginTop: 12 }}>
+              <div className="row" style={{ flexWrap: "wrap", gap: 6 }}>
+                {config.paiements.transfert.map((o) => (
+                  <button type="button" key={o.mode} className={cx("pay-opt v-op", op === o.mode && "selected")} onClick={() => setOp(o.mode)}><LogoOperateur mode={o.mode} taille={24} /><span>{o.mode}</span></button>
+                ))}
+              </div>
+              {portail && operateur.lien && <PortailPaiement operateur={operateur} montant={t.total} boutique={config.boutique.nom} onFermer={() => setPortail(false)} onPaye={() => { setPortail(false); setTimeout(() => document.getElementById("id-transaction")?.focus(), 100); }} />}
+              {config.paiements.en_ligne && ["Orange Money", "MTN MoMo"].includes(operateur.mode) && (
+                <div className="banner banner-info" style={{ margin: "12px 0" }}><ShieldCheck size={16} /><div><b>Plus simple : le portail de paiement sécurisé.</b> Vous y entrez votre numéro {operateur.mode}, puis vous confirmez avec votre code secret sur votre téléphone. Votre commande est validée automatiquement.<br /><button type="button" className="link" onClick={() => setMode("en_ligne")}>Payer par le portail sécurisé →</button></div></div>
+              )}
+              <ol className="v-instructions">
+                <li>
+                  {operateur.lien && <><button type="button" className="btn btn-primary v-lien-paiement" onClick={() => setPortail(true)}><LogoOperateur mode={operateur.mode} taille={20} /><span>Payer {fmt(t.total)} avec {operateur.mode}</span></button><br /></>}
+                  {operateur.numero && <>{operateur.lien ? "ou envoyez" : "Envoyez"} <b className="num">{fmt(t.total)}</b> par <b>{operateur.mode}</b> au <b className="num">{operateur.numero}</b> <button type="button" className="link" onClick={() => navigator.clipboard?.writeText(operateur.numero.replace(/\s/g, "")).then(() => toast({ titre: "Numéro copié" }))}><Copy size={12} /> copier</button><br /></>}
+                  <span className="subtle">{operateur.lien && !operateur.numero ? `Un QR code ${operateur.mode} s'affiche : scannez-le pour payer · ` : ""}Titulaire : {operateur.titulaire}</span>
+                </li>
+                <li>Notez l'<b>ID de transaction</b> indiqué dans le SMS de confirmation.</li>
+                <li>Renseignez-le ci-dessous : nous vérifions la réception puis confirmons votre commande.</li>
+              </ol>
+              <div className="form-grid">
+                <Field label={`Numéro ${operateur.mode} utilisé`} error={err.trTel}><Input icon={Phone} value={tr.telephone} onChange={(e) => { setTr((x) => ({ ...x, telephone: e.target.value })); setErr((z) => ({ ...z, trTel: null })); }} inputMode="tel" placeholder="07 00 00 00 00" /></Field>
+                <Field label="ID de transaction" error={err.trRef}><Input id="id-transaction" value={tr.reference} onChange={(e) => { setTr((x) => ({ ...x, reference: e.target.value })); setErr((z) => ({ ...z, trRef: null })); }} placeholder="Ex : MP240929.1234.A5678" /></Field>
+              </div>
+            </div>
+          )}
+          {mode === "en_ligne" && (
+            <div className="banner banner-info" style={{ marginTop: 12 }}><ShieldCheck size={16} /><div>Vous serez redirigé vers le portail de paiement sécurisé CinetPay : vous y entrez votre numéro et le montant est repris automatiquement. Vous recevez ensuite une notification sur votre téléphone pour confirmer avec votre code secret ; votre compte n'est débité qu'après cette confirmation. Le code secret n'est jamais saisi sur ce site.{config.paiements.en_ligne_test && <><br /><b>Mode test : aucun débit réel.</b></>}</div></div>
+          )}
+          {mode === "livraison" && (
+            <div className="banner banner-success" style={{ marginTop: 12 }}><Banknote size={16} /><div>Vous paierez <b className="num">{fmt(t.total)}</b> à la réception de votre commande.</div></div>
+          )}
+        </section>
+      </div>
+
+      <aside className="v-recap card">
+        <h2 className="card-title">Récapitulatif</h2>
+        <div className="stack-sm" style={{ marginTop: 12 }}>
+          {lignes.map(({ p, quantite }) => (
+            <div key={p.id} className="row" style={{ gap: 10 }}>
+              <span className="v-recap-img"><ImageProduit p={p} className="mini" /><span className="v-recap-q">{quantite}</span></span>
+              <span className="grow truncate">{p.nom}</span>
+              <span className="num">{fmt(p.prix * quantite)}</span>
+            </div>
+          ))}
+        </div>
+        <div className="stack-sm" style={{ marginTop: 14 }}>
+          <div className="summary-line"><span>Sous-total</span><span className="num">{fmt(t.sousTotal)}</span></div>
+          <div className="summary-line"><span>Livraison</span><span className="num">{t.frais ? fmt(t.frais) : "Offerte"}</span></div>
+          <div className="summary-total"><span className="strong">Total</span><strong>{fmt(t.total)}</strong></div>
+          <Btn type="submit" variant="brand" size="lg" full icon={FileText}>Vérifier ma commande</Btn>
+          <p className="subtle" style={{ textAlign: "center" }}>Prix et disponibilités vérifiés à la validation.</p>
+        </div>
+      </aside>
+      {apercu && createPortal(
+        <div className="overlay">
+          <div className="backdrop" onMouseDown={() => !envoi && setApercu(false)} />
+          <div className="modal modal-md" role="dialog" aria-modal="true" aria-label="Récapitulatif de la commande">
+            <div className="modal-head"><h2>Récapitulatif de votre commande</h2><button type="button" className="icon-btn" onClick={() => setApercu(false)} disabled={envoi} aria-label="Fermer"><X size={18} /></button></div>
+            <div className="modal-body stack">
+              <div className="banner banner-info"><FileText size={16} /><div>Vérifiez votre ticket avant de valider. Après validation, votre ticket définitif (PDF) sera disponible au téléchargement.</div></div>
+              <TicketCaisse t={ticketProvisoire()} />
+              <div className="stack-sm subtle"><div><MapPin size={13} style={{ verticalAlign: -2 }} /> Livraison : {c.adresse}{c.ville ? ", " + c.ville : ""}</div><div><Phone size={13} style={{ verticalAlign: -2 }} /> {c.telephone}{c.email ? " · " + c.email : ""}</div></div>
+            </div>
+            <div className="modal-foot">
+              <Btn icon={ArrowLeft} onClick={() => setApercu(false)} disabled={envoi}>Modifier</Btn>
+              <Btn variant="brand" loading={envoi} icon={mode === "en_ligne" ? CreditCard : CheckCircle2} onClick={confirmer}>{mode === "en_ligne" ? `Valider et payer ${fmt(t.total)}` : "Valider la commande"}</Btn>
+            </div>
+          </div>
+        </div>,
+        document.body,
+      )}
+    </form>
+  );
+}
+
+/* =====================================================================
+   Portail de paiement d'un opérateur : QR code du lien de paiement de la boutique.
+   Le paiement se fait dans l'application de l'opérateur : aucun code secret n'est saisi ici.
+   ===================================================================== */
+function PortailPaiement({ operateur, montant, boutique, onFermer, onPaye }) {
+  useEffect(() => {
+    const k = (e) => e.key === "Escape" && onFermer();
+    addEventListener("keydown", k);
+    document.body.style.overflow = "hidden";
+    return () => { removeEventListener("keydown", k); document.body.style.overflow = ""; };
+  }, []);
+  let domaine = "";
+  try { domaine = new URL(operateur.lien).hostname; } catch { /* lien invalide : jamais proposé */ }
+  return createPortal(
+    <div className="portail-fond" onMouseDown={(e) => e.target === e.currentTarget && onFermer()}>
+      <div className="portail" role="dialog" aria-modal="true" aria-label={`Paiement ${operateur.mode}`}>
+        <button className="portail-fermer" onClick={onFermer} aria-label="Fermer"><X size={18} /></button>
+        <div className="portail-tete"><LogoOperateur mode={operateur.mode} taille={40} /><div><b>Paiement {operateur.mode}</b><small>à {boutique}</small></div></div>
+        <div className="portail-montant"><small>Montant à payer</small><strong className="num">{fmt(montant)}</strong></div>
+        <div className="portail-qr"><QrCode texte={operateur.lien} taille={220} /></div>
+        <ol className="portail-etapes">
+          <li>Ouvrez l'application <b>{operateur.mode}</b> et <b>scannez ce QR code</b>.</li>
+          <li>Entrez le montant : <b className="num">{fmt(montant)}</b>, puis validez.</li>
+          <li>Revenez ici et indiquez l'<b>ID de transaction</b> reçu.</li>
+        </ol>
+        <a className="btn btn-secondary portail-ouvrir" href={operateur.lien} target="_blank" rel="noopener noreferrer"><Smartphone size={16} /><span>Je suis sur mon téléphone : ouvrir {operateur.mode}</span></a>
+        <Btn variant="brand" full icon={CheckCircle2} onClick={onPaye}>J'ai payé, saisir l'ID de transaction</Btn>
+        <p className="portail-securite"><ShieldCheck size={14} />Le paiement se fait dans l'application {operateur.mode}{domaine ? ` (${domaine})` : ""}. Ce site ne vous demande jamais votre code secret.</p>
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
+/* =====================================================================
+   Suivi de commande + ticket
+   ===================================================================== */
+function useQr(texte) {
+  const [qr, setQr] = useState(null);
+  useEffect(() => { let ok = true; if (texte) genererQr(texte).then((q) => ok && setQr(q)).catch(() => {}); return () => { ok = false; }; }, [texte]);
+  return qr;
+}
+function QrCode({ texte, taille = 112 }) {
+  const qr = useQr(texte);
+  if (!qr) return <div className="qr-attente" style={{ width: taille, height: taille }}><span className="spinner" /></div>;
+  const n = qr.getModuleCount();
+  return <svg className="qr" width={taille} height={taille} viewBox={`-2 -2 ${n + 4} ${n + 4}`} shapeRendering="crispEdges" role="img" aria-label="QR code du ticket"><rect x="-2" y="-2" width={n + 4} height={n + 4} fill="#fff" /><path d={cheminQr(qr)} fill="#000" /></svg>;
+}
+function TicketCaisse({ t }) {
+  return (
+    <div className="receipt-wrap">
+      <div className="receipt">
+        {lignesTicket(t).map((l, i) => {
+          if (l.k === "titre") return <h3 key={i}>{l.txt}</h3>;
+          if (l.k === "centre") return <div key={i} className="r-center" style={l.gras ? { fontWeight: 700, color: "#1f2124", marginTop: 2 } : null}>{l.txt}</div>;
+          if (l.k === "sep") return <div key={i} className="r-sep" />;
+          if (l.k === "texte") return <div key={i} className="r-row"><span style={{ fontWeight: 600 }}>{l.txt}</span></div>;
+          if (l.k === "badge") return <div key={i} className="r-badge">{l.txt}</div>;
+          return <div key={i} className={cx("r-row", l.grand && "r-total")}><span>{l.g}</span><span>{l.d}</span></div>;
+        })}
+        {t.lien && <div className="r-qr"><QrCode texte={t.lien} /><div>Scannez pour retrouver<br />votre ticket</div></div>}
+        <div className="r-center" style={{ marginTop: 8 }}>{t.boutique?.message || "Merci pour votre achat !"}</div>
+      </div>
+    </div>
+  );
+}
+function ActionsTicket({ t }) {
+  const { toast } = useBoutique();
+  const [pdf, setPdf] = useState(false);
+  return (
+    <div className="ticket-actions">
+      {createPortal(<div className="print-zone"><TicketCaisse t={t} /></div>, document.body)}
+      <Btn icon={Download} loading={pdf} onClick={async () => { setPdf(true); try { await telechargerTicketPdf(t); } catch (e) { toast({ titre: "Téléchargement impossible", desc: e.message, ton: "critical" }); } setPdf(false); }}>Télécharger (PDF)</Btn>
+      <Btn icon={Printer} onClick={() => window.print()}>Imprimer</Btn>
+      {t.lien && <Btn icon={Copy} onClick={() => navigator.clipboard?.writeText(t.lien).then(() => toast({ titre: "Lien copié" }))}>Copier le lien</Btn>}
+    </div>
+  );
+}
+
+/* Ticket validé affiché en PDF dans la page (si le navigateur le permet), sinon en HTML */
+function TicketPdfApercu({ t }) {
+  const integrable = pdfIntegrable();
+  const [url, setUrl] = useState(null);
+  const [echec, setEchec] = useState(false);
+  const cle = JSON.stringify(t);
+  useEffect(() => {
+    if (!integrable) return;
+    let actif = true, u = null;
+    urlTicketPdf(t).then((x) => { u = x; if (actif) setUrl(x); else URL.revokeObjectURL(x); }).catch(() => actif && setEchec(true));
+    return () => { actif = false; if (u) URL.revokeObjectURL(u); };
+  }, [cle]);
+  if (!integrable || echec) return <TicketCaisse t={t} />;
+  if (!url) return <div className="pdf-attente"><span className="spinner" />Préparation de votre ticket PDF…</div>;
+  return <iframe className="ticket-pdf" src={url + "#view=FitH"} title={`Ticket ${t.numero} (PDF)`} />;
+}
+
+/* Désinscription des messages marketing (lien STOP des SMS / e-mails) */
+function PageStop({ jeton }) {
+  const [etat, setEtat] = useState(null);
+  const [err, setErr] = useState("");
+  const [busy, setBusy] = useState(false);
+  useEffect(() => { api("GET", `/api/boutique/stop/${encodeURIComponent(jeton)}`).then(setEtat).catch((e) => setErr(e.message)); }, [jeton]);
+  const changer = async (abonner) => {
+    setBusy(true);
+    try { const r = await api("POST", `/api/boutique/stop/${encodeURIComponent(jeton)}`, { abonner }); setEtat((s) => ({ ...s, abonne: r.abonne, fait: true })); }
+    catch (e) { setErr(e.message); }
+    finally { setBusy(false); }
+  };
+  if (err) return <div className="v-section"><div className="empty"><div className="empty-icon"><AlertCircle size={26} /></div><h3>Lien invalide</h3><p>{err}</p><a className="btn btn-primary" href="#/">Retour à la boutique</a></div></div>;
+  if (!etat) return <div className="v-section v-chargement"><span className="spinner" /></div>;
+  return (
+    <div className="v-section v-etroit">
+      <div className="card card-body stack" style={{ textAlign: "center", alignItems: "center" }}>
+        <div className="empty-icon">{etat.abonne ? <Bell size={26} /> : <BellOff size={26} />}</div>
+        <h1 className="v-titre">{etat.abonne ? "Messages de " + etat.boutique : "Vous êtes désinscrit(e)"}</h1>
+        <p className="muted">
+          {etat.abonne
+            ? `Bonjour ${etat.prenom || ""}, vous recevez actuellement nos promotions et nouveautés par SMS / e-mail.`
+            : etat.fait ? "Vous ne recevrez plus nos messages promotionnels. Vos tickets et le suivi de vos commandes restent disponibles." : `Bonjour ${etat.prenom || ""}, vous ne recevez pas nos messages promotionnels.`}
+        </p>
+        {etat.abonne
+          ? <Btn variant="primary" loading={busy} icon={BellOff} onClick={() => changer(false)}>Ne plus recevoir de messages</Btn>
+          : <Btn loading={busy} icon={Bell} onClick={() => changer(true)}>Me réabonner</Btn>}
+        <a className="link" href="#/">Retour à la boutique</a>
+      </div>
+    </div>
+  );
+}
+
+const ETAPES = [
+  { k: "en_attente", label: "Reçue", icon: Receipt },
+  { k: "confirmee", label: "Confirmée", icon: CheckCircle2 },
+  { k: "expediee", label: "En livraison", icon: Truck },
+  { k: "livree", label: "Livrée", icon: PackageCheck },
+];
+
+function PageSuivi({ jeton, ticketSeul }) {
+  const { toast, config } = useBoutique();
+  const [c, setC] = useState(null);
+  const [err, setErr] = useState("");
+  const nouvelle = useMemo(() => sessionStorage.getItem("boutique-nouvelle") === jeton, [jeton]);
+  const charger = useCallback(() => api("GET", `/api/boutique/commandes/${encodeURIComponent(jeton)}`).then((r) => { setC(r); setErr(""); }).catch((e) => setErr(e.statut === 404 ? "Cette commande est introuvable. Vérifiez le lien." : e.message)), [jeton]);
+  useEffect(() => { charger(); }, [charger]);
+  // Paiement en ligne en cours : on interroge régulièrement ; sinon, rafraîchissement lent du suivi
+  useEffect(() => {
+    if (!c) return;
+    const t = setInterval(charger, c.paiement?.statut === "en_cours" ? 5000 : 30000);
+    return () => clearInterval(t);
+  }, [c?.paiement?.statut, charger]);
+  // Message de remerciement : une seule fois, juste après la commande
+  useEffect(() => { if (nouvelle) sessionStorage.removeItem("boutique-nouvelle"); }, []);
+
+  if (err) return <div className="v-section"><div className="empty"><div className="empty-icon"><Receipt size={26} /></div><h3>Commande introuvable</h3><p>{err}</p><a className="btn btn-primary" href="#/">Retour à la boutique</a></div></div>;
+  if (!c) return <div className="v-section v-chargement"><span className="spinner" /></div>;
+
+  const ticket = { ...c, lien: lienTicket(c.jeton) };
+  if (ticketSeul) {
+    return (
+      <div className="v-section v-etroit">
+        <h1 className="v-titre" style={{ textAlign: "center" }}>Ticket de caisse</h1>
+        <p className="muted" style={{ textAlign: "center", marginBottom: 16 }}>Merci pour votre achat ! Téléchargez ou imprimez votre ticket.</p>
+        <TicketPdfApercu t={ticket} />
+        <ActionsTicket t={ticket} />
+      </div>
+    );
+  }
+
+  const annulee = c.statut === "annulee";
+  const idx = ETAPES.findIndex((e) => e.k === c.statut);
+  const sp = c.paiement?.statut;
+  const quand = (k) => c.etapes.filter((e) => e.type === "statut" && e.statut === k).pop()?.cree_le;
+  return (
+    <div className="v-section v-suivi">
+      <div className="v-suivi-tete">
+        {nouvelle && !annulee ? (
+          <>
+            <svg className="check-anim" viewBox="0 0 84 84" aria-hidden="true"><circle cx="42" cy="42" r="38" /><path d="M26 43 l11 11 l21 -23" /></svg>
+            <h1>Merci {c.client ? c.client.split(" ")[0] : ""} !</h1>
+            <p className="muted">Votre commande <b>{c.numero}</b> est enregistrée. Conservez cette page : elle vous permet de suivre votre commande.</p>
+          </>
+        ) : (
+          <>
+            <h1>Commande {c.numero}</h1>
+            <p className="muted">Passée le {fmtDate(c.date)}</p>
+          </>
+        )}
+      </div>
+
+      {/* État du paiement */}
+      {!annulee && sp === "en_cours" && (
+        <div className="banner banner-info"><Loader2 size={16} className="tourne" /><div><b>Paiement en ligne en attente de validation.</b> Validez l'opération sur votre téléphone si vous y êtes invité ; cette page se met à jour automatiquement.{c.reprendre_paiement && <><br /><a className="link" href={c.reprendre_paiement}>Reprendre le paiement</a></>}</div></div>
+      )}
+      {!annulee && sp === "a_verifier" && (
+        <div className="banner banner-warning"><Clock size={16} /><div><b>Paiement en cours de vérification.</b> Nous contrôlons la réception de votre transfert {c.paiement.mode} (réf. {c.paiement.reference}) et confirmons votre commande au plus vite.</div></div>
+      )}
+      {!annulee && sp === "en_attente" && (
+        <div className="banner banner-success"><Banknote size={16} /><div>À régler à la livraison : <b className="num">{fmt(c.total)}</b>, en espèces ou par Mobile Money.</div></div>
+      )}
+      {!annulee && sp === "payee" && (
+        <div className="banner banner-success"><CheckCircle2 size={16} /><div><b>Paiement reçu</b>{c.paiement.mode ? ` (${c.paiement.mode})` : ""}. Merci !</div></div>
+      )}
+      {annulee && (
+        <div className="banner banner-critical"><XCircle size={16} /><div><b>Commande annulée.</b> {sp === "echoue" ? "Le paiement en ligne n'a pas abouti : aucun montant n'a été débité par la boutique. Vous pouvez repasser commande." : "Contactez-nous pour toute question."}</div></div>
+      )}
+
+      <div className="v-suivi-grille">
+        <div className="stack">
+          {!annulee && (
+            <section className="card card-body">
+              <div className="card-title" style={{ marginBottom: 14 }}>Suivi</div>
+              <div className="steps">
+                {ETAPES.map((e, i) => (
+                  <div key={e.k} className={cx("step", i <= idx && "done", i === idx && "current")}>
+                    <div className="step-dot">{i < idx ? <Check size={15} strokeWidth={3} /> : <e.icon size={15} />}</div>
+                    <div className="step-label">{e.label}</div>
+                    {quand(e.k) && <div className="subtle" style={{ fontSize: 11 }}>{new Date(quand(e.k)).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}</div>}
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+          <section className="card card-body">
+            <div className="card-title" style={{ marginBottom: 10 }}>Articles</div>
+            {c.lignes.map((l, i) => (
+              <div key={i} className="row" style={{ gap: 12, padding: "8px 0", borderTop: i ? "1px solid var(--divider)" : 0 }}>
+                <ImageProduit p={l} className="mini" />
+                <div className="grow"><div className="strong">{l.nom}</div><div className="subtle num">{l.quantite} × {fmt(l.prix_unitaire)}</div></div>
+                <div className="num strong">{fmt(l.total)}</div>
+              </div>
+            ))}
+            <div className="stack-sm" style={{ marginTop: 10 }}>
+              <div className="summary-line"><span>Sous-total</span><span className="num">{fmt(c.sous_total)}</span></div>
+              <div className="summary-line"><span>Livraison</span><span className="num">{c.frais_livraison ? fmt(c.frais_livraison) : "Offerte"}</span></div>
+              <div className="summary-total"><span className="strong">Total</span><strong>{fmt(c.total)}</strong></div>
+            </div>
+          </section>
+        </div>
+        <div className="stack">
+          <section className="card card-body stack-sm">
+            <div className="card-title">Livraison</div>
+            <div className="row muted" style={{ alignItems: "flex-start" }}><MapPin size={15} style={{ marginTop: 2 }} /><span>{c.adresse_livraison || "—"}</span></div>
+            {(c.contact.whatsapp || c.contact.telephone) && <div className="pop-sep" style={{ margin: "6px 0" }} />}
+            {c.contact.whatsapp && <a className="btn btn-secondary" href={`https://wa.me/${telInternational(c.contact.whatsapp)}?text=${encodeURIComponent(`Bonjour, au sujet de ma commande ${c.numero}`)}`} target="_blank" rel="noopener"><MessageSquare size={16} /><span>Question sur ma commande</span></a>}
+            {!c.contact.whatsapp && c.contact.telephone && <a className="btn btn-secondary" href={`tel:${c.contact.telephone.replace(/\s/g, "")}`}><Phone size={16} /><span>Appeler la boutique</span></a>}
+          </section>
+          <section className="card card-body">
+            <div className="card-title" style={{ marginBottom: 10 }}>Ticket de caisse</div>
+            {nouvelle ? <TicketPdfApercu t={ticket} /> : <details className="ticket-apercu" open={sp === "payee"}><summary>Afficher le ticket</summary><TicketCaisse t={ticket} /></details>}
+            <div style={{ marginTop: 10 }}><ActionsTicket t={ticket} /></div>
+          </section>
+        </div>
+      </div>
+      <div className="row" style={{ justifyContent: "center", marginTop: 24 }}><a className="btn btn-secondary" href="#/"><ArrowLeft size={16} /><span>Retour à la boutique</span></a></div>
+    </div>
+  );
+}
+
+function PageMesCommandes() {
+  const [liste, setListe] = useState(null);
+  useEffect(() => {
+    const mes = lire(COMMANDES_KEY, []);
+    Promise.all(mes.map((o) => api("GET", `/api/boutique/commandes/${encodeURIComponent(o.jeton)}`).then((r) => ({ ...o, r })).catch(() => null)))
+      .then((l) => setListe(l.filter(Boolean)));
+  }, []);
+  const statutTxt = { en_attente: "Reçue", confirmee: "Confirmée", expediee: "En livraison", livree: "Livrée", annulee: "Annulée" };
+  const ton = { livree: "success", annulee: "critical", expediee: "magic", confirmee: "info", en_attente: "warning" };
+  return (
+    <div className="v-section v-etroit">
+      <h1 className="v-titre">Mes commandes</h1>
+      <p className="muted" style={{ marginBottom: 16 }}>Les commandes passées depuis cet appareil.</p>
+      {!liste ? <div className="v-chargement"><span className="spinner" /></div> : liste.length === 0 ? (
+        <div className="empty"><div className="empty-icon"><Receipt size={26} /></div><h3>Aucune commande</h3><p>Vos commandes apparaîtront ici.</p><a className="btn btn-primary" href="#/">Découvrir la boutique</a></div>
+      ) : (
+        <div className="card">
+          {liste.map((o, i) => (
+            <a key={o.jeton} className="list-item" href={`#/commande/${o.jeton}`} style={{ animation: `fadeUp .35s ${i * 40}ms var(--ease-out) both` }}>
+              <ImageProduit p={o.r.lignes[0]} className="mini" />
+              <div className="grow">
+                <div className="row-between"><span className="strong">{o.r.numero}</span><span className="num strong">{fmt(o.r.total)}</span></div>
+                <div className="row-between"><span className="subtle">{fmtDate(o.r.date)} · {o.r.lignes.reduce((s, l) => s + l.quantite, 0)} article(s)</span><Badge tone={ton[o.r.statut]} dot>{statutTxt[o.r.statut]}</Badge></div>
+              </div>
+              <ChevronRight size={16} className="muted" />
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* =====================================================================
+   Application
+   ===================================================================== */
+function App() {
+  const [route, go] = useRoute();
+  const [boutiques, setBoutiques] = useState(null);
+  const [produits, setProduits] = useState([]);
+  const [erreur, setErreur] = useState("");
+  const [panier, setPanier] = useState(() => lire(PANIER_KEY, []));
+  const [panierOuvert, setPanierOuvert] = useState(false);
+  const [recherche, setRecherche] = useState("");
+  const [toasts, setToasts] = useState([]);
+  const [bump, setBump] = useState(false);
+
+  const toast = useCallback((t) => {
+    const id = Math.random().toString(36).slice(2);
+    setToasts((s) => [...s.slice(-2), { ...t, id }]);
+    setTimeout(() => setToasts((s) => s.filter((x) => x.id !== id)), t.duree || 3800);
+  }, []);
+  const fermerToast = useCallback((id) => setToasts((s) => s.filter((x) => x.id !== id)), []);
+
+  const recharger = useCallback(async () => {
+    const [b, liste] = await Promise.all([api("GET", "/api/boutique/boutiques"), api("GET", "/api/boutique/produits")]);
+    // id = clé unique sur la plateforme ; pid = identifiant du produit dans sa boutique
+    const p = liste.map((x) => ({ ...x, pid: x.id, id: x.cle }));
+    setBoutiques(b); setProduits(p);
+    return p;
+  }, []);
+  useEffect(() => { recharger().catch((e) => setErreur(e.message)); }, []);
+  // Stock et prix à jour quand le client revient sur l'onglet
+  useEffect(() => { const h = () => document.visibilityState === "visible" && recharger().catch(() => {}); document.addEventListener("visibilitychange", h); return () => document.removeEventListener("visibilitychange", h); }, []);
+  useEffect(() => { ecrire(PANIER_KEY, panier); }, [panier]);
+
+  // Lignes du panier avec les données produit à jour (produit retiré → ligne ignorée)
+  const lignes = useMemo(() => panier.map((l) => ({ p: produits.find((p) => p.id === l.id), quantite: l.quantite })).filter((l) => l.p && l.p.disponible)
+    .map((l) => ({ ...l, quantite: Math.min(l.quantite, l.p.stock) })), [panier, produits]);
+  const nbArticles = lignes.reduce((s, l) => s + l.quantite, 0);
+  const quantiteDans = (id) => panier.find((l) => l.id === id)?.quantite || 0;
+
+  // Réglages en vigueur : ceux de la boutique consultée (page boutique, fiche produit) et ceux de la boutique du panier
+  const configDe = (id) => (boutiques || []).find((b) => b.id === id) || CONFIG_PLATEFORME;
+  const boutiqueVue = route.page === "boutique" ? (boutiques || []).find((b) => b.slug === route.id)?.id
+    : route.page === "produit" ? produits.find((p) => p.id === route.id)?.boutique_id : null;
+  const config = configDe(boutiqueVue);
+  const configPanier = configDe(lignes[0]?.p.boutique_id);
+  useEffect(() => { document.title = config.plateforme ? `${PLATEFORME} — toutes nos boutiques` : `${config.boutique.nom} — ${PLATEFORME}`; }, [config.id, config.boutique.nom]);
+  // Arrivée par le lien de promotion d'un vendeur : on s'en souvient pour lui attribuer la commande
+  useEffect(() => {
+    if (route.page === "boutique" && route.vendeur && boutiqueVue && /^[A-Za-z0-9_-]{6,40}$/.test(route.vendeur)) ecrire(REF_KEY, { ...lire(REF_KEY, {}), [boutiqueVue]: route.vendeur });
+  }, [route.page, route.vendeur, boutiqueVue]);
+
+  const ajouter = (p, q, silencieux) => {
+    // Une commande = une boutique : changer de boutique remplace le panier
+    const autre = lignes[0] && lignes[0].p.boutique_id !== p.boutique_id ? lignes[0].p.boutique_nom : null;
+    if (autre && !window.confirm(`Votre panier contient des articles de « ${autre} ».\n\nUne commande ne concerne qu'une seule boutique : vider le panier et ajouter cet article de « ${p.boutique_nom} » ?`)) return;
+    setPanier((s) => {
+      if (autre) return [{ id: p.id, quantite: Math.min(p.stock, q) }];
+      const actuel = s.find((l) => l.id === p.id)?.quantite || 0;
+      const nouvelle = Math.min(p.stock, actuel + q);
+      return actuel ? s.map((l) => (l.id === p.id ? { ...l, quantite: nouvelle } : l)) : [...s, { id: p.id, quantite: nouvelle }];
+    });
+    setBump(true); setTimeout(() => setBump(false), 450);
+    if (!silencieux) toast({ titre: "Ajouté au panier", desc: `${q} × ${p.nom}`, action: { label: "Voir le panier", onClick: () => setPanierOuvert(true) } });
+  };
+  const changerQuantite = (id, q) => setPanier((s) => s.map((l) => (l.id === id ? { ...l, quantite: q } : l)));
+  const retirer = (id) => setPanier((s) => s.filter((l) => l.id !== id));
+  const viderPanier = () => setPanier([]);
+  const synchroniserPanier = (indispo) => setPanier((s) => s.map((l) => { const x = indispo.find((i) => l.id.endsWith("." + i.pack_id)); return x ? { ...l, quantite: x.disponible } : l; }).filter((l) => l.quantite > 0));
+
+  if (erreur) return <div className="splash"><div className="empty"><div className="empty-icon"><AlertTriangle size={26} /></div><h3>Site momentanément indisponible</h3><p>{erreur}</p><Btn variant="primary" onClick={() => location.reload()}>Réessayer</Btn></div></div>;
+  if (!boutiques) return <div className="splash"><span className="brand-mark splash-mark"><ShoppingBag size={22} strokeWidth={2.4} /></span><span className="spinner" /></div>;
+
+  const ctx = {
+    config, configPanier, boutiques, produits, route, go, lignes, nbArticles, quantiteDans, ajouter, changerQuantite, retirer, viderPanier, synchroniserPanier, recharger,
+    panierOuvert, ouvrirPanier: () => setPanierOuvert(true), fermerPanier: () => setPanierOuvert(false), recherche, setRecherche, toast, bump,
+  };
+
+  let page;
+  switch (route.page) {
+    case "produit": page = <PageProduit id={route.id} />; break;
+    case "commander": page = <PageCommander />; break;
+    case "commande": page = <PageSuivi jeton={route.id} key={route.id} />; break;
+    case "recu": page = <PageSuivi jeton={route.id} key={"r" + route.id} ticketSeul />; break;
+    case "mes-commandes": page = <PageMesCommandes />; break;
+    case "stop": page = <PageStop jeton={route.id} />; break;
+    case "boutique": page = <PageAccueil slug={route.id} />; break;
+    case "devenir-vendeur": page = <PageAccueil ancre="devenir-vendeur" />; break;
+    default: page = <PageAccueil />;
+  }
+
+  return (
+    <Ctx.Provider value={ctx}>
+      <BandeauInfo />
+      <EnTete />
+      <main className="v-main" key={route.page + (route.id || "")}>{page}</main>
+      <PiedDePage />
+      <TiroirPanier />
+      {nbArticles > 0 && route.page !== "commander" && (
+        <button className="v-barre-panier only-mobile" onClick={() => setPanierOuvert(true)}>
+          <ShoppingCart size={18} /><span>{nbArticles} article{nbArticles > 1 ? "s" : ""}</span><b className="num">{fmt(calculTotaux(lignes, configPanier).sousTotal)}</b><ArrowRight size={16} />
+        </button>
+      )}
+      <Toasts items={toasts} fermer={fermerToast} />
+    </Ctx.Provider>
+  );
+}
+
+createRoot(document.getElementById("root")).render(<App />);
