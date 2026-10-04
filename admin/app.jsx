@@ -5469,7 +5469,13 @@ function AuthScreen({ onSuccess, mode }) {
 
   useEffect(() => {
     if (!enLigne) return;
-    apiFetch("GET", "/api/auth/etat").then((r) => { setCodeRequis(!!r.code_invitation); setComptesTest(r.comptes_test || []); }).catch(() => {});
+    apiFetch("GET", "/api/auth/etat").then((r) => {
+      setCodeRequis(!!r.code_invitation); setComptesTest(r.comptes_test || []);
+      // ?demo=premium | essentiel | essai : ouvre directement la boutique de test de ce pack
+      const demo = params.get("demo");
+      const c = demo && (r.comptes_test || []).find((x) => x.role === "admin" && x.pack === demo);
+      if (c) entrer(c);
+    }).catch(() => {});
     apiFetch("GET", "/api/boutique/formules").then(setFormules).catch(() => {});
   }, []);
 
@@ -5591,7 +5597,7 @@ function AuthScreen({ onSuccess, mode }) {
                   {[...comptesTest].sort((a, b) => (a.role === espace ? -1 : 0) - (b.role === espace ? -1 : 0)).map((c) => (
                     <button type="button" key={c.telephone} className="compte-test" disabled={busy} onClick={() => entrer(c)}>
                       <span className={cx("todo-icon", c.role === "admin" ? "tint-4" : "tint-0")}>{c.role === "admin" ? <ShieldCheck size={15} /> : <User size={15} />}</span>
-                      <span className="grow"><b>{c.role === "admin" ? "Administrateur" : "Vendeur"} · {c.boutique}</b><small>{c.nom.replace(/ \(.*\)$/, "")} · {c.telephone}</small></span>
+                      <span className="grow"><b>{c.role === "admin" ? "Administrateur" : "Vendeur"} · {c.boutique}</b><small>{c.nom.replace(/ \(.*\)$/, "")} · {c.telephone}</small>{c.pack_libelle && <small className={cx("pack-test", c.pack === "premium" && "premium")}>{c.pack_libelle}</small>}</span>
                       <ChevronRight size={15} />
                     </button>
                   ))}

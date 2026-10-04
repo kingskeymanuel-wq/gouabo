@@ -260,12 +260,23 @@ const AVANTAGES_PACK = {
 };
 
 function HeroGouabo({ versProduits }) {
+  const mosaique = useRef(null);
+  useEffect(() => {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const el = mosaique.current;
+    let x = 0, y = 0, image = 0;
+    const appliquer = () => { image = 0; el?.style.setProperty("--px", x.toFixed(3)); el?.style.setProperty("--py", (y + Math.min(scrollY, 600) / 600).toFixed(3)); };
+    const demander = () => { if (!image) image = requestAnimationFrame(appliquer); };
+    const souris = (e) => { x = e.clientX / innerWidth - 0.5; y = e.clientY / innerHeight - 0.5; demander(); };
+    addEventListener("mousemove", souris, { passive: true }); addEventListener("scroll", demander, { passive: true });
+    return () => { removeEventListener("mousemove", souris); removeEventListener("scroll", demander); cancelAnimationFrame(image); };
+  }, []);
   return (
     <section className="g-hero">
       <div className="g-hero-in">
         <div className="g-hero-texte">
           <span className="g-pastille"><Sparkles size={14} />La place de marché des vendeuses et des commerciaux</span>
-          <h1>Vendez plus.<br /><em>GOUABO s'occupe du reste.</em></h1>
+          <h1><span className="g-mot">Vendez</span> <span className="g-mot" style={{ "--m": 1 }}>plus.</span><br /><em><span className="g-mot" style={{ "--m": 2 }}>GOUABO</span> <span className="g-mot" style={{ "--m": 3 }}>s'occupe</span> <span className="g-mot" style={{ "--m": 4 }}>du reste.</span></em></h1>
           <p>Publiez vos produits, suivez vos vendeurs, vos stocks et vos tickets de caisse depuis votre téléphone. Vos clients commandent ici, et paient à la livraison ou par Mobile Money.</p>
           <div className="g-hero-actions">
             <a className="g-btn g-btn-or" href="#/devenir-vendeur">Devenir vendeur — 1 mois gratuit<ArrowRight size={18} /></a>
@@ -277,7 +288,7 @@ function HeroGouabo({ versProduits }) {
             <li><Check size={15} />Agents IA en option</li>
           </ul>
         </div>
-        <div className="g-mosaique" aria-hidden="true">
+        <div className="g-mosaique" aria-hidden="true" ref={mosaique}>
           <img className="g-m1" src={photo(PHOTOS.comptoir)} alt="" loading="eager" />
           <img className="g-m2" src={photo(PHOTOS.commercial, 520, 420)} alt="" loading="eager" />
           <img className="g-m3" src={photo(PHOTOS.marche, 520, 420)} alt="" loading="eager" />
@@ -316,7 +327,13 @@ function PourQui() {
 
 function PacksVendeur() {
   const [f, setF] = useState(null);
-  useEffect(() => { api("GET", "/api/boutique/formules").then(setF).catch(() => {}); }, []);
+  const [demos, setDemos] = useState([]);
+  useEffect(() => {
+    api("GET", "/api/boutique/formules").then(setF).catch(() => {});
+    // Boutiques de test : une démonstration par pack (absentes sur une installation réelle)
+    api("GET", "/api/auth/etat").then((r) => setDemos((r.comptes_test || []).filter((c) => c.role === "admin"))).catch(() => {});
+  }, []);
+  const demo = (pack) => demos.find((c) => c.pack === pack);
   const ess = f?.essentiel || { prix: 20000, essai_jours: 30 }, pre = f?.premium || { prix: 35000 };
   const mois = ess.essai_jours >= 28 && ess.essai_jours <= 31 ? "1 mois" : `${ess.essai_jours} jours`;
   return (
@@ -330,6 +347,7 @@ function PacksVendeur() {
             {ess.essai_jours > 0 && <div className="g-essai"><Clock size={15} />{mois} d'essai gratuit, puis payant</div>}
             <ul>{AVANTAGES_PACK.essentiel.map((x) => <li key={x}><Check size={16} />{x}</li>)}<li className="non"><X size={16} />Sans agents IA</li></ul>
             <a className="g-btn g-btn-sombre" href="/admin/?creer=1&plan=essentiel">Commencer mon essai gratuit<ArrowRight size={17} /></a>
+            {demo("essentiel") && <a className="g-demo" href="/admin/?demo=essentiel"><LayoutDashboard size={15} />Voir la démonstration du pack Essentiel</a>}
           </article>
           <article className="g-pack g-pack-premium">
             <span className="g-ruban">Le plus complet</span>
@@ -338,8 +356,14 @@ function PacksVendeur() {
             <div className="g-essai"><Bot size={15} />Automatisation complète de vos clients</div>
             <ul>{AVANTAGES_PACK.premium.map((x) => <li key={x}><Check size={16} />{x}</li>)}</ul>
             <a className="g-btn g-btn-or" href="/admin/?creer=1&plan=premium">Choisir le pack Premium<ArrowRight size={17} /></a>
+            {demo("premium") && <a className="g-demo" href="/admin/?demo=premium"><LayoutDashboard size={15} />Voir la démonstration du pack Premium</a>}
           </article>
         </div>
+        {demos.length > 0 && (
+          <div className="g-demos">
+            {demos.map((c) => <a key={c.telephone} className="g-demo-puce" href={`/admin/?demo=${c.pack}`}><Store size={14} />Démo : {c.boutique} — {c.pack_libelle}</a>)}
+          </div>
+        )}
         <div className="g-etapes">
           {[[UserPlus, "Créez votre espace", "Votre nom, votre boutique, votre numéro : c'est ouvert en 2 minutes."], [Package, "Publiez vos produits", "Photos, prix, stocks. Ils apparaissent sur la page d'accueil."], [Smartphone, "Payez par Mobile Money", "À la fin de l'essai, réglez votre pack : GOUABO l'active pour un an."]].map(([I, t, d], i) => (
             <div key={t}><span>{i + 1}</span><div><b><I size={15} />{t}</b><small>{d}</small></div></div>
@@ -1173,8 +1197,36 @@ function PageMesCommandes() {
 /* =====================================================================
    Application
    ===================================================================== */
+/* Apparition au défilement : chaque bloc entre en scène quand il devient visible */
+const CIBLES_ANIM = ".v-carte, .v-boutique-carte, .v-section-tete, .v-garanties > div, .g-profil, .g-pack, .g-etapes > div, .g-titre, .g-contact-carte";
+function useApparitions() {
+  useEffect(() => {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    document.body.classList.add("anim-pret");
+    let image = 0, lot = 0;
+    // Un bloc entre en scène dès que son haut passe dans la fenêtre ; ceux qui arrivent ensemble se suivent
+    const verifier = () => {
+      image = 0; lot = 0;
+      document.querySelectorAll(CIBLES_ANIM).forEach((el) => {
+        if (el.classList.contains("vu")) return;
+        el.dataset.anim = "1";
+        if (el.getBoundingClientRect().top < innerHeight * 0.94) { el.style.setProperty("--d", Math.min(lot++, 8) * 70 + "ms"); el.classList.add("vu"); }
+      });
+    };
+    const demander = () => { if (!image) image = requestAnimationFrame(verifier); };
+    verifier();
+    addEventListener("scroll", demander, { passive: true }); addEventListener("resize", demander);
+    const mo = new MutationObserver(demander);
+    mo.observe(document.getElementById("root"), { childList: true, subtree: true });
+    // Filet de sécurité : rien ne reste masqué si le défilement n'est pas détecté
+    const filet = setInterval(verifier, 1500);
+    return () => { removeEventListener("scroll", demander); removeEventListener("resize", demander); mo.disconnect(); clearInterval(filet); cancelAnimationFrame(image); };
+  }, []);
+}
+
 function App() {
   const [route, go] = useRoute();
+  useApparitions("");
   const [boutiques, setBoutiques] = useState(null);
   const [produits, setProduits] = useState([]);
   const [erreur, setErreur] = useState("");
