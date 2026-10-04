@@ -37,7 +37,7 @@ router.post("/paiement", adminOnly, (req, res) => {
   if (!["essentiel", "premium"].includes(req.body.formule)) return res.status(400).json({ erreur: "Choisissez une formule" });
   if (telephone.replace(/\D/g, "").length < 8) return res.status(400).json({ erreur: "Indiquez le numéro qui a envoyé le paiement" });
   if (reference.length < 4) return res.status(400).json({ erreur: "Indiquez l'ID de transaction reçu par SMS" });
-  if (abo.paiementsDe(id).some((p) => p.statut === "declare")) return res.status(409).json({ erreur: "Un paiement est déjà en attente de validation" });
+  if (abo.paiementsDe(id).some((p) => p.statut === "valide" && p.reference === reference)) return res.status(409).json({ erreur: "Ce paiement a déjà été enregistré" });
   const p = abo.declarerPaiement(id, { formule: req.body.formule, operateur: req.body.operateur, telephone, reference, auteur: req.user.nom });
   res.status(201).json({ paiement: p, abonnement: abo.etat(id) });
 });

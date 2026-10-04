@@ -89,7 +89,7 @@ function alertes(espaces) {
     if (a.statut === "expire" && a.echeance) l.push({ niveau: "important", type: premium ? "agents" : "abonnement", espace: e.id, jours: 0,
       titre: premium ? `${e.nom} : souscription Premium terminée, agents IA arrêtés` : `${e.nom} : souscription terminée, espace verrouillé`,
       detail: `Terminée le ${new Date(a.echeance).toLocaleDateString("fr-FR")}${e.administrateur ? " · " + e.administrateur.nom + " " + e.administrateur.telephone : ""}` });
-    if (a.statut === "essai" && a.jours_restants <= 7) l.push({ niveau: "info", type: "abonnement", espace: e.id, jours: a.jours_restants,
+    if (a.statut === "essai" && !a.paye && a.jours_restants <= 7) l.push({ niveau: "info", type: "abonnement", espace: e.id, jours: a.jours_restants,
       titre: `${e.nom} : essai gratuit terminé dans ${a.jours_restants} jour(s)`, detail: `Pack souhaité : ${a.formule_demandee === "premium" ? "Premium" : "Essentiel"}${e.administrateur ? " · " + e.administrateur.telephone : ""}` });
   }
   const rang = { agents: 0, abonnement: 1, service: 2 };
@@ -117,6 +117,8 @@ router.get("/tableau", (req, res) => {
       expires: compte((e) => e.abonnement.statut === "expire"),
       suspendus: compte((e) => e.abonnement.statut === "suspendu"),
       a_valider: paiements.filter((p) => p.statut === "declare").length,
+      payes: compte((e) => e.abonnement.paye),
+      non_payes: compte((e) => !e.abonnement.paye),
       encaisse: paiements.filter((p) => p.statut === "valide").reduce((s, p) => s + p.montant, 0),
     },
   });
@@ -130,6 +132,14 @@ for (const [action, valide] of [["valider", true], ["refuser", false]]) {
     res.json({ paiement: abo.traiterPaiement(p.id, valide, req.body.note), abonnement: abo.etat(p.boutique_id) });
   });
 }
+
+// Paiement que le propriétaire n'a pas reçu : annulé, la durée correspondante est retirée
+router.post("/paiements/:id/annuler", (req, res) => {
+  const p = abo.lirePaiement(req.params.id);
+  if (!p) return res.status(404).json({ erreur: "Paiement introuvable" });
+  if (p.statut !== "valide") return res.status(409).json({ erreur: "Ce paiement est déjà annulé" });
+  res.json({ paiement: abo.annulerPaiement(p.id, req.body.note), abonnement: abo.etat(p.boutique_id) });
+});
 
 // Autorisations données à la main : changement de formule (mise à niveau), prolongation, suspension, réactivation
 router.patch("/espaces/:id", (req, res) => {

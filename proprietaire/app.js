@@ -65,6 +65,7 @@
     return `<tr>
       <td><b>${e(x.nom)}</b><small>${e(x.administrateur ? x.administrateur.nom + " · " + x.administrateur.telephone : "Sans administrateur")}</small></td>
       <td>${pack ? pastille(pack, pack === "premium" ? "Premium · agents IA" : "Essentiel") : `<small>souhaite : ${e(a.formule_demandee === "premium" ? "Premium" : "Essentiel")}</small>`}</td>
+      <td>${pastille(a.paye ? "valide" : "refuse", a.paye ? "Payé" : "Non payé")}<small>${a.pack_prevu ? `${e(a.pack_prevu === "premium" ? "Premium" : "Essentiel")} démarre le ${e(date(a.pack_debut))}` : a.paye ? "abonnement en cours" : a.statut === "essai" ? "profite de l'essai gratuit" : "rien de réglé"}</small></td>
       <td>${pastille(a.statut, LIBELLES[a.statut] || a.statut)}<small>${a.statut === "expire" || a.statut === "suspendu" ? "accès verrouillé" : `jusqu'au ${e(date(fin))} · ${a.jours_restants} j`}</small></td>
       <td class="d num">${x.produits} produit(s)<small>${x.vendeurs} vendeur(s) · ${x.commandes} vente(s)</small></td>
       <td class="d num">${e(fcfa(x.chiffre_affaires))}</td>
@@ -79,10 +80,10 @@
 
   function afficher() {
     const s = t.stats, r = t.reglages;
-    const aValider = t.paiements.filter((p) => p.statut === "declare");
-    const traites = t.paiements.filter((p) => p.statut !== "declare").slice(0, 30);
-    const espaces = t.espaces.filter((x) => filtre === "tous" || (filtre === "premium" ? x.abonnement.statut === "actif" && x.abonnement.formule === "premium" : x.abonnement.statut === filtre));
-    const filtres = [["tous", "Tous", s.espaces], ["essai", "En essai", s.essai], ["actif", "Actifs", s.actifs], ["premium", "Premium", s.premium], ["expire", "Expirés", s.expires], ["suspendu", "Suspendus", s.suspendus]];
+    const aValider = t.paiements.filter((p) => p.statut === "valide").slice(0, 12);
+    const traites = t.paiements.slice(0, 40);
+    const espaces = t.espaces.filter((x) => filtre === "tous" || (filtre === "paye" ? x.abonnement.paye : filtre === "non_paye" ? !x.abonnement.paye : filtre === "premium" ? x.abonnement.statut === "actif" && x.abonnement.formule === "premium" : x.abonnement.statut === filtre));
+    const filtres = [["tous", "Tous", s.espaces], ["paye", "Ont payé", s.payes], ["non_paye", "N'ont pas payé", s.non_payes], ["essai", "En essai", s.essai], ["actif", "Actifs", s.actifs], ["premium", "Premium", s.premium], ["expire", "Expirés", s.expires], ["suspendu", "Suspendus", s.suspendus]];
     app.innerHTML = `
       <header class="tete">
         <div class="marque"><i>G</i>GOUABO <small>Portail propriétaire</small></div>
@@ -91,8 +92,8 @@
       <main class="page">
         <section class="chiffres">
           <div class="chiffre or"><span>Encaissé</span><b class="num">${e(fcfa(s.encaisse))}</b></div>
-          <div class="chiffre ${s.a_valider ? "alerte" : ""}"><span>Paiements à valider</span><b class="num">${s.a_valider}</b></div>
-          <div class="chiffre"><span>Espaces vendeurs</span><b class="num">${s.espaces}</b></div>
+          <div class="chiffre"><span>Ont payé</span><b class="num">${s.payes} / ${s.espaces}</b></div>
+          <div class="chiffre ${s.non_payes ? "alerte" : ""}"><span>N'ont pas payé</span><b class="num">${s.non_payes}</b></div>
           <div class="chiffre"><span>En essai gratuit</span><b class="num">${s.essai}</b></div>
           <div class="chiffre"><span>Abonnés actifs</span><b class="num">${s.actifs}</b></div>
           <div class="chiffre"><span>Dont Premium (IA)</span><b class="num">${s.premium}</b></div>
@@ -109,16 +110,16 @@
         </section>
 
         <section class="carte">
-          <div class="carte-tete"><div><h2>Paiements à valider</h2><p>Vérifiez la réception sur votre compte Mobile Money, puis validez : le pack est activé pour un mois.</p></div></div>
-          ${aValider.length === 0 ? `<div class="vide">Aucun paiement en attente.</div>` : aValider.map((p) => `
+          <div class="carte-tete"><div><h2>Derniers paiements reçus</h2><p>Chaque paiement est pris en compte automatiquement : le pack démarre à la fin de l'essai gratuit, ou à la suite de l'abonnement en cours. Si un paiement n'est pas arrivé sur votre compte, annulez-le.</p></div></div>
+          ${aValider.length === 0 ? `<div class="vide">Aucun paiement pour l'instant.</div>` : aValider.map((p) => `
             <div class="paiement">
               <div class="montant num">${e(fcfa(p.montant))}</div>
               <div class="qui"><b>${e(p.boutique)}</b> ${pastille(p.formule, "Pack " + (t.formules[p.formule]?.nom || p.formule))}
                 <small>${e(p.operateur || "Mobile Money")} · depuis le ${e(p.telephone)} · ID de transaction : <b>${e(p.reference)}</b></small>
-                <small>Déclaré par ${e(p.auteur || "l'administrateur")} le ${e(dateHeure(p.cree_le))}</small></div>
+                <small>Payé par ${e(p.auteur || "l'administrateur")} le ${e(dateHeure(p.cree_le))}</small></div>
               <div class="actions">
-                <button class="btn btn-rouge" data-paiement="${e(p.id)}" data-action="refuser">Refuser</button>
-                <button class="btn btn-vert" data-paiement="${e(p.id)}" data-action="valider">Valider et activer le pack</button>
+                ${pastille("valide", "Payé")}
+                <button class="btn btn-rouge" data-paiement="${e(p.id)}" data-action="annuler">Paiement non reçu : annuler</button>
               </div>
             </div>`).join("")}
         </section>
@@ -127,7 +128,7 @@
           <div class="carte-tete"><div><h2>Espaces vendeurs et autorisations</h2><p>Donnez l'accès à un pack, mettez à niveau, prolongez ou suspendez un espace.</p></div>
             <div class="filtres">${filtres.map(([k, l, n]) => `<button data-filtre="${k}" class="${filtre === k ? "on" : ""}">${l} · ${n}</button>`).join("")}</div></div>
           ${espaces.length === 0 ? `<div class="vide">Aucun espace dans cette catégorie.</div>` : `<div class="defile"><table>
-            <thead><tr><th>Espace</th><th>Pack</th><th>Statut</th><th class="d">Activité</th><th class="d">Chiffre d'affaires</th><th class="d">Autorisations</th></tr></thead>
+            <thead><tr><th>Espace</th><th>Pack</th><th>Paiement</th><th>Statut</th><th class="d">Activité</th><th class="d">Chiffre d'affaires</th><th class="d">Autorisations</th></tr></thead>
             <tbody>${espaces.map(ligneEspace).join("")}</tbody></table></div>`}
         </section>
 
@@ -172,9 +173,9 @@
 
         <section class="carte">
           <div class="carte-tete"><h2>Historique des paiements</h2></div>
-          ${traites.length === 0 ? `<div class="vide">Aucun paiement traité pour l'instant.</div>` : `<div class="defile"><table>
+          ${traites.length === 0 ? `<div class="vide">Aucun paiement pour l'instant.</div>` : `<div class="defile"><table>
             <thead><tr><th>Date</th><th>Espace</th><th>Pack</th><th class="d">Montant</th><th>Référence</th><th>Décision</th></tr></thead>
-            <tbody>${traites.map((p) => `<tr><td>${e(dateHeure(p.traite_le || p.cree_le))}</td><td><b>${e(p.boutique)}</b></td><td>${e(t.formules[p.formule]?.nom || p.formule)}</td><td class="d num">${e(fcfa(p.montant))}</td><td>${e(p.operateur || "")} · ${e(p.reference || "")}</td><td>${pastille(p.statut, p.statut === "valide" ? "Validé" : "Refusé")}${p.note ? `<small>${e(p.note)}</small>` : ""}</td></tr>`).join("")}</tbody></table></div>`}
+            <tbody>${traites.map((p) => `<tr><td>${e(dateHeure(p.traite_le || p.cree_le))}</td><td><b>${e(p.boutique)}</b></td><td>${e(t.formules[p.formule]?.nom || p.formule)}</td><td class="d num">${e(fcfa(p.montant))}</td><td>${e(p.operateur || "")} · ${e(p.reference || "")}</td><td>${pastille(p.statut, p.statut === "valide" ? "Payé" : "Annulé")}${p.note ? `<small>${e(p.note)}</small>` : ""}</td></tr>`).join("")}</tbody></table></div>`}
         </section>
       </main>`;
   }
@@ -198,12 +199,11 @@
     try {
       if (b.dataset.paiement) {
         const valider = b.dataset.action === "valider";
-        const note = valider ? "" : prompt("Motif du refus (visible par le vendeur) :", "Paiement non reçu");
+        const note = valider ? "" : prompt("Motif de l'annulation (visible par le vendeur) :", "Paiement non reçu");
         if (!valider && note === null) return;
-        if (valider && !confirm("Confirmez-vous avoir reçu ce paiement ? Le pack sera activé pour un mois.")) return;
         b.disabled = true;
         await api("POST", `/paiements/${b.dataset.paiement}/${b.dataset.action}`, { note });
-        toast(valider ? "Paiement validé : pack activé pour un mois" : "Paiement refusé");
+        toast(valider ? "Paiement validé : pack activé pour un mois" : "Paiement annulé : la durée a été retirée");
       } else if (b.dataset.espace) {
         const id = b.dataset.espace, a = b.dataset.action;
         const nom = t.espaces.find((x) => x.id === id)?.nom || "cet espace";

@@ -5050,7 +5050,7 @@ function PageAbonnement({ verrou }) {
   if (!abo) return <Card><div className="pdf-attente"><span className="spinner" />Chargement…</div></Card>;
   const a = abo.abonnement;
   const choix = formule || (a.statut === "actif" ? a.formule : a.formule_demandee) || "essentiel";
-  const attente = abo.historique.find((p) => p.statut === "declare");
+  const attente = null; // les paiements sont pris en compte automatiquement
   const ops = abo.paiement.operateurs;
   const st = STATUTS_ABO[a.statut] || STATUTS_ABO.essai;
   const fin = a.statut === "essai" ? a.essai_fin : a.echeance;
@@ -5060,7 +5060,7 @@ function PageAbonnement({ verrou }) {
     setBusy(true);
     try {
       await apiFetch("POST", "/api/abonnement/paiement", { formule: choix, operateur: f.operateur || ops[0]?.mode || "", telephone: f.telephone, reference: f.reference });
-      toast({ title: "Paiement déclaré", desc: "GOUABO le vérifie et active votre pack." });
+      toast({ title: "Paiement enregistré", desc: "Votre pack est pris en compte automatiquement." });
       setF((s) => ({ ...s, reference: "" }));
       await chargerAbo();
     } catch (err) { toast({ title: "Déclaration impossible", desc: err.message, tone: "critical" }); }
@@ -5077,7 +5077,7 @@ function PageAbonnement({ verrou }) {
             <div>
               <div className="row" style={{ gap: 8, flexWrap: "wrap" }}><strong style={{ fontSize: 16 }}>{a.statut === "essai" ? "Essai gratuit" : `Pack ${abo.formules[a.formule]?.nom || a.formule}`}</strong><Badge tone={st.tone} dot>{a.statut === "essai" ? `${a.jours_restants} jour${a.jours_restants > 1 ? "s" : ""} restant${a.jours_restants > 1 ? "s" : ""}` : st.label}</Badge></div>
               <div className="subtle">
-                {a.statut === "essai" && `Encore ${a.jours_restants} jour${a.jours_restants > 1 ? "s" : ""} d'essai, jusqu'au ${dateLongue(fin)}. Ensuite, le portail passe en payant.`}
+                {a.statut === "essai" && `Encore ${a.jours_restants} jour${a.jours_restants > 1 ? "s" : ""} d'essai, jusqu'au ${dateLongue(fin)}. ${a.paye ? `Votre pack ${abo.formules[a.pack_prevu]?.nom} est payé : il démarre automatiquement à la fin de l'essai.` : "Ensuite, le portail passe en payant."}`}
                 {a.statut === "actif" && `Valable jusqu'au ${dateLongue(fin)} (${a.jours_restants} jours).${a.agents ? " Agents IA inclus." : " Sans agents IA."}`}
                 {a.statut === "expire" && "Votre période est terminée : le portail est verrouillé et vos produits ne sont plus affichés."}
                 {a.statut === "suspendu" && "Votre espace a été suspendu par GOUABO. Contactez-nous pour le réactiver."}
@@ -5110,7 +5110,7 @@ function PageAbonnement({ verrou }) {
                     <div><span>1</span><div><b>Envoyez {fmt(abo.formules[choix].prix)}</b> sur l'un de ces numéros :
                       <div className="chips" style={{ marginTop: 6 }}>{ops.map((o) => <span key={o.mode} className="chip">{o.mode} · <b>{o.numero}</b>{o.titulaire ? ` (${o.titulaire})` : ""}</span>)}</div></div></div>
                     <div><span>2</span><div><b>Notez l'ID de transaction</b> reçu par SMS après le transfert.</div></div>
-                    <div><span>3</span><div><b>Déclarez le paiement</b> ci-dessous : GOUABO le vérifie et active votre pack pour un mois.</div></div>
+                    <div><span>3</span><div><b>Déclarez le paiement</b> ci-dessous : votre pack est pris en compte automatiquement, à la fin de votre essai ou à la suite de votre mois en cours.</div></div>
                   </div>
                 )}
                 <form onSubmit={declarer} className="stack">
@@ -5134,7 +5134,7 @@ function PageAbonnement({ verrou }) {
                   <tr key={p.id}>
                     <td>{fmtDateTime(p.cree_le)}</td><td>{abo.formules[p.formule]?.nom || p.formule}</td><td className="right num">{fmt(p.montant)}</td>
                     <td className="hide-sm muted">{p.operateur} · {p.reference}</td>
-                    <td><Badge tone={p.statut === "valide" ? "success" : p.statut === "refuse" ? "critical" : "warning"} dot>{p.statut === "valide" ? "Validé" : p.statut === "refuse" ? "Refusé" : "En vérification"}</Badge>{p.note ? <div className="cell-sub">{p.note}</div> : null}</td>
+                    <td><Badge tone={p.statut === "valide" ? "success" : p.statut === "refuse" ? "critical" : "warning"} dot>{p.statut === "valide" ? "Payé" : p.statut === "refuse" ? "Annulé" : "En vérification"}</Badge>{p.note ? <div className="cell-sub">{p.note}</div> : null}</td>
                   </tr>
                 ))}</tbody>
               </table></div>
@@ -5169,11 +5169,11 @@ function BandeauAbonnement() {
   const a = abo?.abonnement;
   // La fin d'un pack Premium (agents IA) est suivie par le portail propriétaire, pas ici
   if (!a || route.page === "abonnement" || !(a.statut === "essai" || (a.statut === "actif" && !a.agents && a.jours_restants <= 5))) return null;
-  const attente = abo.historique.some((p) => p.statut === "declare");
+  const attente = !!a.paye;
   return (
     <div className={cx("banner", a.jours_restants <= 7 ? "banner-warning" : "banner-info")} style={{ marginBottom: 16, alignItems: "center" }}>
       <Clock size={16} />
-      <div className="grow">{a.statut === "essai" ? <><b>Essai gratuit : {a.jours_restants} jour{a.jours_restants > 1 ? "s" : ""} restant{a.jours_restants > 1 ? "s" : ""}.</b> {attente ? "Votre paiement est en cours de vérification." : "Activez votre pack pour continuer sans interruption."}</> : <><b>Votre abonnement se termine dans {a.jours_restants} jour{a.jours_restants > 1 ? "s" : ""}.</b> Renouvelez-le pour garder votre portail.</>}</div>
+      <div className="grow">{a.statut === "essai" ? <><b>Essai gratuit : {a.jours_restants} jour{a.jours_restants > 1 ? "s" : ""} restant{a.jours_restants > 1 ? "s" : ""}.</b> {attente ? "Votre pack est payé : il démarre automatiquement à la fin de l'essai." : "Activez votre pack pour continuer sans interruption."}</> : <><b>Votre abonnement se termine dans {a.jours_restants} jour{a.jours_restants > 1 ? "s" : ""}.</b> Renouvelez-le pour garder votre portail.</>}</div>
       {estAdmin && !attente && <Btn size="sm" variant="primary" onClick={() => go("abonnement")}>{a.statut === "essai" ? "Activer mon pack" : "Renouveler"}</Btn>}
     </div>
   );

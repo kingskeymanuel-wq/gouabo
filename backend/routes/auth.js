@@ -95,8 +95,8 @@ router.get("/etat", (req, res) => {
   res.json({ inscription_ouverte: true, code_invitation: Boolean(CODE_INVITATION), espaces: db.listerBoutiques().length, comptes_test: donneesTest.comptesTest().map((c) => {
     // Pack de la boutique du compte, pour choisir quelle démonstration ouvrir
     const a = abo.etat(db.comptes.boutiqueDe(c.telephone));
-    const attente = abo.paiementsDe(db.comptes.boutiqueDe(c.telephone)).some((p) => p.statut === "declare");
-    return { ...c, pack: a.statut === "actif" ? a.formule : a.statut === "essai" && attente ? "essai_paiement" : a.statut, pack_libelle: a.statut === "actif" ? (a.agents ? "Pack Premium · agents IA" : "Pack Essentiel") : a.statut === "essai" ? (attente ? "Essai gratuit · paiement à valider" : "Essai gratuit") : a.statut === "suspendu" ? "Suspendu" : "Expiré" };
+    const attente = a.statut === "essai" && a.paye;
+    return { ...c, pack: a.statut === "actif" ? a.formule : a.statut === "essai" && attente ? "essai_paiement" : a.statut, pack_libelle: a.statut === "actif" ? (a.agents ? "Pack Premium · agents IA" : "Pack Essentiel") : a.statut === "essai" ? (attente ? "Essai gratuit · pack déjà payé" : "Essai gratuit") : a.statut === "suspendu" ? "Suspendu" : "Expiré" };
   }) });
 });
 

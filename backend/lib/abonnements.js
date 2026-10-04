@@ -56,11 +56,20 @@ function creer(boutiqueId, formuleDemandee = "essentiel", { jours } = {}) {
 function etat(boutiqueId) {
   const a = lire(boutiqueId) || creer(boutiqueId);
   const maintenant = Date.now();
+  // Pack payé pendant l'essai : il démarre tout seul à la fin de l'essai, pour la durée payée
+  if (a.statut === "essai" && a.echeance && new Date(a.essai_fin).getTime() <= maintenant && new Date(a.echeance).getTime() > maintenant) {
+    db.plateforme.prepare("UPDATE abonnements SET statut = 'actif', formule = ?, maj_le = ? WHERE boutique_id = ?").run(formuleValide(a.formule_demandee), new Date().toISOString(), boutiqueId);
+    return etat(boutiqueId);
+  }
   let statut = a.statut;
   const fin = statut === "essai" ? a.essai_fin : statut === "actif" ? a.echeance : null;
   if (fin && new Date(fin).getTime() < maintenant) statut = "expire";
   const acces = statut === "essai" || statut === "actif";
+  const payeEnEssai = statut === "essai" && Boolean(a.echeance);
   return {
+    // A payé : abonné en cours, ou en essai avec un pack déjà réglé qui démarrera à la fin de l'essai
+    paye: statut === "actif" || payeEnEssai,
+    pack_prevu: payeEnEssai ? formuleValide(a.formule_demandee) : null, pack_debut: payeEnEssai ? a.essai_fin : null,
     formule: a.formule, statut, formule_demandee: a.formule_demandee,
     essai_fin: a.essai_fin, echeance: a.echeance,
     jours_restants: fin && acces ? Math.max(0, Math.ceil((new Date(fin).getTime() - maintenant) / JOUR)) : 0,
@@ -85,6 +94,35 @@ function activer(boutiqueId, formule, jours = 30) {
   return modifier(boutiqueId, { formule: formuleValide(formule), statut: "actif", echeance: new Date(base + jours * JOUR).toISOString(), formule_demandee: formuleValide(formule) });
 }
 
+/**
+ * Prend en compte un paiement, sans validation manuelle :
+ *  - pendant l'essai gratuit, le pack payé démarre à la fin de l'essai ;
+ *  - sinon il démarre tout de suite, ou prolonge l'abonnement en cours à partir de son échéance.
+ */
+function payer(boutiqueId, formule, jours = 30) {
+  const a = lire(boutiqueId) || creer(boutiqueId);
+  const f = formuleValide(formule);
+  if (a.statut === "essai" && new Date(a.essai_fin).getTime() > Date.now()) {
+    const base = a.echeance && a.formule_demandee === f ? new Date(a.echeance).getTime() : new Date(a.essai_fin).getTime();
+    return modifier(boutiqueId, { echeance: new Date(base + jours * JOUR).toISOString(), formule_demandee: f });
+  }
+  return activer(boutiqueId, f, jours);
+}
+
+/** Le propriétaire annule un paiement qu'il n'a pas reçu : la durée correspondante est retirée. */
+function annulerPaiement(id, note = "", jours = 30) {
+  const p = lirePaiement(id);
+  if (!p || p.statut !== "valide") return p;
+  db.plateforme.prepare("UPDATE paiements_abonnement SET statut = 'refuse', note = ?, traite_le = ? WHERE id = ?").run(String(note || "").slice(0, 200) || "Paiement non reçu", new Date().toISOString(), id);
+  const a = lire(p.boutique_id);
+  if (a?.echeance) {
+    const fin = new Date(a.echeance).getTime() - jours * JOUR;
+    const plancher = a.statut === "essai" ? new Date(a.essai_fin).getTime() : 0;
+    modifier(p.boutique_id, { echeance: fin > plancher ? new Date(fin).toISOString() : a.statut === "essai" ? null : new Date(fin).toISOString() });
+  }
+  return lirePaiement(id);
+}
+
 /* ------------------------------------------------------------ paiements déclarés */
 const paiementsDe = (boutiqueId) => db.plateforme.prepare("SELECT * FROM paiements_abonnement WHERE boutique_id = ? ORDER BY cree_le DESC").all(boutiqueId);
 const tousLesPaiements = () => db.plateforme.prepare("SELECT * FROM paiements_abonnement ORDER BY cree_le DESC LIMIT 300").all();
@@ -95,9 +133,9 @@ function declarerPaiement(boutiqueId, { formule, operateur, telephone, reference
   const id = nanoid();
   db.plateforme.prepare(
     `INSERT INTO paiements_abonnement (id, boutique_id, formule, montant, operateur, telephone, reference, statut, auteur, cree_le)
-     VALUES (?, ?, ?, ?, ?, ?, ?, 'declare', ?, ?)`
+     VALUES (?, ?, ?, ?, ?, ?, ?, 'valide', ?, ?)`
   ).run(id, boutiqueId, f.cle, f.prix, String(operateur || "").slice(0, 40), String(telephone || "").slice(0, 30), String(reference || "").slice(0, 60), String(auteur || "").slice(0, 80), new Date().toISOString());
-  modifier(boutiqueId, { formule_demandee: f.cle });
+  payer(boutiqueId, f.cle); // pris en compte automatiquement, sans validation du propriétaire
   return lirePaiement(id);
 }
 
@@ -128,4 +166,4 @@ function premiumRequis(req, res, next) {
   res.status(403).json({ erreur: "Les agents IA sont réservés à la formule Premium.", formule_requise: "premium" });
 }
 
-module.exports = { formules, reglages, ecrireReglages, creer, etat, modifier, activer, paiementsDe, tousLesPaiements, lirePaiement, declarerPaiement, traiterPaiement, abonnementRequis, premiumRequis, formuleValide };
+module.exports = { formules, reglages, ecrireReglages, creer, etat, modifier, activer, paiementsDe, tousLesPaiements, lirePaiement, declarerPaiement, traiterPaiement, payer, annulerPaiement, abonnementRequis, premiumRequis, formuleValide };

@@ -262,7 +262,7 @@ function installer({ creerEspace, creerUtilisateur, ecrireBoutique }) {
       const p = abo.declarerPaiement(boutique.id, { formule: e.abonnement, operateur: "Wave", telephone: e.admin.telephone, reference: "DEMO-" + e.abonnement.toUpperCase(), auteur: e.admin.nom });
       abo.traiterPaiement(p.id, true, "Paiement de démonstration");
     }
-    if (e.paiementDeclare) abo.declarerPaiement(boutique.id, { formule: e.paiementDeclare, operateur: "Orange Money", telephone: e.admin.telephone, reference: "DEMO-A-VALIDER", auteur: e.admin.nom });
+    if (e.paiementDeclare) abo.declarerPaiement(boutique.id, { formule: e.paiementDeclare, operateur: "Orange Money", telephone: e.admin.telephone, reference: "DEMO-PAYE-EN-ESSAI", auteur: e.admin.nom });
   }
   db.reglages.ecrire("donnees_test", "1");
   console.log(`   Données de test installées : ${ESPACES.length} boutiques de test (désactiver : DONNEES_TEST=0)`);
