@@ -21,6 +21,7 @@ const boutiqueRoutes = require("./routes/boutique");
 const stocksRoutes = require("./routes/stocks");
 const campagnesRoutes = require("./routes/campagnes");
 const livreursRoutes = require("./routes/livreurs");
+const depensesRoutes = require("./routes/depenses");
 const abonnementRoutes = require("./routes/abonnement");
 const proprietaireRoutes = require("./routes/proprietaire");
 const agentsRoutes = require("./routes/agents");
@@ -107,6 +108,7 @@ app.use("/api/dashboard", adminOnly, dashboardRoutes);
 app.use("/api/donnees", donneesRoutes);
 app.use("/api/parametres", parametresRoutes);
 app.use("/api/livreurs", livreursRoutes);
+app.use("/api/depenses", depensesRoutes);
 
 app.use("/api", (req, res) => res.status(404).json({ erreur: "Route introuvable" }));
 
