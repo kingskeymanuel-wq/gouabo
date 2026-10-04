@@ -17,6 +17,7 @@
 const express = require("express");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
 const db = require("../db");
 const { SECRET } = require("../middleware/auth");
 const abo = require("../lib/abonnements");
@@ -32,9 +33,16 @@ if (CODE.length < 8) {
   console.log(`   Portail propriétaire : code temporaire ${CODE} (définissez PROPRIETAIRE_CODE pour le fixer)`);
 }
 
+// Le propriétaire entre avec le code de l'hébergement (PROPRIETAIRE_CODE), puis peut créer son propre
+// mot de passe dans le portail. Le code de l'hébergement reste valable comme accès de secours.
+const CLE_MDP = "proprietaire_mdp";
 router.post("/connexion", (req, res) => {
-  const a = Buffer.from(String(req.body.code || "")), b = Buffer.from(CODE);
-  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return res.status(401).json({ erreur: "Code incorrect" });
+  const saisi = String(req.body.code || "").trim();
+  const a = Buffer.from(saisi), b = Buffer.from(CODE);
+  const parCode = a.length === b.length && crypto.timingSafeEqual(a, b);
+  const empreinte = db.reglages.lire(CLE_MDP);
+  const parMdp = Boolean(empreinte) && saisi.length > 0 && bcrypt.compareSync(saisi, empreinte);
+  if (!parCode && !parMdp) return res.status(401).json({ erreur: "Code ou mot de passe incorrect" });
   res.json({ jeton: jwt.sign({ role: "proprietaire" }, SECRET, { expiresIn: "12h" }) });
 });
 
@@ -97,6 +105,7 @@ router.get("/tableau", (req, res) => {
     reglages: abo.reglages(),
     formules: abo.formules(),
     service: { ia: ia.etat(), sms: smsConfigure(), email: emailConfigure() },
+    mot_de_passe_cree: Boolean(db.reglages.lire(CLE_MDP)),
     alertes: alertes(espaces),
     espaces,
     paiements,
@@ -141,6 +150,14 @@ router.patch("/espaces/:id", (req, res) => {
     abo.modifier(b.id, { statut: a.echeance ? "actif" : "essai" });
   }
   res.json(ficheEspace(b));
+});
+
+router.put("/mot-de-passe", (req, res) => {
+  const nouveau = String(req.body.nouveau || "");
+  if (nouveau.length < 10) return res.status(400).json({ erreur: "Le mot de passe doit contenir au moins 10 caractères" });
+  if (nouveau !== String(req.body.confirmation || "")) return res.status(400).json({ erreur: "Les deux mots de passe ne correspondent pas" });
+  db.reglages.ecrire(CLE_MDP, bcrypt.hashSync(nouveau, 12));
+  res.json({ mot_de_passe_cree: true });
 });
 
 router.put("/ia", (req, res) => {

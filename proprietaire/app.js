@@ -40,7 +40,7 @@
       <div class="entree"><form id="f">
         <div class="marque"><i>G</i>GOUABO</div>
         <div><h1>Portail propriétaire</h1><p>Validation des paiements et autorisations des packs vendeurs.</p></div>
-        <label>Code d'accès<input id="code" type="password" autocomplete="current-password" autofocus /></label>
+        <label>Code d'accès ou mot de passe<input id="code" type="password" autocomplete="current-password" autofocus /></label>
         ${erreur ? `<div class="erreur">${e(erreur)}</div>` : ""}
         <button class="btn btn-or">Entrer</button>
       </form></div>`;
@@ -150,6 +150,18 @@
         </section>
 
         <section class="carte">
+          <div class="carte-tete"><div><h2>Mon mot de passe</h2><p>${t.mot_de_passe_cree ? "Vous entrez avec votre mot de passe. Vous pouvez le changer ici." : "Créez votre mot de passe pour ne plus utiliser le code de l'hébergement."}</p></div>
+            ${pastille(t.mot_de_passe_cree ? "actif" : "declare", t.mot_de_passe_cree ? "Mot de passe créé" : "À créer")}</div>
+          <form class="carte-corps" id="mdp">
+            <div class="grille">
+              <label>Nouveau mot de passe (10 caractères minimum)<input name="nouveau" type="password" autocomplete="new-password" minlength="10" required /></label>
+              <label>Confirmez le mot de passe<input name="confirmation" type="password" autocomplete="new-password" minlength="10" required /></label>
+              <label>&nbsp;<button class="btn btn-or">${t.mot_de_passe_cree ? "Changer mon mot de passe" : "Créer mon mot de passe"}</button></label>
+            </div>
+          </form>
+        </section>
+
+        <section class="carte">
           <div class="carte-tete"><div><h2>Service des agents IA</h2><p>La clé de l'API Claude (console.anthropic.com) fait rédiger les messages des packs Premium. Elle est payante à l'usage et n'est jamais affichée ici.</p></div>
             ${pastille(t.service.ia.configuree ? "actif" : "declare", t.service.ia.configuree ? `Clé active · …${t.service.ia.fin}${t.service.ia.source === "serveur" ? " (variable du serveur)" : ""}` : "Aucune clé")}</div>
           <form class="carte-corps" id="ia">
@@ -207,6 +219,11 @@
   });
 
   app.addEventListener("submit", async (ev) => {
+    if (ev.target.id === "mdp") {
+      ev.preventDefault();
+      try { await api("PUT", "/mot-de-passe", Object.fromEntries(new FormData(ev.target))); toast("Mot de passe enregistré : utilisez-le à la prochaine connexion"); await charger(); } catch (x) { toast(x.message, true); }
+      return;
+    }
     if (ev.target.id === "ia") {
       ev.preventDefault();
       const cle = new FormData(ev.target).get("cle");
