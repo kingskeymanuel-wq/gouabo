@@ -20,19 +20,11 @@ services:
       # Secrets générés par Render
       - key: JWT_SECRET
         generateValue: true
-      # À renseigner dans le tableau de bord Render (facultatif)
-      - key: PUBLIC_URL
-        sync: false
-      # Réserve la création d'espaces administrateur à ceux qui ont ce code (vide = inscription ouverte)
-      - key: CODE_INVITATION
-        sync: false
-      # Portail propriétaire (/proprietaire/) : votre code d'accès, 8 caractères minimum
+      # Code d'accès du portail propriétaire (/proprietaire/) : généré par Render,
+      # à lire dans le tableau de bord Render → Environment → PROPRIETAIRE_CODE
       - key: PROPRIETAIRE_CODE
-        sync: false
-      # Agents IA du pack Premium (clé de l'API Claude) — facultatif
-      - key: ANTHROPIC_API_KEY
-        sync: false
-      - key: CINETPAY_API_KEY
-        sync: false
-      - key: CINETPAY_API_PASSWORD
-        sync: false
+        generateValue: true
+      # Facultatif, à ajouter ensuite dans Render → Environment :
+      #   PUBLIC_URL, CODE_INVITATION, ANTHROPIC_API_KEY (agents IA),
+      #   CINETPAY_API_KEY et CINETPAY_API_PASSWORD (portail Orange Money / MTN),
+      #   SMS_PROVIDER_*, SMTP_*
