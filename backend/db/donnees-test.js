@@ -260,7 +260,9 @@ function installer({ creerEspace, creerUtilisateur, ecrireBoutique }) {
     // Formules de démonstration : une Premium, une Essentiel, une en essai, une avec paiement à valider
     if (e.abonnement) {
       const p = abo.declarerPaiement(boutique.id, { formule: e.abonnement, operateur: "Wave", telephone: e.admin.telephone, reference: "DEMO-" + e.abonnement.toUpperCase(), auteur: e.admin.nom });
-      abo.traiterPaiement(p.id, true, "Paiement de démonstration");
+      // Démonstration d'un abonné en cours : l'essai est considéré comme terminé, le pack payé est actif
+      abo.modifier(boutique.id, { essai_fin: new Date(Date.now() - 864e5).toISOString(), echeance: new Date(Date.now() + 30 * 864e5).toISOString() });
+      abo.etat(boutique.id);
     }
     if (e.paiementDeclare) abo.declarerPaiement(boutique.id, { formule: e.paiementDeclare, operateur: "Orange Money", telephone: e.admin.telephone, reference: "DEMO-PAYE-EN-ESSAI", auteur: e.admin.nom });
   }
