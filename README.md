@@ -27,16 +27,16 @@ moncommerce-complet/
 ## GOUABO : packs vendeur, portail propriétaire et agents IA
 
 GOUABO est une place de marché : chaque vendeur ouvre son espace (portail
-administrateur dédié à ses produits) et paie un pack annuel.
+administrateur dédié à ses produits) et paie un pack mensuel.
 
 | Pack | Prix | Contenu |
 |---|---|---|
-| Essentiel | 20 000 FCFA / an | Portail complet, sans agents IA. 1 mois d'essai gratuit, puis payant. |
-| Premium | 35 000 FCFA / an | Portail + agents IA et automatisation complète de la relation client. |
+| Essentiel | 20 000 FCFA / mois | Portail complet, sans agents IA. 1 mois d'essai gratuit, puis payant. |
+| Premium | 35 000 FCFA / mois | Portail + agents IA et automatisation complète de la relation client. |
 
 - **Inscription** : page d'accueil → « Devenir vendeur » → choix du pack → essai gratuit de 30 jours (sans agents).
 - **Paiement** : le vendeur envoie le montant par Mobile Money, puis déclare l'ID de transaction dans sa page **Abonnement**.
-- **Portail propriétaire** (`/proprietaire/`, code `PROPRIETAIRE_CODE`) : validation des paiements (active le pack pour un an),
+- **Portail propriétaire** (`/proprietaire/`, code `PROPRIETAIRE_CODE`) : validation des paiements (active le pack pour un mois),
   mise à niveau, prolongation, suspension / réactivation, tarifs, durée de l'essai et numéros Mobile Money.
 - **Sans essai ni pack en cours**, le portail du vendeur est verrouillé (seule la page Abonnement reste accessible) et ses produits ne sont plus affichés.
 - **Agents IA** (pack Premium, page « Agents IA ») :

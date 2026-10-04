@@ -5,7 +5,7 @@
  *
  *   POST  /api/proprietaire/connexion              { code } → { jeton }
  *   GET   /api/proprietaire/tableau                espaces, paiements, statistiques, réglages
- *   POST  /api/proprietaire/paiements/:id/valider  { note? }  → active la formule pour un an
+ *   POST  /api/proprietaire/paiements/:id/valider  { note? }  → active la formule pour un mois
  *   POST  /api/proprietaire/paiements/:id/refuser  { note? }
  *   PATCH /api/proprietaire/espaces/:id            { formule?, statut?, prolonger_jours?, activer? }
  *   PUT   /api/proprietaire/reglages               tarifs, durée d'essai, numéros Mobile Money
@@ -75,7 +75,7 @@ function alertes(espaces) {
   if (!emailConfigure()) l.push({ niveau: "info", type: "service", titre: "Aucun serveur e-mail", detail: "Les e-mails (newsletters, réponses aux clients) sont simulés." });
   for (const e of espaces) {
     const a = e.abonnement, premium = a.formule === "premium";
-    if (a.statut === "actif" && a.jours_restants <= 30) l.push({ niveau: a.jours_restants <= 7 ? "important" : "info", type: premium ? "agents" : "abonnement", espace: e.id, jours: a.jours_restants,
+    if (a.statut === "actif" && a.jours_restants <= 7) l.push({ niveau: a.jours_restants <= 3 ? "important" : "info", type: premium ? "agents" : "abonnement", espace: e.id, jours: a.jours_restants,
       titre: premium ? `${e.nom} : agents IA arrêtés dans ${a.jours_restants} jour(s)` : `${e.nom} : pack Essentiel à renouveler dans ${a.jours_restants} jour(s)`,
       detail: `Fin de souscription le ${new Date(a.echeance).toLocaleDateString("fr-FR")}${e.administrateur ? " · " + e.administrateur.nom + " " + e.administrateur.telephone : ""}` });
     if (a.statut === "expire" && a.echeance) l.push({ niveau: "important", type: premium ? "agents" : "abonnement", espace: e.id, jours: 0,
@@ -127,7 +127,7 @@ router.patch("/espaces/:id", (req, res) => {
   const b = db.boutiqueParRef(req.params.id);
   if (!b) return res.status(404).json({ erreur: "Espace introuvable" });
   const actuel = abo.etat(b.id);
-  if (req.body.activer) abo.activer(b.id, req.body.activer, Math.min(3660, Math.max(1, Math.round(Number(req.body.jours) || 365))));
+  if (req.body.activer) abo.activer(b.id, req.body.activer, Math.min(3660, Math.max(1, Math.round(Number(req.body.jours) || 30))));
   if (req.body.formule && !req.body.activer) abo.modifier(b.id, { formule: abo.formuleValide(req.body.formule) });
   if (req.body.prolonger_jours) {
     const j = Math.min(3660, Math.max(1, Math.round(Number(req.body.prolonger_jours) || 0)));

@@ -175,7 +175,7 @@ function MonEspace() {
           <a role="menuitem" href="/admin/?espace=admin"><ShieldCheck size={17} /><span><b>Mon espace administrateur</b><small>Produits, stocks, vendeurs, finances</small></span></a>
           <a role="menuitem" href="/admin/?espace=vendeur"><User size={17} /><span><b>Mon espace vendeur</b><small>Mes ventes et mon lien de promotion</small></span></a>
           <div className="pop-sep" />
-          <a role="menuitem" href="#/devenir-vendeur" onClick={() => setOuvert(false)}><Crown size={17} /><span><b>Devenir vendeur</b><small>1 mois d'essai gratuit, puis pack annuel</small></span></a>
+          <a role="menuitem" href="#/devenir-vendeur" onClick={() => setOuvert(false)}><Crown size={17} /><span><b>Devenir vendeur</b><small>1 mois d'essai gratuit, puis pack mensuel</small></span></a>
         </div>
       )}
     </div>
@@ -339,11 +339,11 @@ function PacksVendeur() {
   return (
     <section className="g-packs" id="devenir-vendeur">
       <div className="g-packs-in">
-        <div className="g-titre clair"><span>Devenez vendeur</span><h2>Votre portail administrateur, dédié à vos produits</h2><p>Un abonnement par an, sans commission sur vos ventes.{ess.essai_jours > 0 ? ` Commencez par ${mois} d'essai gratuit.` : ""}</p></div>
+        <div className="g-titre clair"><span>Devenez vendeur</span><h2>Votre portail administrateur, dédié à vos produits</h2><p>Un abonnement par mois, sans commission sur vos ventes.{ess.essai_jours > 0 ? ` Commencez par ${mois} d'essai gratuit.` : ""}</p></div>
         <div className="g-packs-grille">
           <article className="g-pack">
             <div className="g-pack-tete"><span className="g-pack-ic"><Store size={20} /></span><div><h3>Pack Essentiel</h3><small>Pour démarrer et vendre</small></div></div>
-            <div className="g-prix"><strong>{fmtNum(ess.prix)}</strong><span>FCFA<br />par an</span></div>
+            <div className="g-prix"><strong>{fmtNum(ess.prix)}</strong><span>FCFA<br />par mois</span></div>
             {ess.essai_jours > 0 && <div className="g-essai"><Clock size={15} />{mois} d'essai gratuit, puis payant</div>}
             <ul>{AVANTAGES_PACK.essentiel.map((x) => <li key={x}><Check size={16} />{x}</li>)}<li className="non"><X size={16} />Sans agents IA</li></ul>
             <a className="g-btn g-btn-sombre" href="/admin/?creer=1&plan=essentiel">Commencer mon essai gratuit<ArrowRight size={17} /></a>
@@ -352,7 +352,7 @@ function PacksVendeur() {
           <article className="g-pack g-pack-premium">
             <span className="g-ruban">Le plus complet</span>
             <div className="g-pack-tete"><span className="g-pack-ic"><Crown size={20} /></span><div><h3>Pack Premium</h3><small>Agents IA inclus</small></div></div>
-            <div className="g-prix"><strong>{fmtNum(pre.prix)}</strong><span>FCFA<br />par an</span></div>
+            <div className="g-prix"><strong>{fmtNum(pre.prix)}</strong><span>FCFA<br />par mois</span></div>
             <div className="g-essai"><Bot size={15} />Automatisation complète de vos clients</div>
             <ul>{AVANTAGES_PACK.premium.map((x) => <li key={x}><Check size={16} />{x}</li>)}</ul>
             <a className="g-btn g-btn-or" href="/admin/?creer=1&plan=premium">Choisir le pack Premium<ArrowRight size={17} /></a>
@@ -365,7 +365,7 @@ function PacksVendeur() {
           </div>
         )}
         <div className="g-etapes">
-          {[[UserPlus, "Créez votre espace", "Votre nom, votre boutique, votre numéro : c'est ouvert en 2 minutes."], [Package, "Publiez vos produits", "Photos, prix, stocks. Ils apparaissent sur la page d'accueil."], [Smartphone, "Payez par Mobile Money", "À la fin de l'essai, réglez votre pack : GOUABO l'active pour un an."]].map(([I, t, d], i) => (
+          {[[UserPlus, "Créez votre espace", "Votre nom, votre boutique, votre numéro : c'est ouvert en 2 minutes."], [Package, "Publiez vos produits", "Photos, prix, stocks. Ils apparaissent sur la page d'accueil."], [Smartphone, "Payez par Mobile Money", "À la fin de l'essai, réglez votre pack : GOUABO l'active pour un mois."]].map(([I, t, d], i) => (
             <div key={t}><span>{i + 1}</span><div><b><I size={15} />{t}</b><small>{d}</small></div></div>
           ))}
         </div>

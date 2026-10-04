@@ -6,7 +6,7 @@
  *
  * À l'inscription, tout espace démarre par l'essai gratuit (sans agents). Le vendeur
  * déclare ensuite son paiement (transfert Mobile Money) ; le propriétaire de la
- * plateforme le valide dans son portail, ce qui active la formule pour un an.
+ * plateforme le valide dans son portail, ce qui active la formule pour un mois (30 jours).
  * Sans essai ni abonnement en cours, l'espace est verrouillé et ses produits ne
  * sont plus affichés.
  */
@@ -78,8 +78,8 @@ function modifier(boutiqueId, champs) {
   return etat(boutiqueId);
 }
 
-/** Active (ou renouvelle) une formule pour un an à partir d'aujourd'hui, ou de l'échéance en cours si elle est plus lointaine. */
-function activer(boutiqueId, formule, jours = 365) {
+/** Active (ou renouvelle) une formule pour un mois à partir d'aujourd'hui, ou de l'échéance en cours si elle est plus lointaine. */
+function activer(boutiqueId, formule, jours = 30) {
   const a = lire(boutiqueId) || creer(boutiqueId);
   const base = a.statut === "actif" && a.formule === formuleValide(formule) && a.echeance && new Date(a.echeance) > new Date() ? new Date(a.echeance).getTime() : Date.now();
   return modifier(boutiqueId, { formule: formuleValide(formule), statut: "actif", echeance: new Date(base + jours * JOUR).toISOString(), formule_demandee: formuleValide(formule) });
@@ -101,7 +101,7 @@ function declarerPaiement(boutiqueId, { formule, operateur, telephone, reference
   return lirePaiement(id);
 }
 
-/** Décision du propriétaire sur un paiement déclaré. La validation active la formule pour un an. */
+/** Décision du propriétaire sur un paiement déclaré. La validation active la formule pour un mois (30 jours). */
 function traiterPaiement(id, valide, note = "") {
   const p = lirePaiement(id);
   if (!p) return null;
