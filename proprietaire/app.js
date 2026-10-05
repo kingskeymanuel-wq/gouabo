@@ -136,8 +136,10 @@
           <div class="carte-tete"><div><h2>Tarifs et numéros de paiement</h2><p>Affichés aux vendeurs sur la page d'accueil et dans leur page Abonnement.</p></div></div>
           <form class="carte-corps" id="reglages">
             <div class="grille">
-              <label>Pack Essentiel (FCFA / mois)<input name="tarif_essentiel" inputmode="numeric" value="${e(r.tarif_essentiel)}" /></label>
-              <label>Pack Premium (FCFA / mois)<input name="tarif_premium" inputmode="numeric" value="${e(r.tarif_premium)}" /></label>
+              <label>Pack Essentiel : prix d'un paiement (FCFA)<input name="tarif_essentiel" inputmode="numeric" value="${e(r.tarif_essentiel)}" /></label>
+              <label>Pack Essentiel : durée payée (jours)<input name="duree_essentiel" inputmode="numeric" value="${e(r.duree_essentiel)}" /></label>
+              <label>Pack Premium : prix d'un paiement (FCFA)<input name="tarif_premium" inputmode="numeric" value="${e(r.tarif_premium)}" /></label>
+              <label>Pack Premium : durée payée (jours)<input name="duree_premium" inputmode="numeric" value="${e(r.duree_premium)}" /></label>
               <label>Durée de l'essai gratuit (jours)<input name="essai_jours" inputmode="numeric" value="${e(r.essai_jours)}" /></label>
               <label>Numéro Orange Money<input name="momo_orange" inputmode="tel" value="${e(r.momo_orange)}" placeholder="07 …" /></label>
               <label>Numéro MTN MoMo<input name="momo_mtn" inputmode="tel" value="${e(r.momo_mtn)}" placeholder="05 …" /></label>
@@ -212,12 +214,12 @@
         if (!valider && note === null) return;
         b.disabled = true;
         await api("POST", `/paiements/${b.dataset.paiement}/${b.dataset.action}`, { note });
-        toast(valider ? "Paiement validé : pack activé pour un mois" : "Paiement annulé : la durée a été retirée");
+        toast(valider ? "Paiement validé : pack activé" : "Paiement annulé : la durée a été retirée");
       } else if (b.dataset.espace) {
         const id = b.dataset.espace, a = b.dataset.action;
         const nom = t.espaces.find((x) => x.id === id)?.nom || "cet espace";
         const corps = a === "essentiel" || a === "premium" ? { activer: a } : a === "prolonger" ? { prolonger_jours: 30 } : a === "suspendre" ? { statut: "suspendu" } : { statut: "reactiver" };
-        const question = { essentiel: `Activer le pack Essentiel pour ${nom} pendant un mois ?`, premium: `Activer le pack Premium (agents IA) pour ${nom} pendant un mois ?`, suspendre: `Suspendre ${nom} ? Son portail sera verrouillé et ses produits masqués.` }[a];
+        const question = { essentiel: `Activer le pack Essentiel pour ${nom} (${Math.round(t.reglages.duree_essentiel)} jours) ?`, premium: `Activer le pack Premium (agents IA) pour ${nom} (${Math.round(t.reglages.duree_premium)} jours) ?`, suspendre: `Suspendre ${nom} ? Son portail sera verrouillé et ses produits masqués.` }[a];
         if (question && !confirm(question)) return;
         b.disabled = true;
         await api("PATCH", "/espaces/" + id, corps);

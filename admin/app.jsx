@@ -5129,7 +5129,7 @@ function CarteFormule({ f, choisie, actuelle, onChoisir }) {
         <span className="row" style={{ gap: 8 }}><span className={cx("todo-icon", premium ? "tint-1" : "tint-0")}>{premium ? <Crown size={16} /> : <Store size={16} />}</span><b>Pack {f.nom}</b></span>
         {actuelle ? <Badge tone="success" dot>Votre formule</Badge> : premium ? <Badge tone="magic" icon={Bot}>Agents IA inclus</Badge> : f.essai_jours > 0 ? <Badge tone="info">{f.essai_jours} jours d'essai</Badge> : null}
       </div>
-      <div className="formule-prix"><strong className="num">{fmtNum(f.prix)}</strong> FCFA <span>/ mois</span></div>
+      <div className="formule-prix"><strong className="num">{fmtNum(f.prix)}</strong> FCFA <span>les {f.duree_libelle || "mois"}</span></div>
       <ul>{AVANTAGES[f.cle].map((a) => <li key={a}><Check size={14} />{a}</li>)}</ul>
     </button>
   );
@@ -5220,7 +5220,7 @@ function PageAbonnement({ verrou }) {
                     <div><span>1</span><div><b>Envoyez {fmt(abo.formules[choix].prix)}</b> sur l'un de ces numéros :
                       <div className="chips" style={{ marginTop: 6 }}>{ops.map((o) => <span key={o.mode} className="chip">{o.mode} · <b>{o.numero}</b>{o.titulaire ? ` (${o.titulaire})` : ""}</span>)}</div></div></div>
                     <div><span>2</span><div><b>Notez l'ID de transaction</b> reçu par SMS après le transfert.</div></div>
-                    <div><span>3</span><div><b>Déclarez le paiement</b> ci-dessous : votre pack est pris en compte automatiquement, à la fin de votre essai ou à la suite de votre mois en cours.</div></div>
+                    <div><span>3</span><div><b>Déclarez le paiement</b> ci-dessous : votre pack est pris en compte automatiquement, à la fin de votre essai ou à la suite de votre période en cours.</div></div>
                   </div>
                 )}
                 <form onSubmit={declarer} className="stack">
@@ -5404,7 +5404,7 @@ function AgentsVerrouilles() {
       <div className="card upsell">
         <span className="upsell-icone"><Bot size={30} /></span>
         <h2>Laissez les agents IA travailler pour vous</h2>
-        <p>Avec le pack Premium{prix ? ` (${fmt(prix)} par mois)` : ""}, trois agents s'occupent de vos clients selon votre programmation.</p>
+        <p>Avec le pack Premium{prix ? ` (${fmt(prix)} les ${abo?.formules?.premium?.duree_libelle || "3 mois"})` : ""}, trois agents s'occupent de vos clients selon votre programmation.</p>
         <div className="upsell-grille">
           {[[Megaphone, "Agent Campagnes", "Newsletters et promotions rédigées et envoyées aux jours et heures que vous choisissez."], [MessageSquare, "Agent Messages", "Il répond aux questions de vos clients, seul ou après votre validation."], [Bell, "Agent Alertes", "Un SMS à vous et à votre vendeur dès qu'une vente est faite ou en cours."]].map(([I, t, d]) => (
             <div key={t}><span className="todo-icon tint-1"><I size={16} /></span><b>{t}</b><small>{d}</small></div>
@@ -5932,7 +5932,7 @@ function AuthScreen({ onSuccess, mode }) {
                       {Object.values(formules).map((x) => (
                         <button type="button" key={x.cle} className={cx(formule === x.cle && "on")} onClick={() => setFormule(x.cle)}>
                           <b>{x.cle === "premium" ? <Crown size={13} /> : <Store size={13} />}Pack {x.nom}</b>
-                          <span className="num">{fmtNum(x.prix)} FCFA / mois</span>
+                          <span className="num">{fmtNum(x.prix)} FCFA les {x.duree_libelle || "mois"}</span>
                           <small>{x.agents ? "Agents IA inclus" : "Sans agents IA"}</small>
                         </button>
                       ))}

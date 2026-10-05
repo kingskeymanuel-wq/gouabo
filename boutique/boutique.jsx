@@ -175,7 +175,7 @@ function MonEspace() {
           <a role="menuitem" href="/admin/?espace=admin"><ShieldCheck size={17} /><span><b>Mon espace administrateur</b><small>Produits, stocks, vendeurs, finances</small></span></a>
           <a role="menuitem" href="/admin/?espace=vendeur"><User size={17} /><span><b>Mon espace vendeur</b><small>Mes ventes et mon lien de promotion</small></span></a>
           <div className="pop-sep" />
-          <a role="menuitem" href="#/devenir-vendeur" onClick={() => setOuvert(false)}><Crown size={17} /><span><b>Devenir vendeur</b><small>1 mois d'essai gratuit, puis pack mensuel</small></span></a>
+          <a role="menuitem" href="#/devenir-vendeur" onClick={() => setOuvert(false)}><Crown size={17} /><span><b>Devenir vendeur</b><small>1 mois d'essai gratuit, puis votre pack</small></span></a>
         </div>
       )}
     </div>
@@ -334,16 +334,16 @@ function PacksVendeur() {
     api("GET", "/api/auth/etat").then((r) => setDemos((r.comptes_test || []).filter((c) => c.role === "admin"))).catch(() => {});
   }, []);
   const demo = (pack) => demos.find((c) => c.pack === pack);
-  const ess = f?.essentiel || { prix: 20000, essai_jours: 30 }, pre = f?.premium || { prix: 35000 };
+  const ess = f?.essentiel || { prix: 10000, essai_jours: 30, duree_libelle: "2 mois" }, pre = f?.premium || { prix: 15000, duree_libelle: "3 mois" };
   const mois = ess.essai_jours >= 28 && ess.essai_jours <= 31 ? "1 mois" : `${ess.essai_jours} jours`;
   return (
     <section className="g-packs" id="devenir-vendeur">
       <div className="g-packs-in">
-        <div className="g-titre clair"><span>Devenez vendeur</span><h2>Votre portail administrateur, dédié à vos produits</h2><p>Un abonnement par mois, sans commission sur vos ventes.{ess.essai_jours > 0 ? ` Commencez par ${mois} d'essai gratuit.` : ""}</p></div>
+        <div className="g-titre clair"><span>Devenez vendeur</span><h2>Votre portail administrateur, dédié à vos produits</h2><p>Un petit abonnement, sans commission sur vos ventes.{ess.essai_jours > 0 ? ` Commencez par ${mois} d'essai gratuit.` : ""}</p></div>
         <div className="g-packs-grille">
           <article className="g-pack">
             <div className="g-pack-tete"><span className="g-pack-ic"><Store size={20} /></span><div><h3>Pack Essentiel</h3><small>Pour démarrer et vendre</small></div></div>
-            <div className="g-prix"><strong>{fmtNum(ess.prix)}</strong><span>FCFA<br />par mois</span></div>
+            <div className="g-prix"><strong>{fmtNum(ess.prix)}</strong><span>FCFA<br />les {ess.duree_libelle}</span></div>
             {ess.essai_jours > 0 && <div className="g-essai"><Clock size={15} />{mois} d'essai gratuit, puis payant</div>}
             <ul>{AVANTAGES_PACK.essentiel.map((x) => <li key={x}><Check size={16} />{x}</li>)}<li className="non"><X size={16} />Sans agents IA</li></ul>
             <a className="g-btn g-btn-sombre" href="/admin/?creer=1&plan=essentiel">Commencer mon essai gratuit<ArrowRight size={17} /></a>
@@ -352,7 +352,8 @@ function PacksVendeur() {
           <article className="g-pack g-pack-premium">
             <span className="g-ruban">Le plus complet</span>
             <div className="g-pack-tete"><span className="g-pack-ic"><Crown size={20} /></span><div><h3>Pack Premium</h3><small>Agents IA inclus</small></div></div>
-            <div className="g-prix"><strong>{fmtNum(pre.prix)}</strong><span>FCFA<br />par mois</span></div>
+            <div className="g-prix"><strong>{fmtNum(pre.prix)}</strong><span>FCFA<br />les {pre.duree_libelle}</span></div>
+            {ess.essai_jours > 0 && <div className="g-essai"><Clock size={15} />{mois} gratuit, puis payant</div>}
             <div className="g-essai"><Bot size={15} />Automatisation complète de vos clients</div>
             <ul>{AVANTAGES_PACK.premium.map((x) => <li key={x}><Check size={16} />{x}</li>)}</ul>
             <a className="g-btn g-btn-or" href="/admin/?creer=1&plan=premium">Choisir le pack Premium<ArrowRight size={17} /></a>

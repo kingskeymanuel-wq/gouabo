@@ -5,7 +5,7 @@
  *
  *   POST  /api/proprietaire/connexion              { code } → { jeton }
  *   GET   /api/proprietaire/tableau                espaces, paiements, statistiques, réglages
- *   POST  /api/proprietaire/paiements/:id/valider  { note? }  → active la formule pour un mois
+ *   POST  /api/proprietaire/paiements/:id/valider  { note? }  → active la formule pour la durée du pack
  *   POST  /api/proprietaire/paiements/:id/refuser  { note? }
  *   PATCH /api/proprietaire/espaces/:id            { formule?, statut?, prolonger_jours?, activer? }
  *   PUT   /api/proprietaire/reglages               tarifs, durée d'essai, numéros Mobile Money
@@ -146,7 +146,7 @@ router.patch("/espaces/:id", (req, res) => {
   const b = db.boutiqueParRef(req.params.id);
   if (!b) return res.status(404).json({ erreur: "Espace introuvable" });
   const actuel = abo.etat(b.id);
-  if (req.body.activer) abo.activer(b.id, req.body.activer, Math.min(3660, Math.max(1, Math.round(Number(req.body.jours) || 30))));
+  if (req.body.activer) abo.activer(b.id, req.body.activer, req.body.jours ? Math.min(3660, Math.max(1, Math.round(Number(req.body.jours) || 30))) : undefined);
   if (req.body.formule && !req.body.activer) abo.modifier(b.id, { formule: abo.formuleValide(req.body.formule) });
   if (req.body.prolonger_jours) {
     const j = Math.min(3660, Math.max(1, Math.round(Number(req.body.prolonger_jours) || 0)));

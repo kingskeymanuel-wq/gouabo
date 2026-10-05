@@ -1,12 +1,12 @@
 /**
  * Abonnements des espaces vendeurs (GOUABO).
  *
- *   Essentiel : portail vendeur complet, sans agents IA — 1 mois d'essai gratuit, puis payant.
- *   Premium   : portail + agents IA et automatisation complète.
+ *   Essentiel : portail vendeur complet, sans agents IA — 1 mois d'essai gratuit, puis 10 000 FCFA les 2 mois.
+ *   Premium   : portail + agents IA et automatisation complète — 1 mois gratuit, puis 15 000 FCFA les 3 mois.
  *
  * À l'inscription, tout espace démarre par l'essai gratuit (sans agents). Le vendeur
  * déclare ensuite son paiement (transfert Mobile Money) ; le propriétaire de la
- * plateforme le valide dans son portail, ce qui active la formule pour un mois (30 jours).
+ * plateforme peut l'annuler dans son portail. Chaque paiement ouvre la durée du pack (duree_jours).
  * Sans essai ni abonnement en cours, l'espace est verrouillé et ses produits ne
  * sont plus affichés.
  */
@@ -15,7 +15,8 @@ const db = require("../db");
 
 const JOUR = 864e5;
 const DEFAUTS = {
-  tarif_essentiel: "20000", tarif_premium: "35000", essai_jours: "30",
+  tarif_essentiel: "10000", tarif_premium: "15000", essai_jours: "30",
+  duree_essentiel: "60", duree_premium: "90", // jours ouverts par un paiement
   momo_orange: "", momo_mtn: "", momo_moov: "", momo_wave: "", momo_titulaire: "GOUABO", contact_whatsapp: "",
 };
 const CLES = Object.keys(DEFAUTS);
@@ -30,13 +31,19 @@ function ecrireReglages(v) {
   return reglages();
 }
 
+/** « 2 mois », « 3 mois »… ou un nombre de jours quand ce n'est pas un compte rond. */
+const libelleDuree = (jours) => (jours % 30 === 0 ? `${jours / 30} mois` : `${jours} jours`);
 function formules() {
   const r = reglages();
+  const essai = Math.max(0, Number(r.essai_jours) || 0);
+  const duree = (v, defaut) => Math.min(3660, Math.max(1, Math.round(Number(v) || defaut)));
+  const pack = (cle, nom, tarif, jours, agents) => ({ cle, nom, prix: Math.max(0, Number(tarif) || 0), essai_jours: essai, duree_jours: jours, duree_libelle: libelleDuree(jours), agents });
   return {
-    essentiel: { cle: "essentiel", nom: "Essentiel", prix: Math.max(0, Number(r.tarif_essentiel) || 0), essai_jours: Math.max(0, Number(r.essai_jours) || 0), agents: false },
-    premium: { cle: "premium", nom: "Premium", prix: Math.max(0, Number(r.tarif_premium) || 0), essai_jours: 0, agents: true },
+    essentiel: pack("essentiel", "Essentiel", r.tarif_essentiel, duree(r.duree_essentiel, 60), false),
+    premium: pack("premium", "Premium", r.tarif_premium, duree(r.duree_premium, 90), true),
   };
 }
+const dureeDe = (formule) => formules()[formuleValide(formule)].duree_jours;
 const formuleValide = (f) => (f === "premium" ? "premium" : "essentiel");
 
 const lire = (boutiqueId) => db.plateforme.prepare("SELECT * FROM abonnements WHERE boutique_id = ?").get(boutiqueId);
@@ -87,8 +94,8 @@ function modifier(boutiqueId, champs) {
   return etat(boutiqueId);
 }
 
-/** Active (ou renouvelle) une formule pour un mois à partir d'aujourd'hui, ou de l'échéance en cours si elle est plus lointaine. */
-function activer(boutiqueId, formule, jours = 30) {
+/** Active (ou renouvelle) une formule pour la durée du pack à partir d'aujourd'hui, ou de l'échéance en cours si elle est plus lointaine. */
+function activer(boutiqueId, formule, jours = dureeDe(formule)) {
   const a = lire(boutiqueId) || creer(boutiqueId);
   const base = a.statut === "actif" && a.formule === formuleValide(formule) && a.echeance && new Date(a.echeance) > new Date() ? new Date(a.echeance).getTime() : Date.now();
   return modifier(boutiqueId, { formule: formuleValide(formule), statut: "actif", echeance: new Date(base + jours * JOUR).toISOString(), formule_demandee: formuleValide(formule) });
@@ -99,7 +106,7 @@ function activer(boutiqueId, formule, jours = 30) {
  *  - pendant l'essai gratuit, le pack payé démarre à la fin de l'essai ;
  *  - sinon il démarre tout de suite, ou prolonge l'abonnement en cours à partir de son échéance.
  */
-function payer(boutiqueId, formule, jours = 30) {
+function payer(boutiqueId, formule, jours = dureeDe(formule)) {
   const a = lire(boutiqueId) || creer(boutiqueId);
   const f = formuleValide(formule);
   if (a.statut === "essai" && new Date(a.essai_fin).getTime() > Date.now()) {
@@ -139,9 +146,10 @@ function conclurePaiementEnLigne(id, { reussi, transactionId, statut }) {
 }
 
 /** Le propriétaire annule un paiement qu'il n'a pas reçu : la durée correspondante est retirée. */
-function annulerPaiement(id, note = "", jours = 30) {
+function annulerPaiement(id, note = "", jours) {
   const p = lirePaiement(id);
   if (!p || p.statut !== "valide") return p;
+  jours = jours ?? dureeDe(p.formule);
   db.plateforme.prepare("UPDATE paiements_abonnement SET statut = 'refuse', note = ?, traite_le = ? WHERE id = ?").run(String(note || "").slice(0, 200) || "Paiement non reçu", new Date().toISOString(), id);
   const a = lire(p.boutique_id);
   if (a?.echeance) {
@@ -168,7 +176,7 @@ function declarerPaiement(boutiqueId, { formule, operateur, telephone, reference
   return lirePaiement(id);
 }
 
-/** Décision du propriétaire sur un paiement déclaré. La validation active la formule pour un mois (30 jours). */
+/** Décision du propriétaire sur un paiement déclaré. La validation active la formule pour la durée du pack. */
 function traiterPaiement(id, valide, note = "") {
   const p = lirePaiement(id);
   if (!p) return null;

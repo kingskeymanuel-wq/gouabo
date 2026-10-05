@@ -69,7 +69,7 @@ router.post("/paiement/en-ligne", adminOnly, async (req, res) => {
   const nom = reste.join(" ") || prenom;
   try {
     const init = await cinetpay.initialiserPaiement({
-      merchantTransactionId: merchantId, montant: p.montant, designation: `GOUABO — pack ${abo.formules()[p.formule].nom} (1 mois)`,
+      merchantTransactionId: merchantId, montant: p.montant, designation: `GOUABO — pack ${abo.formules()[p.formule].nom} (${abo.formules()[p.formule].duree_libelle})`,
       email, prenom: prenom.length >= 2 ? prenom : prenom + ".", nom: nom.length >= 2 ? nom : nom + ".", telephone: req.user.telephone,
       successUrl: `${base}/admin/#/abonnement`, failedUrl: `${base}/admin/#/abonnement`, notifyUrl: `${base}/api/abonnement-cinetpay/notification`,
     });
