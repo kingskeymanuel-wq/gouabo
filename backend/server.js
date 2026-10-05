@@ -122,6 +122,13 @@ app.use("/admin", statique(ADMIN_DIR));
 app.use("/partage", statique(PARTAGE_DIR));
 app.use((req, res, next) => (req.path === "/proprietaire" && !req.originalUrl.startsWith("/proprietaire/") ? res.redirect(301, "/proprietaire/") : next()));
 app.use("/proprietaire", statique(PROPRIETAIRE_DIR));
+// Application Android (Play Store) : prouve que l'application et le site ont le même propriétaire.
+// ANDROID_PACKAGE = identifiant de l'application ; ANDROID_SHA256 = empreinte(s) de la clé de signature, séparées par des virgules.
+app.get("/.well-known/assetlinks.json", (req, res) => {
+  const empreintes = String(process.env.ANDROID_SHA256 || "").split(",").map((e) => e.trim()).filter(Boolean);
+  if (!process.env.ANDROID_PACKAGE || !empreintes.length) return res.json([]);
+  res.json([{ relation: ["delegate_permission/common.handle_all_urls"], target: { namespace: "android_app", package_name: process.env.ANDROID_PACKAGE, sha256_cert_fingerprints: empreintes } }]);
+});
 app.use("/", statique(BOUTIQUE_DIR));
 
 app.use((req, res) => res.status(404).json({ erreur: "Route introuvable" }));

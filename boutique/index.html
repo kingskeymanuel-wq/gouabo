@@ -8,6 +8,14 @@
   <meta name="description" content="Commandez en ligne, payez par Mobile Money ou à la livraison." />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23008060'/><path d='M10 12h12l-1.2 11H11.2z M13 12a3 3 0 0 1 6 0' fill='none' stroke='white' stroke-width='2' stroke-linejoin='round'/></svg>" />
 
+  <!-- Application installable (téléphone et ordinateur) -->
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="/icones/icone-180.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="GOUABO" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <script>if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(() => {}));</script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@600;700;800&family=IBM+Plex+Mono:wght@500;600;700&display=swap" />
