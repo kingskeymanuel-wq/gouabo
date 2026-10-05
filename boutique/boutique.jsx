@@ -255,8 +255,8 @@ const PHOTOS = {
   commercial: "1758519291037-db9ec86cda69", costume: "1676119451563-0c4a1a37e019", equipe: "1739303987830-ca19742b19bc", terrain: "1763739530599-44d1f6369a32",
 };
 const AVANTAGES_PACK = {
-  essentiel: ["Votre portail administrateur, dédié à vos produits", "Vos produits sur la page d'accueil GOUABO", "Stocks, tickets de caisse, livraisons, finances", "Espaces pour vos vendeurs, avec suivi de leurs ventes", "Campagnes SMS et e-mail lancées à la main"],
-  premium: ["Tout le pack Essentiel", "Agent Campagnes : newsletters et promotions programmées", "Agent Messages : réponses automatiques à vos clients", "Agent Alertes : SMS à vous et à votre vendeur à chaque vente", "Automatisation complète de la relation client"],
+  essentiel: ["Votre portail administrateur, dédié à vos produits", "Vos produits sur la page d'accueil GOUABO", "Stocks, tickets de caisse, livraisons, finances", "Photos de vos articles ajoutées par vous-même", "Newsletters, e-mails et SMS envoyés par vous-même", "1er mois : agents e-mail / SMS et publicité Facebook / Instagram offerts"],
+  premium: ["Tout le pack Essentiel", "Vos vendeurs : ils vendent, vous gardez la main sur les prix et les produits", "Studio photo : visuels publicitaires et publicité du jour Facebook / Instagram", "Agent Campagnes : newsletters et promotions programmées", "Agent Messages : réponses automatiques à vos clients", "Agent Alertes : SMS à vous et à votre vendeur à chaque vente", "Automatisation complète de la relation client"],
 };
 
 function HeroGouabo({ versProduits }) {
@@ -345,7 +345,7 @@ function PacksVendeur() {
             <div className="g-pack-tete"><span className="g-pack-ic"><Store size={20} /></span><div><h3>Pack Essentiel</h3><small>Pour démarrer et vendre</small></div></div>
             <div className="g-prix"><strong>{fmtNum(ess.prix)}</strong><span>FCFA<br />les {ess.duree_libelle}</span></div>
             {ess.essai_jours > 0 && <div className="g-essai"><Clock size={15} />{mois} d'essai gratuit, puis payant</div>}
-            <ul>{AVANTAGES_PACK.essentiel.map((x) => <li key={x}><Check size={16} />{x}</li>)}<li className="non"><X size={16} />Sans agents IA</li></ul>
+            <ul>{AVANTAGES_PACK.essentiel.map((x) => <li key={x}><Check size={16} />{x}</li>)}<li className="non"><X size={16} />Sans agents IA après le 1er mois</li><li className="non"><X size={16} />Sans comptes vendeurs</li></ul>
             <a className="g-btn g-btn-sombre" href="/admin/?creer=1&plan=essentiel">Commencer mon essai gratuit<ArrowRight size={17} /></a>
             {demo("essentiel") && <a className="g-demo" href="/admin/?demo=essentiel"><LayoutDashboard size={15} />Voir la démonstration du pack Essentiel</a>}
           </article>

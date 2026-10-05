@@ -20,6 +20,7 @@ const ia = require("../lib/ia");
 const { AUDIENCES, smsConfigure, emailConfigure } = require("../lib/marketing");
 const { envoyerSms } = require("../lib/sms");
 const social = require("../lib/social");
+const abo = require("../lib/abonnements");
 const router = express.Router();
 
 /* Détourage (fond retiré) : service remove.bg, clé fournie par le propriétaire de la plateforme */
@@ -62,10 +63,10 @@ router.get("/", (req, res) => {
 });
 
 // Studio photo : ce que le serveur sait faire pour les images des produits
-router.get("/studio", (req, res) => res.json({ detourage: Boolean(cleDetourage()) }));
+router.get("/studio", abo.studioRequis, (req, res) => res.json({ detourage: Boolean(cleDetourage()) }));
 
 // POST /api/agents/images/detourer { image: "data:image/…;base64,…" } → { image: PNG sans fond }
-router.post("/images/detourer", async (req, res) => {
+router.post("/images/detourer", abo.studioRequis, async (req, res) => {
   const cle = cleDetourage();
   if (!cle) return res.status(503).json({ erreur: "Le détourage automatique n'est pas encore activé sur la plateforme" });
   const m = /^data:image\/(?:jpeg|png|webp);base64,([A-Za-z0-9+/=]+)$/.exec(String(req.body.image || ""));

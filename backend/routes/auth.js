@@ -126,6 +126,8 @@ router.post("/inscription", (req, res, next) => {
 }, (req, res) => {
   const v = validerCompte(req.body);
   if (v.erreur) return res.status(v.statut || 400).json({ erreur: v.erreur });
+  // Les comptes vendeurs (et co-administrateurs) sont réservés au pack Premium payé
+  if (!abo.etat(db.espaceCourant().id).vendeurs) return res.status(403).json({ erreur: "L'ajout de vendeurs est réservé au pack Premium.", formule_requise: "premium" });
   const utilisateur = creerUtilisateur({ ...v.compte, role: req.body.role });
   res.status(201).json({ message: "Compte créé", utilisateur: profil(utilisateur) });
 });

@@ -73,6 +73,8 @@ function etat(boutiqueId) {
   if (fin && new Date(fin).getTime() < maintenant) statut = "expire";
   const acces = statut === "essai" || statut === "actif";
   const payeEnEssai = statut === "essai" && Boolean(a.echeance);
+  const premiumPaye = acces && statut === "actif" && a.formule === "premium";
+  const decouverte = statut === "essai"; // premier mois gratuit : quelques agents offerts pour découvrir l'automatisation
   return {
     // A payé : abonné en cours, ou en essai avec un pack déjà réglé qui démarrera à la fin de l'essai
     paye: statut === "actif" || payeEnEssai,
@@ -81,8 +83,12 @@ function etat(boutiqueId) {
     essai_fin: a.essai_fin, echeance: a.echeance,
     jours_restants: fin && acces ? Math.max(0, Math.ceil((new Date(fin).getTime() - maintenant) / JOUR)) : 0,
     acces,
-    // Les agents IA sont réservés à la formule Premium payée
-    agents: acces && statut === "actif" && a.formule === "premium",
+    // Agents IA : pack Premium payé, ou découverte pendant le premier mois gratuit (campagnes e-mail / SMS, publicité Facebook / Instagram)
+    agents: premiumPaye || decouverte,
+    agents_decouverte: decouverte,
+    // Réservés au pack Premium payé : studio photo publicitaire et comptes vendeurs
+    studio: premiumPaye,
+    vendeurs: premiumPaye,
   };
 }
 
@@ -203,4 +209,10 @@ function premiumRequis(req, res, next) {
   res.status(403).json({ erreur: "Les agents IA sont réservés à la formule Premium.", formule_requise: "premium" });
 }
 
-module.exports = { formules, reglages, ecrireReglages, creer, etat, modifier, activer, paiementsDe, tousLesPaiements, lirePaiement, declarerPaiement, traiterPaiement, payer, annulerPaiement, ouvrirPaiementEnLigne, completerPaiementEnLigne, paiementParMarchand, paiementsEnCours, conclurePaiementEnLigne, abonnementRequis, premiumRequis, formuleValide };
+/** Studio photo publicitaire : pack Premium payé seulement (pas pendant le mois de découverte). */
+function studioRequis(req, res, next) {
+  if (etat(db.espaceCourant().id).studio) return next();
+  res.status(403).json({ erreur: "Le studio photo est réservé au pack Premium.", formule_requise: "premium" });
+}
+
+module.exports = { formules, reglages, ecrireReglages, creer, etat, modifier, activer, paiementsDe, tousLesPaiements, lirePaiement, declarerPaiement, traiterPaiement, payer, annulerPaiement, ouvrirPaiementEnLigne, completerPaiementEnLigne, paiementParMarchand, paiementsEnCours, conclurePaiementEnLigne, abonnementRequis, premiumRequis, studioRequis, formuleValide };

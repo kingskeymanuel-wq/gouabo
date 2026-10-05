@@ -3430,7 +3430,7 @@ function MotDePasseModal({ membre, onClose }) {
 }
 
 function PageVendeurs() {
-  const { data, mode, toast, confirm, rafraichir, auth } = useApp();
+  const { data, mode, toast, confirm, rafraichir, auth, abo, go } = useApp();
   const [ajout, setAjout] = useState(false);
   const [mdp, setMdp] = useState(null);
   const [period, setPeriod] = useState(30);
@@ -3499,6 +3499,7 @@ function PageVendeurs() {
           <Segmented value={period} onChange={setPeriod} options={[{ value: 7, label: "7 jours" }, { value: 30, label: "30 jours" }, { value: 0, label: "Tout" }]} />
           <Btn variant="primary" icon={UserPlus} onClick={() => setAjout(true)}>Ajouter un vendeur</Btn>
         </>} />
+      {abo?.abonnement && !abo.abonnement.vendeurs && <div className="banner banner-info" style={{ marginBottom: 16 }}><Crown size={16} /><div className="grow"><b>Les comptes vendeurs sont réservés au pack Premium.</b> Avec le Premium, vos vendeurs enregistrent les ventes et impriment les tickets ; vous seul fixez les prix et ajoutez les produits.</div><Btn size="sm" variant="primary" onClick={() => go("abonnement")}>Passer au Premium</Btn></div>}
       <div className="kpi-grid kpi-3 stagger">
         {kpis.map((k, i) => (
           <div className="card kpi" key={k.label} style={{ "--i": i }}>
@@ -4947,7 +4948,7 @@ function CarteBoutiqueEnLigne({ estAdmin }) {
 }
 
 function EquipeModal({ open, onClose }) {
-  const { toast, rafraichir } = useApp();
+  const { toast, rafraichir, abo, go } = useApp();
   const [f, setF] = useState({ nom: "", tel: "", mdp: "", role: "vendeur" });
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
@@ -4967,6 +4968,12 @@ function EquipeModal({ open, onClose }) {
       setBusy(false);
     }
   };
+  if (abo?.abonnement && !abo.abonnement.vendeurs) return (
+    <Modal open={open} onClose={onClose} title="Ajouter un vendeur" size="md"
+      footer={<><Btn onClick={onClose}>Fermer</Btn><Btn variant="primary" icon={Crown} onClick={() => { onClose(); go("abonnement"); }}>Passer au pack Premium</Btn></>}>
+      <p>Les comptes vendeurs sont réservés au <b>pack Premium</b>. Vos vendeurs enregistrent les ventes et impriment les tickets ; vous seul fixez les prix et ajoutez les produits.</p>
+    </Modal>
+  );
   return (
     <Modal open={open} onClose={onClose} title="Ajouter un vendeur" size="md"
       footer={<><Btn onClick={onClose}>Annuler</Btn><Btn variant="primary" loading={busy} onClick={save}>Créer le compte</Btn></>}>
@@ -5179,7 +5186,7 @@ function PageAbonnement({ verrou }) {
               <div className="row" style={{ gap: 8, flexWrap: "wrap" }}><strong style={{ fontSize: 16 }}>{a.statut === "essai" ? "Essai gratuit" : `Pack ${abo.formules[a.formule]?.nom || a.formule}`}</strong><Badge tone={st.tone} dot>{a.statut === "essai" ? `${a.jours_restants} jour${a.jours_restants > 1 ? "s" : ""} restant${a.jours_restants > 1 ? "s" : ""}` : st.label}</Badge></div>
               <div className="subtle">
                 {a.statut === "essai" && `Encore ${a.jours_restants} jour${a.jours_restants > 1 ? "s" : ""} d'essai, jusqu'au ${dateLongue(fin)}. ${a.paye ? `Votre pack ${abo.formules[a.pack_prevu]?.nom} est payé : il démarre automatiquement à la fin de l'essai.` : "Ensuite, le portail passe en payant."}`}
-                {a.statut === "actif" && `Valable jusqu'au ${dateLongue(fin)} (${a.jours_restants} jours).${a.agents ? " Agents IA inclus." : " Sans agents IA."}`}
+                {a.statut === "actif" && `Valable jusqu'au ${dateLongue(fin)} (${a.jours_restants} jours).${a.agents ? " Agents IA, studio photo et vendeurs inclus." : " Sans agents IA ni comptes vendeurs."}`}
                 {a.statut === "expire" && "Votre période est terminée : le portail est verrouillé et vos produits ne sont plus affichés."}
                 {a.statut === "suspendu" && "Votre espace a été suspendu par GOUABO. Contactez-nous pour le réactiver."}
               </div>
@@ -5411,7 +5418,7 @@ function AgentsVerrouilles() {
           ))}
         </div>
         <Btn variant="primary" size="lg" icon={Crown} onClick={() => go("abonnement")}>Passer au pack Premium</Btn>
-        {abo?.abonnement?.statut === "essai" && <small className="subtle">Les agents ne sont pas compris dans l'essai gratuit.</small>}
+        
       </div>
     </>
   );
@@ -5459,8 +5466,9 @@ function PageAgents() {
 
   return (
     <>
-      <PageHeader title="Agents IA" badges={<Badge tone="magic" icon={Crown}>Pack Premium</Badge>} meta="Vos agents travaillent selon votre programmation"
+      <PageHeader title="Agents IA" badges={abo?.abonnement?.agents_decouverte ? <Badge tone="info" icon={Sparkles}>Découverte offerte</Badge> : <Badge tone="magic" icon={Crown}>Pack Premium</Badge>} meta="Vos agents travaillent selon votre programmation"
         actions={<Btn variant="primary" icon={CalendarClock} onClick={() => setProg({})}>Programmer une campagne</Btn>} />
+      {abo?.abonnement?.agents_decouverte && <div className="banner banner-info" style={{ marginBottom: 16 }}><Sparkles size={16} /><div><b>Agents offerts pendant votre mois gratuit</b> — encore {abo.abonnement.jours_restants} jour{abo.abonnement.jours_restants > 1 ? "s" : ""}. Ensuite, ils sont réservés au pack Premium ; avec le pack Essentiel, vous envoyez vos e-mails et SMS vous-même.</div></div>}
 
       <div className="kpi-grid kpi-3 stagger">
         {[["campagnes", `${info.programmes.filter((p) => p.actif).length} programme(s) actif(s)`, true], ["messages", aTraiter ? `${aTraiter} message(s) à traiter` : "Aucun message en attente", r.messages_actif === "1"], ["alertes", `${evts.length} événement(s) surveillé(s)`, r.alertes_actif === "1"]].map(([k, sub, actif], i) => {
@@ -5690,7 +5698,7 @@ function BoutonStudio({ image, infos, onChoisir }) {
   const { abo, mode, data, go } = useApp();
   const [ouvert, setOuvert] = useState(false);
   if (mode !== "api" || !image) return null;
-  const premium = !!abo?.abonnement?.agents;
+  const premium = !!abo?.abonnement?.studio;
   return (
     <div className="studio-acces">
       <Btn icon={Sparkles} onClick={() => (premium ? setOuvert(true) : go("abonnement"))}>{premium ? "Créer des visuels publicitaires" : "Visuels publicitaires (pack Premium)"}</Btn>
@@ -5933,7 +5941,7 @@ function AuthScreen({ onSuccess, mode }) {
                         <button type="button" key={x.cle} className={cx(formule === x.cle && "on")} onClick={() => setFormule(x.cle)}>
                           <b>{x.cle === "premium" ? <Crown size={13} /> : <Store size={13} />}Pack {x.nom}</b>
                           <span className="num">{fmtNum(x.prix)} FCFA les {x.duree_libelle || "mois"}</span>
-                          <small>{x.agents ? "Agents IA inclus" : "Sans agents IA"}</small>
+                          <small>{x.agents ? "Agents IA, studio photo et vendeurs" : "Vous gérez seul, agents offerts le 1er mois"}</small>
                         </button>
                       ))}
                     </div>
