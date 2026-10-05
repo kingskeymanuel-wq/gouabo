@@ -98,7 +98,8 @@ router.post("/paiement", adminOnly, (req, res) => {
   if (!["essentiel", "premium"].includes(req.body.formule)) return res.status(400).json({ erreur: "Choisissez une formule" });
   if (telephone.replace(/\D/g, "").length < 8) return res.status(400).json({ erreur: "Indiquez le numéro qui a envoyé le paiement" });
   if (reference.length < 4) return res.status(400).json({ erreur: "Indiquez l'ID de transaction reçu par SMS" });
-  if (abo.paiementsDe(id).some((p) => p.statut === "valide" && p.reference === reference)) return res.status(409).json({ erreur: "Ce paiement a déjà été enregistré" });
+  // Un ID de transaction ne sert qu'une fois, sur toute la plateforme
+  if (db.plateforme.prepare("SELECT 1 FROM paiements_abonnement WHERE statut = 'valide' AND lower(reference) = lower(?) LIMIT 1").get(reference)) return res.status(409).json({ erreur: "Ce paiement a déjà été enregistré" });
   const p = abo.declarerPaiement(id, { formule: req.body.formule, operateur: req.body.operateur, telephone, reference, auteur: req.user.nom });
   res.status(201).json({ paiement: p, abonnement: abo.etat(id) });
 });
