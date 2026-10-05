@@ -7,6 +7,8 @@ const db = require("../db");
 const { genererTicket } = require("../lib/tickets");
 const agents = require("../lib/agents");
 const { idOuNouveau, versIso, prochainNumero, ajouterEvenement } = require("../lib/outils");
+const { lireBoutique } = require("./parametres");
+const { adminOnly } = require("../middleware/auth");
 const router = express.Router();
 
 function enrichir(vente) {
@@ -63,7 +65,11 @@ router.post("/", (req, res) => {
     return res.status(409).json({ erreur: `Stock insuffisant pour ${pack.nom} (disponible : ${pack.stock})` });
   }
   const prix = prixEffectif(pack); // prix promotionnel si une promotion est en cours
-  const frais = Math.max(0, Math.round(Number(req.body.frais_livraison) || 0));
+  // Seul l'administrateur fixe un montant : pour un vendeur, les frais de livraison sont ceux réglés
+  // dans les paramètres de la boutique, quel que soit le montant envoyé. Le prix vient toujours du catalogue.
+  const frais = req.user?.role === "admin"
+    ? Math.max(0, Math.round(Number(req.body.frais_livraison) || 0))
+    : req.body.livraison === true || Number(req.body.frais_livraison) > 0 ? Math.max(0, Math.round(Number(lireBoutique().frais_livraison) || 0)) : 0;
   if (frais > 1000000) return res.status(400).json({ erreur: "Frais de livraison invalides" });
   const typeVente = req.body.type_vente === "b2b" ? "b2b" : "b2c";
   const paiement = validerPaiement(req.body, qte * prix + frais);
@@ -101,7 +107,7 @@ router.post("/", (req, res) => {
 
 // DELETE /api/ventes/:id — supprime une ligne de vente ; restitue le stock sauf si
 // la commande était déjà annulée. Une commande sans ligne restante est supprimée.
-router.delete("/:id", (req, res) => {
+router.delete("/:id", adminOnly, (req, res) => {
   const vente = db.prepare("SELECT * FROM ventes WHERE id = ?").get(req.params.id);
   if (!vente) return res.status(404).json({ erreur: "Vente introuvable" });
   const cmd = db.prepare("SELECT * FROM commandes WHERE id = ? OR vente_id = ?").get(vente.commande_id, vente.id);

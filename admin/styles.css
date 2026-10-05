@@ -1600,3 +1600,34 @@ div.prix-barre { margin-left: 0; }
 
 .compte-test small.pack-test { align-self: flex-start; margin-top: 3px; padding: 1px 8px; border-radius: 99px; background: var(--info-bg); color: var(--info); font-weight: 650; font-size: 11.5px; }
 .compte-test small.pack-test.premium { background: var(--warning-bg); color: var(--warning); }
+
+/* ---------- Écran de connexion GOUABO : vendeuse en image, scène animée ---------- */
+.auth-hero { background: radial-gradient(700px 480px at 10% -5%, rgba(238, 106, 31, .5), transparent 62%), radial-gradient(620px 460px at 100% 105%, rgba(15, 157, 116, .4), transparent 60%), #17110b; background-size: 140% 140%; animation: authFond 14s ease-in-out infinite alternate; }
+@keyframes authFond { from { background-position: 0% 0%; } to { background-position: 100% 100%; } }
+.auth-hero h1 { animation: none; }
+.auth-hero h1 em { background: none; }
+.auth-hero h1 em .auth-mot { background: linear-gradient(92deg, #f2a516, #ff8a3d 60%, #ffd27a); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.auth-mot { display: inline-block; animation: authMot .9s cubic-bezier(.2, 1.3, .35, 1) both; animation-delay: calc(var(--m, 0) * 110ms + 150ms); }
+@keyframes authMot { from { opacity: 0; transform: translateY(.6em) rotate(5deg) scale(.88); filter: blur(8px); } to { opacity: 1; transform: none; filter: none; } }
+.auth-feats span { background: rgba(242, 165, 22, .18); color: #f2a516; }
+.auth-feats div { transition: transform .3s cubic-bezier(.2, 1.25, .35, 1); }
+.auth-feats div:hover { transform: translateX(6px); }
+.auth-float .mini-bars i { background: linear-gradient(180deg, #f2a516, #ee6a1f); animation: growBar .9s var(--ease-out) both, authBarre 2.6s ease-in-out infinite; animation-delay: calc(.7s + var(--i) * .07s), calc(1.8s + var(--i) * .18s); }
+@keyframes authBarre { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(.72); } }
+.auth-scene { position: relative; height: 330px; max-width: 470px; margin: 26px 0 30px; }
+.auth-halo { position: absolute; left: 6%; top: 8%; width: 300px; height: 300px; border-radius: 50%; background: radial-gradient(circle, rgba(242, 165, 22, .5), transparent 65%); filter: blur(10px); animation: authHalo 4s ease-in-out infinite; }
+@keyframes authHalo { 0%, 100% { transform: scale(.9); opacity: .7; } 50% { transform: scale(1.12); opacity: 1; } }
+.auth-photo { position: absolute; left: 4%; top: 0; width: 250px; height: 310px; object-fit: cover; border-radius: 26px; border: 4px solid rgba(255, 255, 255, .14); box-shadow: 0 30px 70px rgba(0, 0, 0, .55); transform: rotate(-4deg); animation: authPhoto .9s .1s cubic-bezier(.2, 1.2, .35, 1) both, authFlotte 6.5s 1s ease-in-out infinite; --r: -4deg; }
+.auth-photo.petite { left: auto; right: 2%; top: 122px; width: 168px; height: 168px; border-radius: 22px; transform: rotate(5deg); animation-delay: .35s, 1.4s; animation-duration: .9s, 8s; --r: 5deg; }
+@keyframes authPhoto { from { opacity: 0; transform: translateY(40px) rotate(0deg) scale(.9); } }
+@keyframes authFlotte { 0%, 100% { transform: translateY(0) rotate(var(--r)); } 50% { transform: translateY(-10px) rotate(var(--r)); } }
+.auth-bulle { position: absolute; display: flex; align-items: center; gap: 9px; padding: 8px 12px 8px 8px; border-radius: 14px; background: rgba(255, 255, 255, .96); color: #1c1815; font-size: 12.5px; line-height: 1.25; white-space: nowrap; box-shadow: 0 16px 36px rgba(0, 0, 0, .4); animation: authBulle .6s cubic-bezier(.34, 1.56, .64, 1) both, authFlotte 5.5s ease-in-out infinite; --r: 0deg; }
+.auth-bulle b { display: block; } .auth-bulle small { color: #6b635b; font-size: 11.5px; }
+.auth-bulle > span { width: 30px; height: 30px; border-radius: 10px; display: grid; place-items: center; color: #fff; flex-shrink: 0; }
+.auth-bulle .vert { background: #0f9d74; } .auth-bulle .or { background: linear-gradient(135deg, #f2a516, #ee6a1f); } .auth-bulle .bleu { background: #2c6ecb; }
+.auth-bulle.b1 { left: 46%; top: 14px; animation-delay: .9s, 1.5s; }
+.auth-bulle.b2 { left: -8px; bottom: 34px; animation-delay: 1.3s, 1.9s; }
+.auth-bulle.b3 { right: 0; bottom: -6px; animation-delay: 1.7s, 2.3s; }
+@keyframes authBulle { from { opacity: 0; transform: scale(.6) translateY(14px); } }
+@media (max-height: 820px) { .auth-scene { height: 250px; margin: 16px 0 20px; } .auth-photo { width: 190px; height: 236px; } .auth-photo.petite { width: 130px; height: 130px; top: 96px; } .auth-halo { width: 230px; height: 230px; } }
+@media (prefers-reduced-motion: reduce) { .auth-hero, .auth-photo, .auth-bulle, .auth-halo, .auth-mot, .auth-float .mini-bars i { animation: none; } }

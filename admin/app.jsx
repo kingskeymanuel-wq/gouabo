@@ -1723,7 +1723,7 @@ function SaleModal({ open, preset, onClose }) {
   const parLot = pack?.pieces || 1;
   const prixU = prixEffectif(pack);
   const sousTotal = pack ? prixU * qte : 0;
-  const montantFrais = livraison ? Math.max(0, Number(frais) || 0) : 0;
+  const montantFrais = livraison ? Math.max(0, Number(estAdmin ? frais : fraisBoutique) || 0) : 0;
   const total = sousTotal + montantFrais;
   const set = (k, v) => { setC((s) => ({ ...s, [k]: v })); setErr((e) => ({ ...e, [k]: null })); };
   useEffect(() => { if (pack && qte > pack.stock) setQte(Math.max(1, pack.stock)); }, [packId]);
@@ -1914,7 +1914,7 @@ function SaleModal({ open, preset, onClose }) {
             <div><div className="strong">Livraison</div><div className="subtle">{livraison ? "Colis suivi dans Livraisons ; montant sur le ticket" : "Retrait sur place"}</div></div>
             <Switch on={livraison} onChange={basculerLivraison} label="Livraison" />
           </div>
-          {livraison && <Field label="Frais de livraison"><Input value={frais} onChange={(e) => setFrais(e.target.value.replace(/[^\d]/g, ""))} suffix="FCFA" inputMode="numeric" placeholder="0" /></Field>}
+          {livraison && <Field label="Frais de livraison" help={estAdmin ? null : "Tarif fixé par l'administrateur."}><Input value={estAdmin ? frais : String(fraisBoutique || 0)} onChange={(e) => estAdmin && setFrais(e.target.value.replace(/[^\d]/g, ""))} suffix="FCFA" inputMode="numeric" placeholder="0" disabled={!estAdmin} /></Field>}
           <div className="row-between">
             <div><div className="strong">Vente à un professionnel (B2B)</div><div className="subtle">Le ticket reste obligatoire</div></div>
             <Switch on={b2b} onChange={setB2b} label="Vente B2B" />
@@ -2751,7 +2751,7 @@ function PageCommande({ id }) {
           <Btn icon={Receipt} onClick={() => setReceipt(true)}>Ticket de caisse</Btn>
           <MoreMenu items={[
             c.statut === "annulee" && { label: "Rétablir la commande", icon: RotateCcw, onClick: () => setStatut("en_attente") },
-            c.statut !== "annulee" && mode === "api" && { label: "Retour ou échange d'article", icon: RotateCcw, onClick: () => setRetour(true) },
+            c.statut !== "annulee" && mode === "api" && estAdmin && { label: "Retour ou échange d'article", icon: RotateCcw, onClick: () => setRetour(true) },
             c.statut !== "annulee" && { label: "Annuler la commande", icon: XCircle, onClick: cancel },
             c.statut !== "annulee" && c.statut !== "livree" && { label: c.livraison ? "Passer en retrait sur place" : "Passer en livraison", icon: Truck, onClick: () => { patch(() => ({ livraison: !c.livraison })); sync(["PATCH", `/api/commandes/${c.id}/livraison`, { livraison: !c.livraison }]); } },
             ...(estAdmin ? ["sep", { label: "Supprimer", icon: Trash2, tone: "critical", onClick: remove }] : []),
@@ -5613,8 +5613,17 @@ function AuthScreen({ onSuccess, mode }) {
     <div className="auth">
       <div className="auth-hero">
         <a className="brand" style={{ width: "auto" }} href="/"><span className="brand-mark"><ShoppingBag size={16} strokeWidth={2.4} /></span>GOUABO</a>
+        {/* Une vendeuse à son comptoir, entourée de ce que GOUABO fait pour elle */}
+        <div className="auth-scene" aria-hidden="true">
+          <span className="auth-halo" />
+          <img className="auth-photo" src="https://images.unsplash.com/photo-1687422808311-a776f467a468?w=640&h=760&fit=crop&crop=faces&q=75&auto=format" alt="" />
+          <img className="auth-photo petite" src="https://images.unsplash.com/photo-1687422808384-c896d0efd4ab?w=420&h=420&fit=crop&crop=faces&q=75&auto=format" alt="" />
+          <div className="auth-bulle b1"><span className="vert"><Receipt size={14} /></span><div><b>Nouvelle vente</b><small>Ticket T-000128 · 15 000 FCFA</small></div></div>
+          <div className="auth-bulle b2"><span className="or"><Bot size={14} /></span><div><b>Cliente relancée</b><small>Promotion envoyée par SMS</small></div></div>
+          <div className="auth-bulle b3"><span className="bleu"><Truck size={14} /></span><div><b>Colis livré</b><small>Payé par Wave</small></div></div>
+        </div>
         <div>
-          <h1>Vendez plus, <em>sans effort.</em></h1>
+          <h1><span className="auth-mot">Vendez</span> <span className="auth-mot" style={{ "--m": 1 }}>plus,</span> <em><span className="auth-mot" style={{ "--m": 2 }}>sans</span> <span className="auth-mot" style={{ "--m": 3 }}>effort.</span></em></h1>
           <p>Votre portail vendeur GOUABO : vos produits, vos stocks, vos clients et vos vendeurs dans un espace à vous. Vos produits sont visibles sur la page d'accueil de la plateforme.</p>
           <div className="auth-feats">
             {[[Store, "Un portail privé pour vos produits"], [UserCheck, "Vos vendeurs et le suivi de leurs ventes"], [Bot, "Agents IA : campagnes, réponses et alertes SMS (pack Premium)"]].map(([I, t], i) => (
