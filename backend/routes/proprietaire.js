@@ -104,7 +104,7 @@ router.get("/tableau", (req, res) => {
   res.json({
     reglages: abo.reglages(),
     formules: abo.formules(),
-    service: { ia: ia.etat(), sms: smsConfigure(), email: emailConfigure() },
+    service: { ia: ia.etat(), sms: smsConfigure(), email: emailConfigure(), detourage: Boolean(process.env.REMOVE_BG_API_KEY || db.reglages.lire("detourage_cle")) },
     mot_de_passe_cree: Boolean(db.reglages.lire(CLE_MDP)),
     alertes: alertes(espaces),
     espaces,
@@ -168,6 +168,14 @@ router.put("/mot-de-passe", (req, res) => {
   if (nouveau !== String(req.body.confirmation || "")) return res.status(400).json({ erreur: "Les deux mots de passe ne correspondent pas" });
   db.reglages.ecrire(CLE_MDP, bcrypt.hashSync(nouveau, 12));
   res.json({ mot_de_passe_cree: true });
+});
+
+// Clé du service de détourage des photos (remove.bg), utilisée par le studio photo des packs Premium
+router.put("/detourage", (req, res) => {
+  const cle = String(req.body.cle || "").trim();
+  if (cle && !/^[A-Za-z0-9_-]{16,80}$/.test(cle)) return res.status(400).json({ erreur: "Cette clé n'a pas le format attendu" });
+  db.reglages.ecrire("detourage_cle", cle);
+  res.json({ detourage: Boolean(cle) });
 });
 
 router.put("/ia", (req, res) => {

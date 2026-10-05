@@ -123,6 +123,11 @@ function estDu(p, d = new Date()) {
 /** À appeler régulièrement dans chaque espace : lance les programmes arrivés à l'heure. */
 function verifierProgrammes() {
   if (!actifs()) return;
+  // Agent Réseaux sociaux : une publicité par jour (chargé ici pour éviter une dépendance circulaire)
+  try {
+    const social = require("./social");
+    if (social.estDue()) social.preparer({ journal }).catch((e) => journal("social", "Publicité du jour non préparée", e.message, "erreur"));
+  } catch (e) { console.error("Agent réseaux sociaux :", e.message); }
   const maintenant = new Date();
   for (const p of db.prepare("SELECT * FROM agents_programmes WHERE actif = 1").all()) {
     if (!estDu(p, maintenant)) continue;

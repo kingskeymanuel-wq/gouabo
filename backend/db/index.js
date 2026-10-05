@@ -84,6 +84,10 @@ function ouvrirEspace(fichier) {
     CREATE INDEX IF NOT EXISTS idx_tickets_commande ON tickets_journal(commande_id);`);
 
   // v8 : suivi des livraisons — colis à livrer, livreur, date prévue, tentatives
+  // Publicités préparées chaque jour par l'agent Réseaux sociaux
+  db.exec(`CREATE TABLE IF NOT EXISTS agents_publications (
+    id TEXT PRIMARY KEY, pack_id TEXT, jour TEXT NOT NULL, texte TEXT NOT NULL,
+    statut TEXT NOT NULL DEFAULT 'pret', detail TEXT, cree_le TEXT NOT NULL)`);
   // Dépenses saisies par les vendeurs et l'administrateur (transport, emballage…)
   db.exec(`CREATE TABLE IF NOT EXISTS depenses (
     id TEXT PRIMARY KEY, libelle TEXT NOT NULL, categorie TEXT NOT NULL DEFAULT 'Autre', montant REAL NOT NULL,

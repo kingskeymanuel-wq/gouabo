@@ -46,6 +46,17 @@ administrateur dédié à ses produits) et paie un pack mensuel.
 - La rédaction sur mesure utilise l'API Claude (`ANTHROPIC_API_KEY`). Sans clé, les agents envoient des modèles de messages standards.
   Sans fournisseur SMS / SMTP configuré, les envois sont simulés (journalisés).
 
+## Studio photo et réseaux sociaux (pack Premium)
+
+- **Studio photo** (fiche produit → « Créer des visuels publicitaires ») : à partir de la photo du produit, sept visuels sont
+  proposés (photo retouchée, cinq arrière-plans, affiche avec le nom et le prix). Le vendeur choisit, l'utilise comme photo
+  du produit ou la télécharge. Le **détourage** (fond retiré) passe par le service remove.bg : clé à saisir dans le portail
+  propriétaire (ou variable `REMOVE_BG_API_KEY`). Sans clé, la photo est présentée dans un cadre sur le fond choisi.
+- **Agent Réseaux sociaux** (Agents IA → « Réseaux sociaux ») : le vendeur saisit les liens de ses pages Facebook et Instagram.
+  Chaque jour, l'agent choisit un produit, rédige le texte et prépare la publicité : texte à copier, affiche à télécharger,
+  lien vers la page. Publication automatique sur Facebook possible en connectant la page (identifiant + jeton d'accès de page
+  de l'API officielle Meta). Instagram se publie à la main. Aucune prospection par messages : Meta l'interdit.
+
 ## Liens de paiement des opérateurs
 
 Dans **Paramètres → Boutique en ligne**, l'administrateur de chaque boutique renseigne, pour Wave,

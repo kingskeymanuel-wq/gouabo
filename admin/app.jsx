@@ -2084,6 +2084,7 @@ function ProductModal({ open, pack, onClose }) {
         </Field>
         <Field label="Image du produit" optional help="JPEG, PNG ou WebP. L'image est automatiquement redimensionnée.">
           <ImagePicker value={f.image} onChange={(v) => set("image", v)} />
+          <BoutonStudio image={f.image} infos={{ nom: f.nom, prix: Number(f.prixPromo) > 0 ? Number(f.prixPromo) : Number(f.prix) || 0 }} onChoisir={(v) => set("image", v)} />
         </Field>
         <div className="card" style={{ boxShadow: "none", border: "1px solid var(--border)" }}>
           <div className="card-section"><div className="card-title">Prix</div></div>
@@ -5268,6 +5269,8 @@ const AGENTS = {
   campagnes: { nom: "Agent Campagnes", icon: Megaphone, tint: 0 },
   messages: { nom: "Agent Messages", icon: MessageSquare, tint: 4 },
   alertes: { nom: "Agent Alertes", icon: Bell, tint: 1 },
+  social: { nom: "Agent Réseaux sociaux", icon: Megaphone, tint: 5 },
+  images: { nom: "Studio photo", icon: Sparkles, tint: 4 },
 };
 const quand = (p) => `${p.frequence === "quotidien" ? "Chaque jour" : p.frequence === "mensuel" ? `Le ${p.jour} du mois` : `Chaque ${JOURS[p.jour]?.toLowerCase()}`} à ${pad(p.heure)} h`;
 
@@ -5443,7 +5446,7 @@ function PageAgents() {
         })}
       </div>
 
-      <div className="card" style={{ marginBottom: 16 }}><div className="table-toolbar"><Tabs value={onglet} onChange={setOnglet} tabs={[{ key: "campagnes", label: "Campagnes programmées", count: info.programmes.length }, { key: "messages", label: "Messages des clients", count: aTraiter || null }, { key: "alertes", label: "Alertes SMS" }, { key: "journal", label: "Journal" }]} /></div>
+      <div className="card" style={{ marginBottom: 16 }}><div className="table-toolbar"><Tabs value={onglet} onChange={setOnglet} tabs={[{ key: "campagnes", label: "Campagnes programmées", count: info.programmes.length }, { key: "messages", label: "Messages des clients", count: aTraiter || null }, { key: "alertes", label: "Alertes SMS" }, { key: "social", label: "Réseaux sociaux", count: info.social.publications.filter((p) => p.statut !== "publie").length || null }, { key: "journal", label: "Journal" }]} /></div>
 
         {onglet === "campagnes" && (info.programmes.length === 0 ? (
           <EmptyState icon={CalendarClock} title="Aucune campagne programmée" action={<Btn variant="primary" icon={Plus} onClick={() => setProg({})}>Programmer une campagne</Btn>}>Choisissez un type de message, un jour et une heure : l'agent rédige et envoie à votre place.</EmptyState>
@@ -5494,6 +5497,8 @@ function PageAgents() {
           </div>
         )}
 
+        {onglet === "social" && <OngletSocial info={info} onMaj={charger} />}
+
         {onglet === "journal" && (info.journal.length === 0 ? <EmptyState icon={History} title="Aucune activité">Le travail de vos agents s'affichera ici.</EmptyState> : (
           <div className="list" style={{ padding: 8 }}>
             {info.journal.map((j) => {
@@ -5521,6 +5526,242 @@ function NumerosAlertes({ valeur, onEnregistrer }) {
     <Field label="Autres numéros à prévenir" optional help="Séparés par une virgule (associé, gérant…).">
       <div className="row"><Input icon={Phone} value={v} onChange={(e) => setV(e.target.value)} placeholder="0700000000, 0500000000" className="grow" />{v !== (valeur || "") && <Btn variant="primary" onClick={() => onEnregistrer(v)}>Enregistrer</Btn>}</div>
     </Field>
+  );
+}
+
+/* =====================================================================
+   Studio photo (pack Premium) : visuels nets et publicitaires créés à partir de la photo du produit
+   ===================================================================== */
+const srcImage = (i) => (i && i.startsWith("/uploads/") ? API_BASE + i : i);
+const chargerImage = (src) => new Promise((ok, non) => {
+  const im = new Image();
+  im.crossOrigin = "anonymous";
+  im.onload = () => ok(im); im.onerror = () => non(new Error("Impossible de lire cette photo."));
+  im.src = src;
+});
+
+const FONDS_STUDIO = [
+  { cle: "net", nom: "Photo nette" },
+  { cle: "studio", nom: "Studio clair", fond: (c, T) => { const g = c.createRadialGradient(T / 2, T * 0.42, T * 0.1, T / 2, T / 2, T * 0.75); g.addColorStop(0, "#ffffff"); g.addColorStop(1, "#e4ddd2"); return g; } },
+  { cle: "soleil", nom: "Fond chaleureux", fond: (c, T) => { const g = c.createLinearGradient(0, 0, T, T); g.addColorStop(0, "#ffd27a"); g.addColorStop(0.55, "#f2a516"); g.addColorStop(1, "#ee6a1f"); return g; } },
+  { cle: "luxe", nom: "Fond sombre", fond: (c, T) => { const g = c.createRadialGradient(T * 0.5, T * 0.4, T * 0.05, T / 2, T / 2, T * 0.8); g.addColorStop(0, "#4a3414"); g.addColorStop(1, "#120d08"); return g; } },
+  { cle: "pastel", nom: "Fond pastel", fond: (c, T) => { const g = c.createLinearGradient(0, 0, T, T); g.addColorStop(0, "#fde3ec"); g.addColorStop(1, "#dfeaff"); return g; } },
+  { cle: "nature", nom: "Fond vert", fond: (c, T) => { const g = c.createLinearGradient(0, T, T, 0); g.addColorStop(0, "#0f9d74"); g.addColorStop(1, "#b9f0d6"); return g; } },
+  { cle: "affiche", nom: "Affiche publicitaire", affiche: true, fond: (c, T) => { const g = c.createLinearGradient(0, 0, T, T); g.addColorStop(0, "#2a1d0c"); g.addColorStop(1, "#17110b"); return g; } },
+];
+
+/** Dessine les visuels (1000 × 1000). `decoupe` = photo sans fond si le détourage a été fait. */
+function creerVisuels(photo, decoupe, { nom = "", prix = 0, boutique = "" } = {}, seulement = null) {
+  const T = 1000;
+  const rond = (c, x, y, w, h, r) => { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); };
+  const soigner = "contrast(1.08) saturate(1.14) brightness(1.04)"; // retouche légère : couleurs et lumière
+  return FONDS_STUDIO.filter((f) => !seulement || f.cle === seulement).map((f) => {
+    const toile = document.createElement("canvas"); toile.width = T; toile.height = T;
+    const c = toile.getContext("2d");
+    c.imageSmoothingQuality = "high";
+    if (f.cle === "net") { // recadrage carré, retouché
+      const s = Math.min(photo.width, photo.height);
+      c.filter = soigner;
+      c.drawImage(photo, (photo.width - s) / 2, (photo.height - s) / 2, s, s, 0, 0, T, T);
+      return { ...f, url: toile.toDataURL("image/jpeg", 0.9) };
+    }
+    c.fillStyle = f.fond(c, T); c.fillRect(0, 0, T, T);
+    const zone = f.affiche ? { x: 140, y: 70, w: 720, h: 560 } : { x: 110, y: 110, w: 780, h: 780 };
+    if (decoupe) { // produit détouré, posé sur le fond avec une ombre douce
+      const e = Math.min(zone.w / decoupe.width, zone.h / decoupe.height), w = decoupe.width * e, h = decoupe.height * e;
+      const x = zone.x + (zone.w - w) / 2, y = zone.y + (zone.h - h) / 2;
+      c.save(); c.filter = "blur(18px)"; c.globalAlpha = 0.28; c.fillStyle = "#000";
+      c.beginPath(); c.ellipse(x + w / 2, y + h - 6, w * 0.36, 26, 0, 0, Math.PI * 2); c.fill(); c.restore();
+      c.save(); c.filter = soigner; c.shadowColor = "rgba(0,0,0,.28)"; c.shadowBlur = 40; c.shadowOffsetY = 18; c.drawImage(decoupe, x, y, w, h); c.restore();
+    } else { // sans détourage : la photo dans un cadre arrondi
+      const cote = Math.min(zone.w, zone.h), x = zone.x + (zone.w - cote) / 2, y = zone.y + (zone.h - cote) / 2;
+      c.save(); c.shadowColor = "rgba(0,0,0,.35)"; c.shadowBlur = 50; c.shadowOffsetY = 22; c.fillStyle = "#fff"; rond(c, x, y, cote, cote, 46); c.fill(); c.restore();
+      c.save(); rond(c, x + 12, y + 12, cote - 24, cote - 24, 36); c.clip(); c.filter = soigner;
+      const s = Math.min(photo.width, photo.height);
+      c.drawImage(photo, (photo.width - s) / 2, (photo.height - s) / 2, s, s, x + 12, y + 12, cote - 24, cote - 24); c.restore();
+    }
+    if (f.affiche) { // nom, prix et boutique
+      c.textAlign = "center"; c.fillStyle = "#fff"; c.font = "800 58px Inter, Arial, sans-serif";
+      const mots = String(nom).split(/\s+/), lignes = [""];
+      mots.forEach((m) => { const essai = (lignes[lignes.length - 1] + " " + m).trim(); if (c.measureText(essai).width > 860 && lignes[lignes.length - 1]) lignes.push(m); else lignes[lignes.length - 1] = essai; });
+      lignes.slice(0, 2).forEach((l, i) => c.fillText(l, T / 2, 720 + i * 66));
+      const y = 720 + Math.min(2, lignes.length) * 66 - 10, texte = fmt(prix);
+      c.font = "800 62px Inter, Arial, sans-serif";
+      const w = c.measureText(texte).width + 90, g = c.createLinearGradient(T / 2 - w / 2, 0, T / 2 + w / 2, 0);
+      g.addColorStop(0, "#f2a516"); g.addColorStop(1, "#ee6a1f");
+      c.fillStyle = g; rond(c, T / 2 - w / 2, y, w, 96, 48); c.fill();
+      c.fillStyle = "#1b1206"; c.fillText(texte, T / 2, y + 68);
+      c.fillStyle = "rgba(255,255,255,.75)"; c.font = "600 30px Inter, Arial, sans-serif";
+      c.fillText(boutique ? `${boutique} · commandez sur GOUABO` : "Commandez sur GOUABO", T / 2, 962);
+    }
+    return { ...f, url: toile.toDataURL("image/jpeg", 0.9) };
+  });
+}
+
+function StudioModal({ open, image, infos, onClose, onChoisir }) {
+  const { toast } = useApp();
+  const [photo, setPhoto] = useState(null);
+  const [decoupe, setDecoupe] = useState(null);
+  const [visuels, setVisuels] = useState([]);
+  const [choix, setChoix] = useState("");
+  const [service, setService] = useState(false);
+  const [busy, setBusy] = useState("");
+  const [erreur, setErreur] = useState("");
+  useEffect(() => {
+    if (!open) return;
+    setPhoto(null); setDecoupe(null); setVisuels([]); setChoix(""); setErreur(""); setBusy("");
+    chargerImage(srcImage(image)).then(setPhoto).catch((e) => setErreur(e.message));
+    apiFetch("GET", "/api/agents/studio").then((r) => setService(!!r.detourage)).catch(() => setService(false));
+  }, [open, image]);
+  useEffect(() => {
+    if (!photo) return;
+    try { const v = creerVisuels(photo, decoupe, infos); setVisuels(v); setChoix((c) => c || v[1]?.cle || v[0].cle); }
+    catch { setErreur("Cette photo ne peut pas être retouchée ici. Enregistrez-la d'abord depuis votre téléphone ou votre ordinateur."); }
+  }, [photo, decoupe]);
+  const detourer = async () => {
+    setBusy("fond");
+    try {
+      const t = document.createElement("canvas"), e = Math.min(1, 1400 / Math.max(photo.width, photo.height));
+      t.width = Math.round(photo.width * e); t.height = Math.round(photo.height * e);
+      t.getContext("2d").drawImage(photo, 0, 0, t.width, t.height);
+      const r = await apiFetch("POST", "/api/agents/images/detourer", { image: t.toDataURL("image/jpeg", 0.92) });
+      setDecoupe(await chargerImage(r.image));
+      toast({ title: "Fond retiré", desc: "Les arrière-plans sont appliqués au produit seul." });
+    } catch (x) { toast({ title: "Détourage impossible", desc: x.message, tone: "critical" }); }
+    finally { setBusy(""); }
+  };
+  const actuel = visuels.find((v) => v.cle === choix);
+  return (
+    <Modal open={open} onClose={onClose} title="Studio photo publicitaire" size="lg"
+      footer={<><Btn onClick={onClose}>Fermer</Btn>
+        <Btn icon={Download} disabled={!actuel} onClick={() => { const a = document.createElement("a"); a.href = actuel.url; a.download = `${(infos.nom || "produit").replace(/[^\w-]+/g, "-")}-${actuel.cle}.jpg`; a.click(); }}>Télécharger</Btn>
+        <Btn variant="primary" icon={Check} disabled={!actuel} onClick={() => { onChoisir(actuel.url); onClose(); toast({ title: "Photo du produit remplacée", desc: actuel.nom + " — pensez à enregistrer le produit." }); }}>Utiliser cette image</Btn></>}>
+      {erreur ? <div className="banner banner-critical"><AlertCircle size={16} />{erreur}</div> : !visuels.length ? <div className="pdf-attente"><span className="spinner" />Préparation des visuels…</div> : (
+        <div className="stack">
+          <div className="row-between" style={{ flexWrap: "wrap" }}>
+            <p className="subtle" style={{ margin: 0 }}>Choisissez le visuel qui vous plaît : il devient la photo du produit, ou vous le téléchargez pour vos réseaux.</p>
+            {service
+              ? <Btn icon={Sparkles} loading={busy === "fond"} disabled={!!decoupe} onClick={detourer}>{decoupe ? "Fond retiré" : "Retirer le fond de la photo"}</Btn>
+              : <Badge>Détourage automatique bientôt disponible</Badge>}
+          </div>
+          <div className="studio-grille">
+            {visuels.map((v) => (
+              <button type="button" key={v.cle} className={cx("studio-visuel", choix === v.cle && "on")} onClick={() => setChoix(v.cle)}>
+                <img src={v.url} alt={v.nom} /><span>{choix === v.cle && <Check size={13} />}{v.nom}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </Modal>
+  );
+}
+
+/* Bouton placé sous la photo du produit */
+function BoutonStudio({ image, infos, onChoisir }) {
+  const { abo, mode, data, go } = useApp();
+  const [ouvert, setOuvert] = useState(false);
+  if (mode !== "api" || !image) return null;
+  const premium = !!abo?.abonnement?.agents;
+  return (
+    <div className="studio-acces">
+      <Btn icon={Sparkles} onClick={() => (premium ? setOuvert(true) : go("abonnement"))}>{premium ? "Créer des visuels publicitaires" : "Visuels publicitaires (pack Premium)"}</Btn>
+      {premium && <span className="subtle">Fonds automatiques, photo retouchée, affiche avec le prix.</span>}
+      <StudioModal open={ouvert} image={image} infos={{ ...infos, boutique: data.boutique?.nom }} onClose={() => setOuvert(false)} onChoisir={onChoisir} />
+    </div>
+  );
+}
+
+/* =====================================================================
+   Agents IA — onglet Réseaux sociaux : une publicité par jour, prête à publier
+   ===================================================================== */
+function CartePublication({ p, info, onMaj }) {
+  const { toast, data } = useApp();
+  const [busy, setBusy] = useState("");
+  const r = info.social.reglages;
+  const copier = () => navigator.clipboard?.writeText(p.texte).then(() => toast({ title: "Texte copié", desc: "Collez-le dans votre publication." }));
+  const affiche = async () => {
+    setBusy("affiche");
+    try {
+      const v = creerVisuels(await chargerImage(srcImage(p.image)), null, { nom: p.produit, prix: p.prix_affiche, boutique: data.boutique?.nom }, "affiche")[0];
+      const a = document.createElement("a"); a.href = v.url; a.download = `publicite-${p.jour}.jpg`; a.click();
+    } catch (e) { toast({ title: "Affiche indisponible", desc: e.message, tone: "critical" }); }
+    finally { setBusy(""); }
+  };
+  const marquer = async () => { await apiFetch("POST", `/api/agents/social/${p.id}/publiee`, {}).catch(() => {}); onMaj(); };
+  return (
+    <div className="publication">
+      {p.image ? <img src={srcImage(p.image)} alt="" /> : <span className="todo-icon tint-5"><Megaphone size={18} /></span>}
+      <div className="grow" style={{ minWidth: 0 }}>
+        <div className="row-between" style={{ flexWrap: "wrap" }}><span className="strong">{p.produit || "Produit retiré"}</span>
+          <span className="row" style={{ gap: 6 }}><span className="subtle">{fmtDateCourt(p.jour)}</span><Badge tone={p.statut === "publie" ? "success" : "warning"} dot>{p.statut === "publie" ? "Publiée" : "Prête à publier"}</Badge></span></div>
+        <p className="publication-texte">{p.texte}</p>
+        {p.detail && <div className="subtle">{p.detail}</div>}
+        <div className="row" style={{ flexWrap: "wrap", marginTop: 8 }}>
+          <Btn size="sm" icon={Copy} onClick={copier}>Copier le texte</Btn>
+          {p.image && <Btn size="sm" icon={Download} loading={busy === "affiche"} onClick={affiche}>Télécharger l'affiche</Btn>}
+          {r.facebook && <a className="btn btn-secondary btn-sm" href={r.facebook} target="_blank" rel="noopener noreferrer"><ExternalLink size={14} /><span>Ouvrir Facebook</span></a>}
+          {r.instagram && <a className="btn btn-secondary btn-sm" href={r.instagram} target="_blank" rel="noopener noreferrer"><ExternalLink size={14} /><span>Ouvrir Instagram</span></a>}
+          {p.statut !== "publie" && <Btn size="sm" variant="primary" icon={Check} onClick={marquer}>C'est publié</Btn>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function OngletSocial({ info, onMaj }) {
+  const { toast } = useApp();
+  const r = info.social.reglages;
+  const [f, setF] = useState({ facebook: r.facebook, instagram: r.instagram, heure: Number(r.heure), fb_page_id: r.fb_page_id, fb_token: "" });
+  const [busy, setBusy] = useState("");
+  const [avance, setAvance] = useState(false);
+  const envoyer = async (corps, message) => {
+    setBusy("save");
+    try { await apiFetch("PUT", "/api/agents/social", corps); if (message) toast({ title: message }); setF((s) => ({ ...s, fb_token: "" })); onMaj(); }
+    catch (e) { toast({ title: "Enregistrement impossible", desc: e.message, tone: "critical" }); }
+    finally { setBusy(""); }
+  };
+  const preparer = async () => {
+    setBusy("now");
+    try { await apiFetch("POST", "/api/agents/social/preparer", {}); toast({ title: "Publicité préparée" }); onMaj(); }
+    catch (e) { toast({ title: "Préparation impossible", desc: e.message, tone: "critical" }); }
+    finally { setBusy(""); }
+  };
+  return (
+    <div className="stack" style={{ padding: 16 }}>
+      <div className="reglage-ligne"><div className="grow"><b>Une publicité par jour</b><div className="subtle">Chaque jour, l'agent choisit un produit, rédige le texte et prépare l'affiche avec le prix.</div></div>
+        <Switch on={r.actif === "1"} onChange={(v) => envoyer({ actif: v }, v ? "Publicité quotidienne activée" : "Publicité quotidienne en pause")} label="Activer la publicité quotidienne" /></div>
+      <div className="form-grid">
+        <Field label="Lien de votre page Facebook" optional><Input icon={Link2} value={f.facebook} onChange={(e) => setF({ ...f, facebook: e.target.value })} placeholder="https://facebook.com/maboutique" inputMode="url" /></Field>
+        <Field label="Lien de votre compte Instagram" optional><Input icon={Link2} value={f.instagram} onChange={(e) => setF({ ...f, instagram: e.target.value })} placeholder="https://instagram.com/maboutique" inputMode="url" /></Field>
+        <Field label="Heure de préparation (Abidjan)"><Select value={f.heure} onChange={(e) => setF({ ...f, heure: Number(e.target.value) })}>{[...Array(24)].map((_, k) => <option key={k} value={k}>{pad(k)} h 00</option>)}</Select></Field>
+        <div className="row" style={{ alignItems: "flex-end", justifyContent: "flex-end", flexWrap: "wrap" }}>
+          <Btn icon={Sparkles} loading={busy === "now"} onClick={preparer}>Préparer une publicité maintenant</Btn>
+          <Btn variant="primary" loading={busy === "save"} onClick={() => envoyer({ facebook: f.facebook, instagram: f.instagram, heure: f.heure }, "Réglages enregistrés")}>Enregistrer</Btn>
+        </div>
+      </div>
+      <div className="banner banner-info"><Info size={16} /><div>
+        {r.fb_connecte ? <><b>Page Facebook connectée :</b> la publicité du jour y est publiée automatiquement.</> : <><b>Publication en un geste :</b> copiez le texte, téléchargez l'affiche et ouvrez votre page.</>} Instagram se publie à la main. L'agent n'écrit jamais à des inconnus : Meta l'interdit et bloquerait votre compte.
+        {" "}<button type="button" className="link" onClick={() => setAvance((a) => !a)}>{avance ? "Masquer" : r.fb_connecte ? "Gérer la connexion Facebook" : "Publier automatiquement sur Facebook"}</button>
+      </div></div>
+      {avance && (
+        <div className="reglage-ligne" style={{ display: "block" }}>
+          <b>Connexion de la page Facebook</b>
+          <p className="subtle" style={{ margin: "4px 0 12px" }}>Il faut l'identifiant de votre page et un « jeton d'accès de page » créé sur developers.facebook.com avec votre compte (droit de publier sur la page). Le jeton est gardé secret et n'est jamais réaffiché.</p>
+          <div className="form-grid">
+            <Field label="Identifiant de la page"><Input value={f.fb_page_id} onChange={(e) => setF({ ...f, fb_page_id: e.target.value.replace(/\D/g, "") })} inputMode="numeric" placeholder="Ex : 104512345678901" /></Field>
+            <Field label="Jeton d'accès de page"><Input icon={KeyRound} type="password" value={f.fb_token} onChange={(e) => setF({ ...f, fb_token: e.target.value })} autoComplete="off" placeholder={r.fb_connecte ? "Jeton enregistré" : ""} /></Field>
+          </div>
+          <div className="row" style={{ justifyContent: "flex-end", marginTop: 12 }}>
+            {r.fb_connecte && <Btn onClick={() => envoyer({ fb_deconnecter: true }, "Page Facebook déconnectée")}>Déconnecter</Btn>}
+            <Btn variant="primary" disabled={!f.fb_page_id || (!f.fb_token && !r.fb_connecte)} onClick={() => envoyer({ fb_page_id: f.fb_page_id, ...(f.fb_token ? { fb_token: f.fb_token } : {}) }, "Page Facebook connectée")}>Connecter la page</Btn>
+          </div>
+        </div>
+      )}
+      {info.social.publications.length === 0
+        ? <EmptyState icon={Megaphone} title="Aucune publicité préparée">Activez la publicité quotidienne, ou préparez-en une tout de suite.</EmptyState>
+        : info.social.publications.map((p) => <CartePublication key={p.id} p={p} info={info} onMaj={onMaj} />)}
+    </div>
   );
 }
 

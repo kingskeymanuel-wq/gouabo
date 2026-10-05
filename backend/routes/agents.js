@@ -19,7 +19,11 @@ const agents = require("../lib/agents");
 const ia = require("../lib/ia");
 const { AUDIENCES, smsConfigure, emailConfigure } = require("../lib/marketing");
 const { envoyerSms } = require("../lib/sms");
+const social = require("../lib/social");
 const router = express.Router();
+
+/* Détourage (fond retiré) : service remove.bg, clé fournie par le propriétaire de la plateforme */
+const cleDetourage = () => process.env.REMOVE_BG_API_KEY || db.reglages.lire("detourage_cle") || "";
 
 const lireProgramme = (id) => db.prepare("SELECT * FROM agents_programmes WHERE id = ?").get(id);
 const canauxValides = (c) => (Array.isArray(c) ? c : String(c || "").split(",")).filter((x) => ["sms", "email"].includes(x));
@@ -52,7 +56,53 @@ router.get("/", (req, res) => {
     programmes: db.prepare("SELECT * FROM agents_programmes ORDER BY cree_le").all(),
     messages: db.prepare("SELECT * FROM messages_entrants ORDER BY cree_le DESC LIMIT 60").all(),
     journal: db.prepare("SELECT * FROM agents_journal ORDER BY cree_le DESC LIMIT 60").all(),
+    social: { reglages: social.lireReglages(), publications: social.publications(), lien_boutique: social.lienBoutique() },
+    detourage: Boolean(cleDetourage()),
   });
+});
+
+// Studio photo : ce que le serveur sait faire pour les images des produits
+router.get("/studio", (req, res) => res.json({ detourage: Boolean(cleDetourage()) }));
+
+// POST /api/agents/images/detourer { image: "data:image/…;base64,…" } → { image: PNG sans fond }
+router.post("/images/detourer", async (req, res) => {
+  const cle = cleDetourage();
+  if (!cle) return res.status(503).json({ erreur: "Le détourage automatique n'est pas encore activé sur la plateforme" });
+  const m = /^data:image\/(?:jpeg|png|webp);base64,([A-Za-z0-9+/=]+)$/.exec(String(req.body.image || ""));
+  if (!m) return res.status(400).json({ erreur: "Image invalide" });
+  if (m[1].length > 9_000_000) return res.status(413).json({ erreur: "Image trop lourde pour le détourage" });
+  try {
+    const r = await fetch("https://api.remove.bg/v1.0/removebg", {
+      method: "POST", signal: AbortSignal.timeout(45000),
+      headers: { "X-Api-Key": cle, "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({ image_file_b64: m[1], size: "auto", format: "png" }),
+    });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok || !j.data?.result_b64) {
+      console.error("Détourage refusé :", r.status, j.errors?.[0]?.title || "");
+      return res.status(502).json({ erreur: r.status === 402 ? "Le crédit de détourage de la plateforme est épuisé" : "Le détourage a échoué pour cette image" });
+    }
+    agents.journal("images", "Fond d'une photo de produit retiré");
+    res.json({ image: "data:image/png;base64," + j.data.result_b64 });
+  } catch (e) {
+    res.status(502).json({ erreur: "Service de détourage injoignable" });
+  }
+});
+
+/* ---------- Agent Réseaux sociaux ---------- */
+router.put("/social", (req, res) => {
+  const r = social.ecrireReglages(req.body || {});
+  if (r.erreur) return res.status(400).json({ erreur: r.erreur });
+  res.json(r.reglages);
+});
+router.post("/social/preparer", async (req, res) => {
+  try { res.status(201).json(await social.preparer({ journal: agents.journal })); }
+  catch (e) { res.status(400).json({ erreur: e.message }); }
+});
+router.post("/social/:id/publiee", (req, res) => {
+  const ok = db.prepare("UPDATE agents_publications SET statut = 'publie', detail = COALESCE(detail, 'Publiée à la main') WHERE id = ?").run(req.params.id).changes;
+  if (!ok) return res.status(404).json({ erreur: "Publication introuvable" });
+  res.json({ ok: true });
 });
 
 router.post("/rediger", async (req, res) => {

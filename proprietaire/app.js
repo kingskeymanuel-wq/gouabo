@@ -172,6 +172,15 @@
         </section>
 
         <section class="carte">
+          <div class="carte-tete"><div><h2>Studio photo : détourage automatique</h2><p>Clé du service remove.bg (compte à créer sur remove.bg, payant au-delà de l'offre gratuite). Elle permet aux vendeurs Premium de retirer le fond de leurs photos de produits. Elle n'est jamais affichée ici.</p></div>
+            ${pastille(t.service.detourage ? "actif" : "declare", t.service.detourage ? "Clé active" : "Aucune clé")}</div>
+          <form class="carte-corps" id="detourage">
+            <div class="grille"><label style="grid-column: span 2">Clé remove.bg<input name="cle" type="password" autocomplete="off" /></label>
+              <label>&nbsp;<button class="btn btn-or">Enregistrer la clé</button></label></div>
+          </form>
+        </section>
+
+        <section class="carte">
           <div class="carte-tete"><h2>Historique des paiements</h2></div>
           ${traites.length === 0 ? `<div class="vide">Aucun paiement pour l'instant.</div>` : `<div class="defile"><table>
             <thead><tr><th>Date</th><th>Espace</th><th>Pack</th><th class="d">Montant</th><th>Référence</th><th>Décision</th></tr></thead>
@@ -222,6 +231,11 @@
     if (ev.target.id === "mdp") {
       ev.preventDefault();
       try { await api("PUT", "/mot-de-passe", Object.fromEntries(new FormData(ev.target))); toast("Mot de passe enregistré : utilisez-le à la prochaine connexion"); await charger(); } catch (x) { toast(x.message, true); }
+      return;
+    }
+    if (ev.target.id === "detourage") {
+      ev.preventDefault();
+      try { await api("PUT", "/detourage", { cle: new FormData(ev.target).get("cle") }); toast("Clé de détourage enregistrée"); await charger(); } catch (x) { toast(x.message, true); }
       return;
     }
     if (ev.target.id === "ia") {
