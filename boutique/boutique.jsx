@@ -240,7 +240,7 @@ function PiedDePage() {
       </div>
       <div className="v-footer-bas">
         <span>© {new Date().getFullYear()} {PLATEFORME}{config.plateforme ? "" : " · " + b.nom}</span>
-        <span className="row" style={{ gap: 14, flexWrap: "wrap" }}><a href="/admin/?espace=admin">Mon espace administrateur</a><a href="/admin/?espace=vendeur">Mon espace vendeur</a><a href="#/devenir-vendeur">Devenir vendeur</a></span>
+        <span className="row" style={{ gap: 14, flexWrap: "wrap" }}><a href="/admin/?espace=admin">Mon espace administrateur</a><a href="/admin/?espace=vendeur">Mon espace vendeur</a><a href="#/devenir-vendeur">Devenir vendeur</a><a href="/confidentialite.html">Confidentialité</a></span>
       </div>
     </footer>
   );
