@@ -109,6 +109,35 @@ function payer(boutiqueId, formule, jours = 30) {
   return activer(boutiqueId, f, jours);
 }
 
+/* ---------- Paiement en ligne (CinetPay) : colonnes ajoutées à la table des paiements ---------- */
+for (const col of ["merchant_id TEXT", "transaction_id TEXT", "notify_token TEXT", "payment_url TEXT"]) {
+  try { db.plateforme.exec("ALTER TABLE paiements_abonnement ADD COLUMN " + col); } catch { /* colonne déjà présente */ }
+}
+
+/** Paiement en ligne lancé : en attente de la confirmation de CinetPay. */
+function ouvrirPaiementEnLigne(boutiqueId, { formule, auteur, telephone, merchantId }) {
+  const f = formules()[formuleValide(formule)];
+  const id = nanoid();
+  db.plateforme.prepare(
+    `INSERT INTO paiements_abonnement (id, boutique_id, formule, montant, operateur, telephone, reference, statut, auteur, cree_le, merchant_id)
+     VALUES (?, ?, ?, ?, 'CinetPay', ?, ?, 'en_cours', ?, ?, ?)`
+  ).run(id, boutiqueId, f.cle, f.prix, String(telephone || "").slice(0, 30), merchantId, String(auteur || "").slice(0, 80), new Date().toISOString(), merchantId);
+  return lirePaiement(id);
+}
+const completerPaiementEnLigne = (id, { transactionId, notifyToken, paymentUrl }) => db.plateforme.prepare("UPDATE paiements_abonnement SET transaction_id = ?, notify_token = ?, payment_url = ? WHERE id = ?").run(transactionId || null, notifyToken || null, paymentUrl || null, id);
+const paiementParMarchand = (merchantId) => db.plateforme.prepare("SELECT * FROM paiements_abonnement WHERE merchant_id = ?").get(String(merchantId));
+const paiementsEnCours = (boutiqueId) => db.plateforme.prepare("SELECT * FROM paiements_abonnement WHERE boutique_id = ? AND statut = 'en_cours' ORDER BY cree_le DESC").all(boutiqueId);
+
+/** Résultat confirmé par CinetPay : le pack est pris en compte (une seule fois), ou le paiement est marqué échoué. */
+function conclurePaiementEnLigne(id, { reussi, transactionId, statut }) {
+  const p = lirePaiement(id);
+  if (!p || p.statut !== "en_cours") return p;
+  db.plateforme.prepare("UPDATE paiements_abonnement SET statut = ?, reference = COALESCE(?, reference), note = ?, traite_le = ? WHERE id = ?")
+    .run(reussi ? "valide" : "echoue", transactionId || null, reussi ? "Confirmé par CinetPay" : "Paiement non abouti (" + statut + ")", new Date().toISOString(), id);
+  if (reussi) payer(p.boutique_id, p.formule);
+  return lirePaiement(id);
+}
+
 /** Le propriétaire annule un paiement qu'il n'a pas reçu : la durée correspondante est retirée. */
 function annulerPaiement(id, note = "", jours = 30) {
   const p = lirePaiement(id);
@@ -166,4 +195,4 @@ function premiumRequis(req, res, next) {
   res.status(403).json({ erreur: "Les agents IA sont réservés à la formule Premium.", formule_requise: "premium" });
 }
 
-module.exports = { formules, reglages, ecrireReglages, creer, etat, modifier, activer, paiementsDe, tousLesPaiements, lirePaiement, declarerPaiement, traiterPaiement, payer, annulerPaiement, abonnementRequis, premiumRequis, formuleValide };
+module.exports = { formules, reglages, ecrireReglages, creer, etat, modifier, activer, paiementsDe, tousLesPaiements, lirePaiement, declarerPaiement, traiterPaiement, payer, annulerPaiement, ouvrirPaiementEnLigne, completerPaiementEnLigne, paiementParMarchand, paiementsEnCours, conclurePaiementEnLigne, abonnementRequis, premiumRequis, formuleValide };

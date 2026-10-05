@@ -5128,7 +5128,14 @@ function PageAbonnement({ verrou }) {
   const [formule, setFormule] = useState(null);
   const [f, setF] = useState({ operateur: "", telephone: auth?.tel || "", reference: "" });
   const [busy, setBusy] = useState(false);
-  useEffect(() => { chargerAbo(); }, []);
+  const [email, setEmail] = useState(auth?.utilisateur?.email || "");
+  // Au retour du portail de paiement : on fait confirmer le paiement, puis on recharge l'abonnement
+  useEffect(() => { apiFetch("POST", "/api/abonnement/verifier", {}).catch(() => {}).finally(chargerAbo); }, []);
+  const payerEnLigne = async () => {
+    setBusy(true);
+    try { const r = await apiFetch("POST", "/api/abonnement/paiement/en-ligne", { formule: choix, email }); window.location.href = r.redirection; }
+    catch (err) { toast({ title: "Paiement impossible", desc: err.message, tone: "critical" }); setBusy(false); }
+  };
   if (!abo) return <Card><div className="pdf-attente"><span className="spinner" />Chargement…</div></Card>;
   const a = abo.abonnement;
   const choix = formule || (a.statut === "actif" ? a.formule : a.formule_demandee) || "essentiel";
@@ -5180,8 +5187,17 @@ function PageAbonnement({ verrou }) {
             </div>
           </Card>
 
-          <Card title={`${a.statut === "actif" && a.formule === choix ? "Renouveler" : a.statut === "actif" ? "Passer au" : "Payer"} le pack ${abo.formules[choix].nom} — ${fmt(abo.formules[choix].prix)}`} sub="Par Mobile Money, puis déclarez votre paiement ci-dessous">
-            {attente ? (
+          <Card title={`${a.statut === "actif" && a.formule === choix ? "Renouveler" : a.statut === "actif" ? "Passer au" : "Payer"} le pack ${abo.formules[choix].nom} — ${fmt(abo.formules[choix].prix)}`} sub={abo.paiement.en_ligne ? "Orange Money, MTN MoMo, Moov Money ou Wave" : "Par Mobile Money, puis déclarez votre paiement ci-dessous"}>
+            {abo.paiement.en_ligne ? (
+              <div className="stack">
+                <div className="banner banner-info"><ShieldCheck size={16} /><div><b>Paiement sécurisé par Mobile Money.</b> Vous entrez votre numéro sur le portail de paiement, puis vous confirmez avec votre code secret sur votre téléphone. Votre pack est pris en compte automatiquement dès que le paiement est confirmé.{abo.paiement.en_ligne_test && <><br /><b>Mode test : aucun débit réel.</b></>}</div></div>
+                {abo.historique.some((p) => p.statut === "en_cours") && <div className="banner banner-warning"><Clock size={16} /><div>Un paiement est en attente de confirmation. S'il a bien été validé sur votre téléphone, rechargez cette page dans un instant.</div></div>}
+                <div className="form-grid">
+                  <Field label="Votre adresse e-mail" help="Demandée par le portail de paiement, pour votre reçu."><Input icon={Mail} value={email} onChange={(e) => setEmail(e.target.value)} inputMode="email" autoComplete="email" placeholder="vous@exemple.com" /></Field>
+                  <div className="row" style={{ alignItems: "flex-end", justifyContent: "flex-end" }}><Btn variant="primary" size="lg" icon={Smartphone} loading={busy} onClick={payerEnLigne}>Payer {fmt(abo.formules[choix].prix)}</Btn></div>
+                </div>
+              </div>
+            ) : attente ? (
               <div className="banner banner-info"><Clock size={16} /><div><b>Paiement en cours de vérification</b> — {fmt(attente.montant)} · {attente.operateur || "Mobile Money"} · réf. {attente.reference}, déclaré le {fmtDateTime(attente.cree_le)}. Votre pack {abo.formules[attente.formule]?.nom} sera activé dès validation par GOUABO.</div></div>
             ) : (
               <div className="stack">
@@ -5216,7 +5232,7 @@ function PageAbonnement({ verrou }) {
                   <tr key={p.id}>
                     <td>{fmtDateTime(p.cree_le)}</td><td>{abo.formules[p.formule]?.nom || p.formule}</td><td className="right num">{fmt(p.montant)}</td>
                     <td className="hide-sm muted">{p.operateur} · {p.reference}</td>
-                    <td><Badge tone={p.statut === "valide" ? "success" : p.statut === "refuse" ? "critical" : "warning"} dot>{p.statut === "valide" ? "Payé" : p.statut === "refuse" ? "Annulé" : "En vérification"}</Badge>{p.note ? <div className="cell-sub">{p.note}</div> : null}</td>
+                    <td><Badge tone={p.statut === "valide" ? "success" : p.statut === "refuse" || p.statut === "echoue" ? "critical" : "warning"} dot>{p.statut === "valide" ? "Payé" : p.statut === "refuse" ? "Annulé" : p.statut === "echoue" ? "Non abouti" : "En cours"}</Badge>{p.note ? <div className="cell-sub">{p.note}</div> : null}</td>
                   </tr>
                 ))}</tbody>
               </table></div>

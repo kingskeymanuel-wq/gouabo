@@ -46,6 +46,14 @@ administrateur dédié à ses produits) et paie un pack mensuel.
 - La rédaction sur mesure utilise l'API Claude (`ANTHROPIC_API_KEY`). Sans clé, les agents envoient des modèles de messages standards.
   Sans fournisseur SMS / SMTP configuré, les envois sont simulés (journalisés).
 
+## Paiement des packs par CinetPay
+
+Quand `CINETPAY_API_KEY` et `CINETPAY_API_PASSWORD` sont renseignées, le vendeur paie son pack sur le portail
+sécurisé CinetPay (Orange Money, MTN MoMo, Moov Money, Wave) : il entre son numéro et confirme avec son code secret
+sur son téléphone. Le pack n'est pris en compte qu'après confirmation par CinetPay (notification authentifiée, puis
+statut redemandé à CinetPay). La déclaration manuelle d'un ID de transaction est alors désactivée.
+Sans ces clés, le fonctionnement reste la déclaration du transfert par le vendeur.
+
 ## Studio photo et réseaux sociaux (pack Premium)
 
 - **Studio photo** (fiche produit → « Créer des visuels publicitaires ») : à partir de la photo du produit, sept visuels sont

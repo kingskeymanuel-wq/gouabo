@@ -85,6 +85,8 @@ app.use("/api/boutique", boutiqueRoutes);
 
 // Portail du propriétaire de la plateforme (son propre code d'accès)
 app.use("/api/proprietaire", proprietaireRoutes);
+// Notification de CinetPay pour le paiement des packs (publique, authentifiée par son jeton)
+app.post("/api/abonnement-cinetpay/notification", abonnementRoutes.notification);
 
 // Images des produits
 app.use("/uploads", express.static(DOSSIER_UPLOADS, { maxAge: "30d", immutable: true, fallthrough: false }));

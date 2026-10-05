@@ -184,7 +184,7 @@
           <div class="carte-tete"><h2>Historique des paiements</h2></div>
           ${traites.length === 0 ? `<div class="vide">Aucun paiement pour l'instant.</div>` : `<div class="defile"><table>
             <thead><tr><th>Date</th><th>Espace</th><th>Pack</th><th class="d">Montant</th><th>Référence</th><th>Décision</th></tr></thead>
-            <tbody>${traites.map((p) => `<tr><td>${e(dateHeure(p.traite_le || p.cree_le))}</td><td><b>${e(p.boutique)}</b></td><td>${e(t.formules[p.formule]?.nom || p.formule)}</td><td class="d num">${e(fcfa(p.montant))}</td><td>${e(p.operateur || "")} · ${e(p.reference || "")}</td><td>${pastille(p.statut, p.statut === "valide" ? "Payé" : "Annulé")}${p.note ? `<small>${e(p.note)}</small>` : ""}</td></tr>`).join("")}</tbody></table></div>`}
+            <tbody>${traites.map((p) => `<tr><td>${e(dateHeure(p.traite_le || p.cree_le))}</td><td><b>${e(p.boutique)}</b></td><td>${e(t.formules[p.formule]?.nom || p.formule)}</td><td class="d num">${e(fcfa(p.montant))}</td><td>${e(p.operateur || "")} · ${e(p.reference || "")}</td><td>${pastille(p.statut === "valide" ? "valide" : p.statut === "en_cours" ? "declare" : "refuse", p.statut === "valide" ? "Payé" : p.statut === "en_cours" ? "En cours" : p.statut === "echoue" ? "Non abouti" : "Annulé")}${p.note ? `<small>${e(p.note)}</small>` : ""}</td></tr>`).join("")}</tbody></table></div>`}
         </section>
       </main>`;
   }
