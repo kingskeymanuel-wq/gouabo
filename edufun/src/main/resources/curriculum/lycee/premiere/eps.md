@@ -1,5 +1,5 @@
 ---
-levels: Première A, Première C, Première D
+levels: Première A, Première C, Première D, Première E, Première F1, Première F2, Première F3, Première F4, Première F7, Première G1, Première G2
 subject: EPS
 ---
 # Entraînement et performance

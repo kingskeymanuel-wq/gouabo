@@ -28,7 +28,17 @@
     'Éducation Musicale':       { id: 'education-musicale', name: 'Mme Nathalie Bléhoué', female: true, skin: '#6e4327', hair: '#141414', hairStyle: 'afro', top: '#db2777', accent: '#fce7f3', pitch: 1.12 },
     'EPS':                      { id: 'eps', name: 'Coach Moussa Bamba', female: false, skin: '#3f2616', hair: '#111', hairStyle: 'bald', top: '#16a34a', accent: '#ffffff', whistle: true, pitch: 0.94 },
     'Informatique':             { id: 'informatique', name: 'M. Hervé Kacou', female: false, skin: '#6b4226', hair: '#111', hairStyle: 'short', glasses: true, top: '#0f172a', accent: '#38bdf8', pitch: 0.98 },
-    "Développement d'applications": { id: 'developpement', name: 'Mlle Fatou Soro', female: true, skin: '#5c3a21', hair: '#121212', hairStyle: 'braids', glasses: true, top: '#4f46e5', accent: '#c7d2fe', pitch: 1.08 }
+    "Développement d'applications": { id: 'developpement', name: 'Mlle Fatou Soro', female: true, skin: '#5c3a21', hair: '#121212', hairStyle: 'braids', glasses: true, top: '#4f46e5', accent: '#c7d2fe', pitch: 1.08 },
+    // Lycée technique : spécialités des séries E, F et G
+    'Construction mécanique':   { id: 'construction-mecanique', name: 'M. Daouda Koné', female: false, skin: '#4b2e1c', hair: '#111', hairStyle: 'short', beard: true, top: '#1d4ed8', accent: '#facc15', coat: true, pitch: 0.9 },
+    'Électrotechnique':         { id: 'electrotechnique', name: 'M. Patrice Yapi', female: false, skin: '#5c3a21', hair: '#111', hairStyle: 'bald', glasses: true, top: '#f59e0b', accent: '#1f2937', pitch: 0.93 },
+    'Électronique':             { id: 'electronique', name: 'Mme Josiane Ehui', female: true, skin: '#6e4327', hair: '#141414', hairStyle: 'bun', glasses: true, top: '#0f766e', accent: '#99f6e4', pitch: 1.05 },
+    'Génie civil':              { id: 'genie-civil', name: 'M. Lassina Sangaré', female: false, skin: '#3f2616', hair: '#111', hairStyle: 'short', top: '#ea580c', accent: '#fef08a', pitch: 0.9 },
+    'Biochimie':                { id: 'biochimie', name: 'Dr Raïssa Kouamé', female: true, skin: '#7a4a2c', hair: '#141414', hairStyle: 'afro', glasses: true, top: '#f8fafc', accent: '#7c3aed', coat: true, pitch: 1.06 },
+    'Économie générale':        { id: 'economie', name: 'M. Arsène Bédi', female: false, skin: '#6b4226', hair: '#1a1a1a', hairStyle: 'short', glasses: true, top: '#334155', accent: '#e2e8f0', tie: '#b91c1c', pitch: 0.95 },
+    'Droit':                    { id: 'droit', name: 'Me Clarisse Ahoussou', female: true, skin: '#5e3a22', hair: '#101010', hairStyle: 'bun', top: '#111827', accent: '#f8fafc', pitch: 1.02 },
+    'Techniques administratives et bureautique': { id: 'bureautique', name: 'Mme Brigitte Kassi', female: true, skin: '#7b4a2b', hair: '#161616', hairStyle: 'headwrap', wrap: '#1d4ed8', top: '#1e3a8a', accent: '#bfdbfe', pitch: 1.07 },
+    'Comptabilité et gestion':  { id: 'comptabilite', name: 'M. Ousmane Fofana', female: false, skin: '#4a2c1a', hair: '#9ca3af', hairStyle: 'short', beard: true, beardColor: '#9ca3af', glasses: true, top: '#14532d', accent: '#dcfce7', tie: '#14532d', pitch: 0.92 }
   };
   const DEFAULT_TEACHER = { id: 'professeur', name: 'Dr Koné', female: true, skin: '#7a4a2a', hair: '#101010', hairStyle: 'bun', glasses: true, top: '#18a66a', accent: '#bdf0d6', pitch: 1.02 };
 

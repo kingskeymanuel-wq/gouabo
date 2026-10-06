@@ -1,5 +1,6 @@
 ---
 level: Terminale C
+also: Terminale E
 subject: Mathématiques
 ---
 # Arithmétique et géométrie (série C)

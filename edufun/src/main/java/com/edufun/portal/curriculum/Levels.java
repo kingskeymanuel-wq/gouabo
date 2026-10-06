@@ -12,6 +12,7 @@ public final class Levels {
     public static final String PRIMAIRE = "Primaire";
     public static final String COLLEGE = "Collège";
     public static final String LYCEE = "Lycée";
+    public static final String LYCEE_TECHNIQUE = "Lycée technique";
 
     private static final List<String> CP_SUBJECTS = List.of(
             "Français", "Mathématiques", "Sciences et Technologie", "Histoire-Géographie", "EDHC", "AEC", "EPS");
@@ -32,6 +33,29 @@ public final class Levels {
     private static final List<String> LYCEE_A_PHILO_SUBJECTS = List.of(
             "Français", "Philosophie", "Mathématiques", "Histoire-Géographie", "Anglais", "Espagnol", "Allemand", "SVT", "EDHC", "EPS", "Développement d'applications");
 
+    // Séries du baccalauréat technique (lycées techniques) : E, F1, F2, F3, F4, F7, G1, G2.
+    private static final List<String> TECH_SERIES = List.of("E", "F1", "F2", "F3", "F4", "F7", "G1", "G2");
+
+    /** Disciplines d'une série technique ; la philosophie commence en Première. */
+    private static List<String> techSubjects(String serie, boolean philo) {
+        List<String> s = new ArrayList<>(List.of("Français"));
+        if (philo) s.add("Philosophie");
+        s.add("Mathématiques");
+        switch (serie) {
+            case "E" -> s.addAll(List.of("Physique-Chimie", "Construction mécanique", "Électrotechnique"));
+            case "F1" -> s.addAll(List.of("Physique-Chimie", "Construction mécanique"));
+            case "F2" -> s.addAll(List.of("Physique-Chimie", "Électronique"));
+            case "F3" -> s.addAll(List.of("Physique-Chimie", "Électrotechnique"));
+            case "F4" -> s.addAll(List.of("Physique-Chimie", "Génie civil"));
+            case "F7" -> s.addAll(List.of("Physique-Chimie", "Biochimie", "SVT"));
+            case "G1" -> s.addAll(List.of("Économie générale", "Droit", "Techniques administratives et bureautique"));
+            case "G2" -> s.addAll(List.of("Économie générale", "Droit", "Comptabilité et gestion"));
+            default -> throw new IllegalArgumentException(serie);
+        }
+        s.addAll(List.of("Anglais", "Histoire-Géographie", "EDHC", "EPS", "Développement d'applications"));
+        return List.copyOf(s);
+    }
+
     private static final LinkedHashMap<String, Level> LEVELS = new LinkedHashMap<>();
     static {
         add("CP1", PRIMAIRE, CP_SUBJECTS);
@@ -49,6 +73,8 @@ public final class Levels {
         add("Terminale A", LYCEE, LYCEE_A_PHILO_SUBJECTS);
         add("Terminale C", LYCEE, LYCEE_SCIENCE_PHILO_SUBJECTS);
         add("Terminale D", LYCEE, LYCEE_SCIENCE_PHILO_SUBJECTS);
+        for (String year : List.of("Seconde", "Première", "Terminale"))
+            for (String serie : TECH_SERIES) add(year + " " + serie, LYCEE_TECHNIQUE, techSubjects(serie, !year.equals("Seconde")));
     }
 
     /** Anciennes valeurs (sans série) → classe actuelle. */

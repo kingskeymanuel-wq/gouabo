@@ -57,7 +57,7 @@ async function applySessionNav() {
 const SUBJECT_ICONS = {
   'Français': '📖', 'Mathématiques': '📐', 'Anglais': '🇬🇧', 'Sciences': '🔬', 'Sciences et Technologie': '🔬', 'AEC': '🎨', 'SVT': '🧬', 'Physique-Chimie': '⚗️',
   'Histoire-Géographie': '🌍', 'EDHC': '🤝', 'EPS': '⚽', 'Arts': '🎨', 'Arts Plastiques': '🎨', 'Éducation Musicale': '🎵',
-  'Informatique': '💻', 'Développement Web': '🌐', "Développement d'applications": '📱', 'Philosophie': '💭', 'Espagnol': '🇪🇸', 'Allemand': '🇩🇪'
+  'Informatique': '💻', 'Développement Web': '🌐', "Développement d'applications": '📱', 'Philosophie': '💭', 'Espagnol': '🇪🇸', 'Allemand': '🇩🇪', 'Construction mécanique': '⚙️', 'Électrotechnique': '⚡', 'Électronique': '🔌', 'Génie civil': '🏗️', 'Biochimie': '🧪', 'Économie générale': '📈', 'Droit': '⚖️', 'Techniques administratives et bureautique': '🗂️', 'Comptabilité et gestion': '🧾'
 };
 const ACTIVITY_ICONS = { LESSON: '📘', QUIZ: '🧠', EXAM: '🏆' };
 const fmtInt = n => Number(n || 0).toLocaleString('fr-FR');
@@ -519,7 +519,7 @@ function renderLessonSection(part, i) {
 }
 
 // ---- Page « Mon programme » ----
-const CYCLE_ORDER = ['Primaire', 'Collège', 'Lycée'];
+const CYCLE_ORDER = ['Primaire', 'Collège', 'Lycée', 'Lycée technique'];
 const programState = { catalog: [], level: '', subject: '', cycle: '', myLevel: '', done: new Set() };
 
 async function setupProgramme() {

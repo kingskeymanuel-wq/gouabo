@@ -1,5 +1,5 @@
 ---
-levels: Terminale C, Terminale D
+levels: Terminale C, Terminale D, Terminale E, Terminale F1, Terminale F2, Terminale F3, Terminale F4, Terminale F7
 subject: Mathématiques
 ---
 # Analyse

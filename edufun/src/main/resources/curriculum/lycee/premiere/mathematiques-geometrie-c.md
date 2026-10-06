@@ -1,5 +1,6 @@
 ---
 level: Première C
+also: Première E
 subject: Mathématiques
 ---
 # Géométrie de la série C

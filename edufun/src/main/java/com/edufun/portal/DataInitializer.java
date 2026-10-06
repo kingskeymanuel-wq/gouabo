@@ -35,7 +35,7 @@ public class DataInitializer {
             for (String subject : level.subjects()) {
                 addCourse(r, "Parcours complet — " + subject + " • " + level.code(), level.code(), subject, "Parcours", PHOTO + "pexels-8152734.jpg",
                         "Leçons conformes au programme éducatif ivoirien, avec exemples, exercices et corrigés.",
-                        Levels.LYCEE.equals(level.cycle()) ? "Avancé" : "Progressif", "Toute l'année");
+                        (Levels.LYCEE.equals(level.cycle()) || Levels.LYCEE_TECHNIQUE.equals(level.cycle())) ? "Avancé" : "Progressif", "Toute l'année");
             }
         }
     }

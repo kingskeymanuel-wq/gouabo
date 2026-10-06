@@ -1,5 +1,5 @@
 ---
-levels: Terminale A, Terminale C, Terminale D
+levels: Terminale A, Terminale C, Terminale D, Terminale E, Terminale F1, Terminale F2, Terminale F3, Terminale F4, Terminale F7, Terminale G1, Terminale G2
 subject: Français
 ---
 # Littérature et société

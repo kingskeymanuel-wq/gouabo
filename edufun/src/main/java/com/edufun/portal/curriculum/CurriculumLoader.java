@@ -132,7 +132,18 @@ public class CurriculumLoader {
             }
             return all;
         }
-        return parseBody(lines, i, meta.get("level"), subject, fileName);
+        List<ParsedLesson> own = parseBody(lines, i, meta.get("level"), subject, fileName);
+        // « level: Seconde C » + « also: Seconde E, Seconde F1 » : la classe d'origine garde ses codes
+        // (et donc la progression des élèves), les autres séries reçoivent des codes suffixés.
+        if (!meta.containsKey("also")) return own;
+        List<ParsedLesson> all = new ArrayList<>(own);
+        for (String lv : meta.get("also").split(",")) {
+            String level = lv.trim();
+            String suffix = level.substring(level.lastIndexOf(' ') + 1);
+            for (ParsedLesson p : parseBody(lines, i, level, subject, fileName))
+                all.add(new ParsedLesson(p.code() + "-" + suffix, level, subject, p.chapter(), p.title(), p.duration(), p.objective(), p.content()));
+        }
+        return all;
     }
 
     private static List<ParsedLesson> parseBody(String[] lines, int start, String level, String subject, String fileName) {

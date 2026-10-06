@@ -1,5 +1,5 @@
 ---
-levels: Terminale A, Terminale C, Terminale D
+levels: Terminale A, Terminale C, Terminale D, Terminale F7
 subject: SVT
 ---
 # Hérédité et génétique

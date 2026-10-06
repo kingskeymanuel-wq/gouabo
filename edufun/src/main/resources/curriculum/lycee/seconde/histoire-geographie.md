@@ -1,5 +1,5 @@
 ---
-levels: Seconde A, Seconde C
+levels: Seconde A, Seconde C, Seconde E, Seconde F1, Seconde F2, Seconde F3, Seconde F4, Seconde F7, Seconde G1, Seconde G2
 subject: Histoire-Géographie
 ---
 # Histoire

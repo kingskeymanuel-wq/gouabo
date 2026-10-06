@@ -1,5 +1,5 @@
 ---
-levels: Première A, Première C, Première D
+levels: Première A, Première C, Première D, Première F7
 subject: SVT
 ---
 # Énergie et vie cellulaire

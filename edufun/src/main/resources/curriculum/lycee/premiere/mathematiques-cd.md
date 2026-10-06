@@ -1,5 +1,5 @@
 ---
-levels: Première C, Première D
+levels: Première C, Première D, Première E, Première F1, Première F2, Première F3, Première F4, Première F7
 subject: Mathématiques
 ---
 # Analyse

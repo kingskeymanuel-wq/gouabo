@@ -1,5 +1,5 @@
 ---
-levels: Seconde A, Seconde C
+levels: Seconde A, Seconde C, Seconde F7
 subject: SVT
 ---
 # La cellule et le vivant
