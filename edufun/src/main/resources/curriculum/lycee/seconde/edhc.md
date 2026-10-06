@@ -8,6 +8,17 @@ subject: EDHC
 Objectif : Identifier les formes de participation du citoyen.
 ### Je retiens
 > Voter, s'engager dans une association, participer aux débats publics, respecter les biens communs, payer ses impôts. La société civile (ONG, syndicats, associations) contribue au contrôle de l'action publique.
+### Je vérifie
+? Laquelle de ces actions est une forme de participation citoyenne ?
++ Voter lors des élections
+- Dégrader les biens publics
+- Refuser de payer ses impôts
+! Voter permet au citoyen de participer aux choix collectifs.
+? Aya s'engage dans une ONG qui surveille l'utilisation des fonds publics à Bouaké. Elle participe :
++ à la société civile
+- au gouvernement
+- à l'armée
+! Les ONG et associations font partie de la société civile, qui contrôle l'action publique.
 ### Je m'exerce
 1. Cite deux formes de participation citoyenne.
 ### Corrigé
@@ -17,6 +28,17 @@ Objectif : Identifier les formes de participation du citoyen.
 Objectif : Comprendre les conséquences de la fraude aux examens et de la corruption.
 ### Je retiens
 > La fraude aux examens dévalorise les diplômes et est sanctionnée (exclusion, interdiction de se présenter). La Haute Autorité pour la bonne gouvernance (HABG) lutte contre la corruption en Côte d'Ivoire.
+### Je vérifie
+? Quelle institution lutte contre la corruption en Côte d'Ivoire ?
++ La Haute Autorité pour la bonne gouvernance (HABG)
+- La Cour suprême
+- Le Conseil économique
+! La HABG est chargée de la lutte contre la corruption.
+? Quelle est une conséquence de la fraude aux examens ?
++ Elle dévalorise les diplômes et entraîne des sanctions.
+- Elle augmente la valeur du diplôme.
+- Elle n'a aucune conséquence si on n'est pas pris.
+! La fraude dévalorise les diplômes et est sanctionnée (exclusion, interdiction de se présenter).
 ### Je m'exerce
 1. Quelle institution lutte contre la corruption en Côte d'Ivoire ?
 ### Corrigé
@@ -26,6 +48,17 @@ Objectif : Comprendre les conséquences de la fraude aux examens et de la corrup
 Objectif : Comprendre le rôle de l'impôt.
 ### Je retiens
 > L'impôt finance les services publics : écoles, hôpitaux, routes, sécurité. Payer ses impôts est un devoir citoyen ; la fraude fiscale prive l'État de moyens.
+### Je vérifie
+? À quoi sert l'impôt ?
++ À financer les services publics
+- À enrichir les commerçants
+- À payer les dettes des particuliers
+! L'impôt finance écoles, hôpitaux, routes et sécurité.
+? Un commerçant d'Adjamé cache ses revenus pour ne pas payer d'impôts. Conséquence :
++ L'État a moins de moyens pour les écoles et les hôpitaux.
+- Les routes seront mieux entretenues.
+- Les services publics s'améliorent.
+! La fraude fiscale prive l'État de moyens.
 ### Je m'exerce
 1. Cite deux services financés par l'impôt.
 ### Corrigé
