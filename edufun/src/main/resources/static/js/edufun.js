@@ -56,7 +56,7 @@ async function applySessionNav() {
 const SUBJECT_ICONS = {
   'Français': '📖', 'Mathématiques': '📐', 'Anglais': '🇬🇧', 'Sciences': '🔬', 'Sciences et Technologie': '🔬', 'AEC': '🎨', 'SVT': '🧬', 'Physique-Chimie': '⚗️',
   'Histoire-Géographie': '🌍', 'EDHC': '🤝', 'EPS': '⚽', 'Arts': '🎨', 'Arts Plastiques': '🎨', 'Éducation Musicale': '🎵',
-  'Informatique': '💻', 'Développement Web': '🌐', 'Philosophie': '💭', 'Espagnol': '🇪🇸'
+  'Informatique': '💻', 'Développement Web': '🌐', "Développement d'applications": '📱', 'Philosophie': '💭', 'Espagnol': '🇪🇸'
 };
 const ACTIVITY_ICONS = { LESSON: '📘', QUIZ: '🧠', EXAM: '🏆' };
 const fmtInt = n => Number(n || 0).toLocaleString('fr-FR');
@@ -362,8 +362,9 @@ async function loadLessonReader(){
     $('#readerPrev').disabled=!prev; $('#readerNext').disabled=!next;
     $('#readerPrev').onclick=()=>{if(prev)location.href='/lecon/'+prev.id};
     $('#readerNext').onclick=()=>{if(next)location.href='/lecon/'+next.id};
-    $('#readerDone').onclick=async()=>{const sid=localStorage.getItem('edufunStudentId');if(!sid){toast('Inscris-toi pour enregistrer ta progression.');return;}try{const r=await api(`/lessons/${l.id}/complete?studentId=${sid}`,{method:'POST'});toast(r.alreadyCompleted?'Leçon déjà terminée ✓':`Leçon validée · +20 XP · ${r.xp} XP`);$('#readerDone').textContent='✓ Leçon terminée';$('#readerDone').disabled=true;}catch(e){toast('Impossible d’enregistrer la progression.')}};
-    try{const sid=localStorage.getItem('edufunStudentId');if(sid){const pr=await api(`/students/${sid}/progress`);if((pr.records||[]).some(r=>r.lessonId===l.id&&r.completed)){$('#readerDone').textContent='✓ Leçon terminée';$('#readerDone').disabled=true;}}}catch(_){}
+    updateDoneState();
+    $('#readerDone').onclick=async()=>{const sid=localStorage.getItem('edufunStudentId');if(!sid){toast('Inscris-toi pour enregistrer ta progression.');return;}const total=lessonChecks.all.length;const score=total?Math.round(lessonChecks.firstTry.size*100/total):100;try{const r=await api(`/lessons/${l.id}/complete?studentId=${sid}&score=${score}`,{method:'POST'});$('#readerDone').dataset.completed='1';toast(r.alreadyCompleted?'Leçon déjà terminée ✓':`Leçon validée · score ${score} % · +20 XP · ${r.xp} XP`);$('#readerDone').textContent='✓ Leçon terminée';$('#readerDone').disabled=true;}catch(e){toast('Impossible d’enregistrer la progression.')}};
+    try{const sid=localStorage.getItem('edufunStudentId');if(sid){const pr=await api(`/students/${sid}/progress`);if((pr.records||[]).some(r=>r.lessonId===l.id&&r.completed)){$('#readerDone').dataset.completed='1';$('#readerDone').textContent='✓ Leçon terminée';$('#readerDone').disabled=true;}}}catch(_){}
     const list=$('#readerLessons'); list.innerHTML=all.map((x,i)=>`<a class="reader-lesson ${x.id===l.id?'active':''}" href="/lecon/${x.id}"><span>${String(i+1).padStart(2,'0')}</span><div><b>${esc(x.title)}</b><small>${esc(x.chapter)}</small></div></a>`).join('');
   }catch(e){root.innerHTML='<div class="card empty">Impossible de charger cette leçon.</div>';}
 }
@@ -384,6 +385,7 @@ function renderRichText(body) {
     if ((m = line.match(/^[-•]\s+(.*)/))) { if (list !== 'ul') { close(); out.push('<ul>'); list = 'ul'; } out.push(`<li>${inlineFormat(m[1])}</li>`); continue; }
     if ((m = line.match(/^\d+[.)]\s+(.*)/))) { if (list !== 'ol') { close(); out.push('<ol>'); list = 'ol'; } out.push(`<li>${inlineFormat(m[1])}</li>`); continue; }
     close();
+    if ((m = line.match(/^!\[(.*?)\]\((.+?)\)$/))) { out.push(`<figure class="lr-figure"><img src="${esc(m[2])}" alt="${esc(m[1])}" loading="lazy" onerror="this.closest('figure').remove()"><figcaption>${inlineFormat(m[1])}</figcaption></figure>`); continue; }
     if ((m = line.match(/^>\s?(.*)/))) out.push(`<div class="lr-key">${inlineFormat(m[1])}</div>`);
     else if ((m = line.match(/^=\s?(.*)/))) out.push(`<div class="lr-example">${inlineFormat(m[1])}</div>`);
     else out.push(`<p>${inlineFormat(line)}</p>`);
@@ -392,8 +394,69 @@ function renderRichText(body) {
   return out.join('');
 }
 
+// ---- Évaluations de compréhension (« Je vérifie ») ----
+// Syntaxe : « ? question », « + bonne réponse », « - mauvaise réponse », « ! explication ».
+function parseChecks(body, sectionIndex) {
+  const qs = []; let q = null;
+  for (const raw of body.split('\n')) {
+    const line = raw.trim(); if (!line) continue;
+    if (line.startsWith('?')) { q = { id: `s${sectionIndex}q${qs.length}`, text: line.slice(1).trim(), choices: [], why: '' }; qs.push(q); }
+    else if (q && /^[+-]\s/.test(line)) q.choices.push({ t: line.slice(2).trim(), ok: line[0] === '+' });
+    else if (q && line.startsWith('!')) q.why = line.slice(1).trim();
+  }
+  return qs.filter(x => x.choices.some(c => c.ok));
+}
+const lessonChecks = { all: [], passed: new Set(), firstTry: new Set(), tried: new Set() };
+
+function renderChecks(body, i) {
+  const qs = parseChecks(body, i);
+  qs.forEach(q => lessonChecks.all.push(q.id));
+  return qs.map((q, n) => `<div class="lr-check" data-qid="${q.id}">
+    <p class="lr-check-q"><span>Question ${n + 1}</span>${inlineFormat(q.text)}</p>
+    <div class="lr-check-choices">${q.choices.map((c, k) => `<button type="button" class="lr-choice" data-ok="${c.ok ? 1 : 0}"><b>${'ABCD'[k] || k + 1}</b>${inlineFormat(c.t)}</button>`).join('')}</div>
+    <div class="lr-check-feedback" hidden></div><template>${inlineFormat(q.why)}</template></div>`).join('');
+}
+
+function markCheck(qid, correct, fromPlayer) {
+  const box = document.querySelector(`.lr-check[data-qid="${qid}"]`);
+  if (!lessonChecks.tried.has(qid) && correct) lessonChecks.firstTry.add(qid);
+  lessonChecks.tried.add(qid);
+  if (correct) lessonChecks.passed.add(qid);
+  if (box && correct) {
+    box.classList.add('passed');
+    box.querySelectorAll('.lr-choice').forEach(b => { b.disabled = true; if (b.dataset.ok === '1') b.classList.add('right'); });
+    const fb = box.querySelector('.lr-check-feedback'); fb.hidden = false;
+    fb.innerHTML = `<b>✓ Bonne réponse${fromPlayer ? ' (donnée avec le professeur)' : ''}.</b> ${box.querySelector('template').innerHTML}`;
+  }
+  updateDoneState();
+}
+
+function updateDoneState() {
+  const btn = $('#readerDone'); if (!btn || btn.dataset.completed) return;
+  const total = lessonChecks.all.length, ok = lessonChecks.passed.size;
+  const bar = $('#checkProgress');
+  if (bar) bar.innerHTML = total ? `<b>${ok}/${total}</b> évaluation${total > 1 ? 's' : ''} réussie${ok > 1 ? 's' : ''}` : '';
+  if (total && ok < total) { btn.disabled = true; btn.textContent = `Réussis les évaluations (${ok}/${total})`; }
+  else { btn.disabled = false; btn.textContent = '✓ Terminer +20 XP'; }
+}
+
+document.addEventListener('click', e => {
+  const b = e.target.closest('.lr-choice'); if (!b || b.disabled) return;
+  const box = b.closest('.lr-check'); const qid = box.dataset.qid; const ok = b.dataset.ok === '1';
+  if (ok) markCheck(qid, true);
+  else {
+    lessonChecks.tried.add(qid); b.classList.add('wrong'); b.disabled = true;
+    const fb = box.querySelector('.lr-check-feedback'); fb.hidden = false;
+    fb.innerHTML = '<b>✗ Ce n\'est pas la bonne réponse.</b> Relis la partie « Je retiens » et essaie encore.';
+  }
+});
+document.addEventListener('edufun:check', e => markCheck(e.detail.qid, e.detail.correct, true));
+
 function renderLessonSection(part, i) {
   const lines = part.split('\n'); const heading = lines[0]; const body = lines.slice(1).join('\n');
+  if (/^je vérifie/i.test(heading)) {
+    return `<section class="lesson-section lr-checks"><span class="lesson-index">${String(i + 1).padStart(2, '0')}</span><div><h3>✅ ${esc(heading)}</h3><p class="muted">Réponds pour valider ta compréhension avant de continuer.</p><div class="lesson-richtext">${renderChecks(body, i)}</div></div></section>`;
+  }
   const isCorrection = /^corrig/i.test(heading);
   const html = renderRichText(body || heading);
   const content = isCorrection ? `<details class="lr-correction"><summary>👀 Voir le corrigé</summary>${html}</details>` : html;

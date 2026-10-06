@@ -57,6 +57,26 @@
 @keyframes cu-shimmer{to{background-position:-200% 0}}
 
 /* ---------- Lecteur de leçon ---------- */
+.lr-figure{margin:0 0 14px;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:#f7f8fb}
+.lr-figure img{display:block;width:100%;max-height:380px;object-fit:cover}
+.lr-figure figcaption{padding:8px 12px;font-size:13px;color:var(--muted)}
+.lesson-section.lr-checks{background:linear-gradient(180deg,#f3fbf7,#fff)}
+.lr-check{border:1px solid var(--line);border-radius:16px;padding:16px;margin:0 0 12px;background:#fff}
+.lr-check.passed{border-color:#9fdcbf;background:#f6fcf9}
+.lr-check-q{font-weight:700;margin:0 0 12px}
+.lr-check-q span{display:inline-block;font:600 11px 'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.08em;color:var(--brand);background:#f1efff;border-radius:999px;padding:3px 8px;margin-right:8px}
+.lr-check-choices{display:grid;gap:8px}
+.lr-choice{display:flex;gap:10px;align-items:flex-start;text-align:left;border:1px solid var(--line);background:#fff;border-radius:12px;padding:10px 12px;cursor:pointer;font:inherit;color:var(--ink);transition:.15s}
+.lr-choice:hover:not(:disabled){border-color:#bfb3ff;background:#faf9ff}
+.lr-choice b{flex-shrink:0;width:24px;height:24px;border-radius:7px;display:grid;place-items:center;background:#f1f2f8;font-size:12px}
+.lr-choice.right{border-color:#18a66a;background:#e7f7ef}
+.lr-choice.right b{background:#18a66a;color:#fff}
+.lr-choice.wrong{border-color:#e45d6a;background:#fff0f2;opacity:.8}
+.lr-choice.wrong b{background:#e45d6a;color:#fff}
+.lr-choice:disabled{cursor:default}
+.lr-check-feedback{margin-top:10px;font-size:14px;line-height:1.5;padding:10px 12px;border-radius:10px;background:#f7f8fb}
+.lr-check.passed .lr-check-feedback{background:#e7f7ef}
+.check-progress{font-size:13px;color:var(--muted)}
 .lesson-richtext p{margin:0 0 12px}
 .lesson-richtext p:last-child{margin-bottom:0}
 .lesson-richtext ul,.lesson-richtext ol{margin:0 0 12px;padding-left:22px}
