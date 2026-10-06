@@ -57,6 +57,8 @@ public class CurriculumLoader {
 
         List<ParsedLesson> parsed = new ArrayList<>();
         Resource[] files = new PathMatchingResourcePatternResolver().getResources("classpath*:curriculum/**/*.md");
+        // Ordre déterministe : une discipline répartie sur plusieurs fichiers garde toujours le même ordre.
+        Arrays.sort(files, Comparator.comparing(r -> { try { return r.getURL().toString(); } catch (IOException e) { return String.valueOf(r.getFilename()); } }));
         for (Resource r : files) {
             try (InputStream in = r.getInputStream()) {
                 parsed.addAll(parse(new String(in.readAllBytes(), StandardCharsets.UTF_8), r.getFilename()));
