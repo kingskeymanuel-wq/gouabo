@@ -21,11 +21,11 @@ Une correspondante de Madrid envoie un message vidéo à la classe. Les élèves
 ## 4E-ES-02 | El alfabeto y la pronunciación | 45 min
 Objectif : Prononcer correctement les lettres particulières de l'espagnol.
 ### Je retiens
-= j (jota) se prononce comme un « r » raclé : jugar
-= ñ (eñe) = gn : España, mañana
-= ll (elle) ≈ « y » : calle, llamar
-= v se prononce presque comme b ; h est muet : hola
-= rr est roulé fortement : perro
+- j (jota) se prononce comme un « r » raclé : jugar
+- ñ (eñe) = gn : España, mañana
+- ll (elle) ≈ « y » : calle, llamar
+- v se prononce presque comme b ; h est muet : hola
+- rr est roulé fortement : perro
 ### Je m'exerce
 1. Lis : mañana, llave, joven, perro.
 ### Corrigé
