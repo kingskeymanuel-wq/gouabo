@@ -14,6 +14,8 @@
 .cu-cycles button{border:0;background:transparent;padding:9px 18px;border-radius:10px;font-weight:700;color:var(--muted);cursor:pointer}
 .cu-cycles button[aria-selected=true]{background:#fff;color:var(--ink);box-shadow:0 2px 8px rgba(23,32,51,.08)}
 .cu-levels{display:flex;flex-wrap:wrap;gap:8px}
+.cu-level-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;width:100%}
+.cu-level-year{width:84px;flex:none;font:600 11px 'IBM Plex Mono',monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .cu-level{position:relative;border:1px solid var(--line);background:#fff;border-radius:12px;padding:10px 16px;font-weight:700;cursor:pointer;color:var(--ink);transition:.15s}
 .cu-level:hover{border-color:#cfc6ff;background:#faf9ff}
 .cu-level[aria-pressed=true]{background:var(--brand);border-color:var(--brand);color:#fff}

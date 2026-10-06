@@ -555,8 +555,13 @@ function renderCycles() {
 
 function renderLevels() {
   const box = $('[data-levels]');
-  box.innerHTML = programState.catalog.filter(c => c.cycle === programState.cycle).map(c =>
-    `<button class="cu-level" aria-pressed="${c.level === programState.level}" data-level="${esc(c.level)}">${esc(c.level)}${c.level === programState.myLevel ? '<span class="cu-mine">Ma classe</span>' : ''}</button>`).join('');
+  const chip = (c, label = c.level) => `<button class="cu-level" aria-pressed="${c.level === programState.level}" data-level="${esc(c.level)}" title="${esc(c.level)}">${esc(label)}${c.level === programState.myLevel ? '<span class="cu-mine">Ma classe</span>' : ''}</button>`;
+  const entries = programState.catalog.filter(c => c.cycle === programState.cycle);
+  if (programState.cycle === 'Lycée technique') {
+    // Une ligne par année (Seconde, Première, Terminale), une puce par série.
+    const years = [...new Set(entries.map(c => c.level.split(' ')[0]))];
+    box.innerHTML = years.map(y => `<div class="cu-level-row"><span class="cu-level-year">${esc(y)}</span>${entries.filter(c => c.level.startsWith(y + ' ')).map(c => chip(c, 'Série ' + c.level.slice(y.length + 1))).join('')}</div>`).join('');
+  } else box.innerHTML = entries.map(c => chip(c)).join('');
   box.onclick = e => { const b = e.target.closest('[data-level]'); if (b) selectLevel(b.dataset.level, programState.subject); };
 }
 
