@@ -13,6 +13,8 @@ public final class Levels {
     public static final String COLLEGE = "Collège";
     public static final String LYCEE = "Lycée";
 
+    private static final List<String> CP_SUBJECTS = List.of(
+            "Français", "Mathématiques", "Sciences et Technologie", "EDHC", "AEC", "EPS");
     private static final List<String> PRIMAIRE_SUBJECTS = List.of(
             "Français", "Mathématiques", "Sciences et Technologie", "Histoire-Géographie", "EDHC", "AEC", "EPS");
     private static final List<String> COLLEGE_SUBJECTS = List.of(
@@ -32,7 +34,9 @@ public final class Levels {
 
     private static final LinkedHashMap<String, Level> LEVELS = new LinkedHashMap<>();
     static {
-        for (String l : List.of("CP1", "CP2", "CE1", "CE2", "CM1", "CM2")) add(l, PRIMAIRE, PRIMAIRE_SUBJECTS);
+        add("CP1", PRIMAIRE, CP_SUBJECTS);
+        add("CP2", PRIMAIRE, CP_SUBJECTS);
+        for (String l : List.of("CE1", "CE2", "CM1", "CM2")) add(l, PRIMAIRE, PRIMAIRE_SUBJECTS);
         add("6e", COLLEGE, COLLEGE_SUBJECTS);
         add("5e", COLLEGE, COLLEGE_SUBJECTS);
         add("4e", COLLEGE, COLLEGE_LV2_SUBJECTS);
