@@ -383,7 +383,7 @@ function renderRichText(body) {
     const line = raw.trim(); if (!line) continue;
     let m;
     if ((m = line.match(/^[-•]\s+(.*)/))) { if (list !== 'ul') { close(); out.push('<ul>'); list = 'ul'; } out.push(`<li>${inlineFormat(m[1])}</li>`); continue; }
-    if ((m = line.match(/^\d+[.)]\s+(.*)/))) { if (list !== 'ol') { close(); out.push('<ol>'); list = 'ol'; } out.push(`<li>${inlineFormat(m[1])}</li>`); continue; }
+    if ((m = line.match(/^(\d+)[.)]\s+(.*)/))) { if (list !== 'ol') { close(); out.push('<ol>'); list = 'ol'; } out.push(`<li value="${m[1]}">${inlineFormat(m[2])}</li>`); continue; }
     close();
     if ((m = line.match(/^!\[(.*?)\]\((.+?)\)$/))) { out.push(`<figure class="lr-figure"><img src="${esc(m[2])}" alt="${esc(m[1])}" loading="lazy" onerror="this.closest('figure').remove()"><figcaption>${inlineFormat(m[1])}</figcaption></figure>`); continue; }
     if ((m = line.match(/^>\s?(.*)/))) out.push(`<div class="lr-key">${inlineFormat(m[1])}</div>`);
@@ -404,6 +404,8 @@ function parseChecks(body, sectionIndex) {
     else if (q && /^[+-]\s/.test(line)) q.choices.push({ t: line.slice(2).trim(), ok: line[0] === '+' });
     else if (q && line.startsWith('!')) q.why = line.slice(1).trim();
   }
+  // Les réponses sont mélangées à chaque affichage : la bonne n'est jamais toujours au même endroit.
+  qs.forEach(x => x.choices.sort(() => Math.random() - .5));
   return qs.filter(x => x.choices.some(c => c.ok));
 }
 const lessonChecks = { all: [], passed: new Set(), firstTry: new Set(), tried: new Set() };
