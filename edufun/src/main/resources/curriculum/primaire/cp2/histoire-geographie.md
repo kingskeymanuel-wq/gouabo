@@ -9,6 +9,17 @@ Objectif : Connaître les jours, les mois et l'année et utiliser le calendrier.
 ### Je retiens
 > Une semaine = 7 jours. Une année = 12 mois : janvier, février, mars, avril, mai, juin, juillet, août, septembre, octobre, novembre, décembre.
 - Le calendrier permet de trouver la date : jour, mois, année.
+### Je vérifie
+? Combien de mois dans une année ?
++ 12
+- 7
+- 10
+! Janvier à décembre : 12 mois.
+? Quel mois vient après juin ?
++ juillet
+- mai
+- août
+! Juin, puis juillet.
 ### Je m'exerce
 1. Quel mois vient après juin ?
 2. Quelle est la date d'aujourd'hui ?
@@ -20,6 +31,17 @@ Objectif : Connaître les jours, les mois et l'année et utiliser le calendrier.
 Objectif : Construire un petit arbre généalogique sur trois générations.
 ### Je retiens
 > Mes grands-parents sont les parents de mes parents. Un arbre généalogique montre les générations : grands-parents, parents, enfants.
+### Je vérifie
+? Les parents de mes parents sont :
++ mes grands-parents
+- mes cousins
+- mes oncles
+! Ils forment la génération au-dessus de mes parents.
+? Un arbre généalogique montre :
++ les générations d'une famille
+- les arbres du village
+- les fruits de saison
+! Grands-parents, parents, enfants.
 ### Je m'exerce
 1. Comment s'appellent les parents de ta maman ?
 2. Dessine ton arbre : toi, tes parents, tes grands-parents.
@@ -31,6 +53,17 @@ Objectif : Construire un petit arbre généalogique sur trois générations.
 Objectif : Connaître quelques fêtes nationales et traditionnelles.
 ### Je retiens
 > Le 7 août est la fête de l'Indépendance de la Côte d'Ivoire (1960). Il existe aussi des fêtes religieuses (Noël, Tabaski, Ramadan, Pâques) et traditionnelles (fête des ignames, Abissa, fête de génération).
+### Je vérifie
+? La fête de l'Indépendance est le :
++ 7 août
+- 1er janvier
+- 25 décembre
+! La Côte d'Ivoire est indépendante depuis le 7 août 1960.
+? L'Abissa est fêtée à :
++ Grand-Bassam
+- Korhogo
+- Man
+! C'est la fête traditionnelle du peuple N'zima.
 ### Je m'exerce
 1. Quelle est la date de la fête de l'Indépendance ?
 2. Cite une fête traditionnelle.
@@ -44,6 +77,17 @@ Objectif : Connaître quelques fêtes nationales et traditionnelles.
 Objectif : Lire et réaliser un plan simple de la classe vue de dessus.
 ### Je retiens
 > Un plan, c'est un dessin vu de dessus. On représente le tableau, le bureau, les tables-bancs et la porte par des formes simples.
+### Je vérifie
+? Un plan est un dessin vu :
++ de dessus
+- de côté
+- de loin
+! Sur un plan, on voit les objets d'en haut.
+? Sur le plan de la classe, je représente :
++ le tableau, le bureau, les tables-bancs et la porte
+- les nuages
+- les élèves de l'autre école
+! On représente le mobilier de la classe.
 ### Je m'exerce
 1. Dessine le plan de ta classe.
 2. Marque ta place d'une croix.
@@ -54,6 +98,17 @@ Ton plan doit montrer la porte, le tableau, le bureau du maître et les rangées
 Objectif : Décrire un paysage : forêt, savane, ville, village, lagune.
 ### Je retiens
 > Un paysage, c'est ce que l'on voit autour de soi. Au sud de la Côte d'Ivoire, il y a la forêt et les lagunes ; au nord, la savane.
+### Je vérifie
+? Le paysage avec de hautes herbes et peu d'arbres s'appelle :
++ la savane
+- la forêt
+- la lagune
+! La savane est au nord de la Côte d'Ivoire.
+? Où trouve-t-on la forêt dense en Côte d'Ivoire ?
++ au sud
+- au nord uniquement
+- nulle part
+! Le sud est couvert de forêts et de lagunes.
 ### Je m'exerce
 1. Comment s'appelle le paysage avec de hautes herbes et peu d'arbres ?
 2. Décris le paysage autour de ton école.
@@ -65,6 +120,17 @@ Objectif : Décrire un paysage : forêt, savane, ville, village, lagune.
 Objectif : Nommer des métiers et dire à quoi ils servent.
 ### Je retiens
 > Les métiers rendent service : le cultivateur produit la nourriture, l'infirmier soigne, le maçon construit, la commerçante vend, l'enseignant instruit, le pêcheur pêche.
+### Je vérifie
+? Qui soigne les malades ?
++ l'infirmier
+- le maçon
+- le pêcheur
+! L'infirmier et le médecin soignent.
+? Qui construit les maisons ?
++ le maçon
+- le cultivateur
+- la commerçante
+! Le maçon bâtit les murs.
 ### Je m'exerce
 1. Qui construit les maisons ?
 2. Quel métier voudrais-tu faire et pourquoi ?

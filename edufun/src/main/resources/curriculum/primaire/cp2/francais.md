@@ -10,6 +10,17 @@ Objectif : Décrire une personne en donnant au moins trois détails (taille, hab
 Awa décrit sa grand-mère : « Ma grand-mère est petite. Elle porte un pagne bleu et un foulard. Elle a des cheveux blancs et un grand sourire. »
 ### Je retiens
 > Pour décrire une personne, je dis comment elle est (grande, petite, mince), ce qu'elle porte et comment est son visage.
+### Je vérifie
+? Pour décrire une personne, je parle de :
++ sa taille, ses habits et son visage
+- son numéro de téléphone
+- la météo
+! On décrit l'apparence et les détails qui permettent de la reconnaître.
+? Quelle phrase décrit une personne ?
++ Elle porte un pagne bleu et a un grand sourire.
+- Il pleut beaucoup aujourd'hui.
+- Le marché ouvre à 7 heures.
+! Cette phrase donne des détails sur la personne.
 ### Je m'exerce
 1. Décris ton voisin de classe en trois phrases.
 2. Fais deviner un camarade à la classe en le décrivant sans dire son nom.
@@ -22,6 +33,17 @@ Objectif : Poser une question polie et répondre clairement.
 ### Je retiens
 > Pour demander, je salue, je pose ma question et je remercie : « Bonjour Madame, où se trouve le bureau du directeur, s'il vous plaît ? »
 - Mots pour questionner : où ? quand ? qui ? comment ? combien ? pourquoi ?
+### Je vérifie
+? Quel mot sert à demander un lieu ?
++ où ?
+- quand ?
+- combien ?
+! « Où » interroge sur le lieu.
+? Pour demander poliment à un adulte, je dis :
++ s'il vous plaît
+- donne-moi
+- vite
+! On utilise « vous » et « s'il vous plaît » avec un adulte.
 ### Je m'exerce
 1. Demande poliment le prix d'un pain à la boutique.
 2. Réponds à la question : « Où habites-tu ? »
@@ -38,6 +60,17 @@ Objectif : Dire un court poème de mémoire, en articulant et en respectant la p
 = Bonne journée, petits copains !
 ### Je retiens
 > Pour bien réciter : je me tiens droit, je regarde mon public, je parle fort et je respire aux virgules et aux points.
+### Je vérifie
+? Les lignes d'un poème s'appellent :
++ des vers
+- des pages
+- des titres
+! Un poème est écrit en vers.
+? Pour bien réciter, je :
++ parle fort et je respire aux virgules et aux points
+- parle très vite sans respirer
+- lis en cachant mon visage
+! La ponctuation indique où respirer.
 ### Je m'exerce
 1. Apprends le poème vers par vers.
 2. Récite-le à un adulte sans regarder.
@@ -54,6 +87,17 @@ Objectif : Lire le son [g] écrit g (devant a, o, u) et gu (devant e, i).
 = ga   go   gu   gue   gui
 = gare — gomme — légume — gâteau — guitare — bague — figue
 = Le guide montre la gare.   Mon gâteau est bon.
+### Je vérifie
+? Devant e et i, pour faire le son [g], on écrit :
++ gu
+- g
+- j
+! guitare, bague : on ajoute u.
+? Quel mot contient le son [g] ?
++ gâteau
+- girafe
+- genou
+! Devant a, g se lit [g] ; devant e, i, il se lit [j].
 ### Je m'exerce
 1. Lis : gui, go, gue, ga.
 2. Complète avec g ou gu : …itare ; …ateau.
@@ -69,6 +113,16 @@ Objectif : Lire le son [j] écrit j ou g devant e, i.
 = ja   jo   ju   je   ge   gi
 = jardin — jupe — joli — genou — girafe — pigeon — orange
 = La girafe mange des feuilles.   Julie a une jolie jupe.
+### Je vérifie
+? Dans « girafe », la lettre g se lit :
++ [j]
+- [g]
+! Devant i, g se lit [j].
+? Quel mot s'écrit avec j ?
++ jardin
+- gâteau
+- guitare
+! jar-din commence par j.
 ### Je m'exerce
 1. Lis : gi, jo, ge, ju.
 2. Entends-tu [j] ou [g] : « girafe » ? « gare » ?
@@ -84,6 +138,16 @@ Objectif : Lire le son [z] écrit z ou s placé entre deux voyelles.
 = za   zo   zé   —   ase   ise   ose
 = zèbre — zéro — onze — maison — rose — cousin — chemise
 = Ma cousine a une chemise rose.   Le zèbre court vite.
+### Je vérifie
+? Dans « maison », le s se lit :
++ [z]
+- [s]
+! Entre deux voyelles, s se lit [z].
+? Dans quel mot entend-on [s] ?
++ poisson
+- poison
+- rose
+! Deux s entre voyelles se lisent [s].
 ### Je m'exerce
 1. Dans « poisson » et « poison », où entends-tu [z] ?
 2. Lis : maison, raisin, valise.
@@ -99,6 +163,16 @@ Objectif : Lire le son [s] écrit s, ss, c (devant e, i) et ç.
 = ce   ci   ça   ço   çu   —   asse   isse
 = cinéma — ceinture — garçon — leçon — poisson — tasse
 = Le garçon apprend sa leçon.   Maman cuit le poisson.
+### Je vérifie
+? Quel mot a besoin d'une cédille ?
++ garçon
+- citron
+- cinéma
+! Devant o, on met une cédille pour garder le son [s] : garçon.
+? Devant e et i, la lettre c se lit :
++ [s]
+- [k]
+! ce, ci : [se], [si].
 ### Je m'exerce
 1. Ajoute la cédille si nécessaire : un garcon ; une lecon ; un citron.
 2. Lis : cerise, façade, glace.
@@ -113,6 +187,17 @@ Objectif : Lire les différentes écritures du son [è].
 ### Je lis
 = mère — père — fête — tête — lait — maison — balai — reine — neige
 = Mon père boit du lait.   La reine fait la fête.
+### Je vérifie
+? Dans « lait », le son [è] s'écrit :
++ ai
+- è
+- ei
+! l-ai-t.
+? Quel mot contient ê ?
++ fête
+- mère
+- neige
+! fê-te porte un accent circonflexe.
 ### Je m'exerce
 1. Souligne le son [è] : la chaise, la forêt, la baleine.
 2. Lis : semaine, fraise, rivière.
@@ -127,6 +212,17 @@ Objectif : Lire le son [o] écrit o, au ou eau.
 ### Je lis
 = au — eau — chaud — jaune — taureau — bateau — cadeau — oiseau
 = Le bateau navigue sur l'eau.   Il fait chaud aujourd'hui.
+### Je vérifie
+? Dans « bateau », le son [o] s'écrit :
++ eau
+- au
+- o
+! ba-teau.
+? Quel mot s'écrit avec « au » ?
++ jaune
+- moto
+- cadeau
+! jau-ne.
 ### Je m'exerce
 1. Classe selon l'écriture du son [o] : chapeau, moto, sauce.
 2. Lis : marteau, chaussure, gauche.
@@ -141,6 +237,17 @@ Objectif : Lire eu et œu.
 ### Je lis
 = feu — jeu — bleu — deux — fleur — heure — sœur — cœur — œuf
 = Ma sœur a une fleur bleue.   Il est deux heures.
+### Je vérifie
+? Quel mot contient œu ?
++ sœur
+- fleur
+- feu
+! s-œu-r.
+? Dans « deux », on entend le son :
++ [eu]
+- [ou]
+- [o]
+! d-eu-x.
 ### Je m'exerce
 1. Lis : peur, neuf, nœud.
 2. Trouve trois mots avec eu.
@@ -155,6 +262,16 @@ Objectif : Lire les différentes écritures du son [in].
 ### Je lis
 = lapin — jardin — matin — timbre — pain — main — demain — peinture — lundi
 = Le lapin mange dans le jardin.   Demain matin, j'achète du pain.
+### Je vérifie
+? Dans « pain », le son [in] s'écrit :
++ ain
+- in
+- ein
+! p-ain.
+? Devant b et p, [in] s'écrit :
++ im
+- in
+! timbre, simple.
 ### Je m'exerce
 1. Souligne [in] : le poussin, la main, le parfum.
 2. Écris in ou im : un t…bre ; un mat…
@@ -170,6 +287,16 @@ Objectif : Lire le son [gn].
 = gna — gne — gni — gno
 = montagne — ligne — araignée — champignon — campagne — oignon
 = L'araignée tisse sa toile à la campagne.
+### Je vérifie
+? Quel mot contient le son [gn] ?
++ montagne
+- maman
+- gare
+! mon-ta-gne.
+? g + n se lit :
++ [gn] comme dans ligne
+- [g] puis [n] séparés
+! gn forme un seul son.
 ### Je m'exerce
 1. Lis : peigne, agneau, baignoire.
 2. Complète : une monta…e ; un champi…on.
@@ -184,6 +311,17 @@ Objectif : Lire les écritures ill, ille, ail, eil, euil, ouille et y.
 ### Je lis
 = fille — famille — travail — soleil — abeille — fauteuil — grenouille — crayon — noyau
 = La grenouille saute au soleil.   Ma famille travaille au champ.
+### Je vérifie
+? Quel mot contient le son [ill] ?
++ soleil
+- sol
+- seau
+! so-leil.
+? Dans « crayon », le son [ill] s'écrit avec :
++ y
+- ill
+- l
+! cra-yon.
 ### Je m'exerce
 1. Lis : paille, oreille, feuille, citrouille.
 2. Trouve un mot avec « eil ».
@@ -198,6 +336,16 @@ Objectif : Lire ph, la lettre h muette et la lettre x.
 ### Je lis
 = photo — téléphone — éléphant — pharmacie — homme — hiver — taxi — boxe — six
 = L'éléphant boit à la rivière.   Papa prend un taxi pour l'hôpital.
+### Je vérifie
+? « ph » se lit :
++ [f]
+- [p]
+- [h]
+! téléphone, éléphant.
+? Dans « homme », la lettre h :
++ ne se prononce pas
+- se lit [h] fort
+! Le h est muet.
 ### Je m'exerce
 1. Lis : dauphin, habit, saxophone.
 2. Comment se lit ph ?
@@ -212,6 +360,17 @@ Objectif : Lire les groupes oin, ien et ion.
 ### Je lis
 = loin — besoin — pointu — chien — bien — mien — avion — camion — lion — attention
 = Le chien court loin du camion.   L'avion vole dans le ciel.
+### Je vérifie
+? Quel mot contient [ien] ?
++ chien
+- coin
+- lion
+! ch-ien.
+? Quel mot contient [oin] ?
++ loin
+- avion
+- bien
+! l-oin.
 ### Je m'exerce
 1. Lis : témoin, gardien, million.
 2. Classe : coin, lion, rien.
@@ -229,6 +388,17 @@ Pendant les vacances, Yao va au village de son grand-père, au bord de la lagune
 2. Que prépare grand-père le matin ?
 3. Combien de poissons rapportent-ils ?
 4. Qui fait griller les poissons ?
+### Je vérifie
+? Où vit le grand-père de Yao ?
++ dans un village au bord de la lagune
+- à Abidjan
+- en Europe
+! Le texte dit : « au village de son grand-père, au bord de la lagune ».
+? Combien de poissons rapportent-ils ?
+- un
++ trois
+- dix
+! « Ils rentrent avec trois gros poissons. »
 ### Corrigé
 1. Dans un village, au bord de la lagune.
 2. Sa pirogue et ses filets.
@@ -243,6 +413,17 @@ Objectif : Reconnaître une phrase et l'écrire avec une majuscule et un point.
 > Une phrase a un sens. Elle commence par une majuscule et se termine par un point (. ? !).
 = Le chat dort.   (phrase)
 = dort chat le   (ce n'est pas une phrase : les mots sont en désordre)
+### Je vérifie
+? Quelle suite de mots forme une phrase ?
++ Awa va à l'école.
+- école va Awa l'à
+- va à l'
+! Une phrase a un sens, une majuscule et un point.
+? Une phrase peut se terminer par :
++ . ? ou !
+- une virgule
+- une majuscule
+! Point, point d'interrogation ou point d'exclamation.
 ### Je m'exerce
 1. Remets les mots en ordre : école / à / va / Awa / l'
 2. Mets la majuscule et le point : koffi joue au ballon
@@ -255,6 +436,16 @@ Objectif : Reconnaître un nom et le petit mot qui l'accompagne (le, la, les, un
 ### Je retiens
 > Le nom désigne une personne, un animal ou une chose. Il est souvent précédé d'un déterminant : le, la, l', les, un, une, des.
 = le livre — une mangue — des enfants — l'école
+### Je vérifie
+? Dans « Le maître écrit au tableau », les noms sont :
++ maître et tableau
+- écrit et au
+- le et au
+! Un nom désigne une personne ou une chose.
+? Quel déterminant convient : … ananas ?
++ un
+- une
+! On dit « un ananas ».
 ### Je m'exerce
 1. Souligne les noms : « Le maître écrit au tableau. »
 2. Mets un ou une : … ananas ; … chèvre.
@@ -267,6 +458,16 @@ Objectif : Distinguer un et plusieurs et ajouter le s du pluriel.
 ### Je retiens
 > Singulier : un seul (un chat). Pluriel : plusieurs (des chats). Au pluriel, on ajoute souvent un s au nom.
 = un crayon → des crayons      la poule → les poules
+### Je vérifie
+? Le pluriel de « un cahier » est :
++ des cahiers
+- des cahier
+- un cahiers
+! Au pluriel, on ajoute souvent un s.
+? « des mangues » est au :
++ pluriel
+- singulier
+! Plusieurs mangues : pluriel.
 ### Je m'exerce
 1. Mets au pluriel : un cahier ; la fille.
 2. Singulier ou pluriel : des mangues ? le stylo ?
@@ -278,6 +479,16 @@ Objectif : Distinguer un et plusieurs et ajouter le s du pluriel.
 Objectif : Reconnaître le genre d'un nom avec le, un (masculin) ou la, une (féminin).
 ### Je retiens
 > Les noms masculins se disent avec le, un. Les noms féminins se disent avec la, une. Souvent, on ajoute un e au féminin : un ami → une amie.
+### Je vérifie
+? « la table » est :
++ féminin
+- masculin
+! On dit « la » ou « une » table.
+? Le féminin de « un voisin » est :
++ une voisine
+- un voisine
+- une voisin
+! On ajoute un e : voisine.
 ### Je m'exerce
 1. Masculin ou féminin : la table ; un manguier.
 2. Mets au féminin : un voisin ; un cousin.
@@ -290,6 +501,17 @@ Objectif : Repérer le verbe qui dit ce que fait quelqu'un.
 ### Je retiens
 > Le verbe dit l'action : ce que fait la personne, l'animal ou la chose.
 = Koffi **mange**.   Le chien **aboie**.   La pluie **tombe**.
+### Je vérifie
+? Dans « Le chien aboie », le verbe est :
++ aboie
+- chien
+- le
+! Le verbe dit l'action.
+? Quel mot est un verbe ?
++ courir
+- table
+- rouge
+! Courir est une action.
 ### Je m'exerce
 1. Souligne le verbe : « Awa chante. » ; « Les enfants courent. »
 2. Trouve un verbe pour compléter : « Le bébé … »
@@ -302,6 +524,17 @@ Objectif : Conjuguer les verbes être et avoir au présent avec les pronoms.
 ### Je retiens
 = être : je suis, tu es, il/elle est, nous sommes, vous êtes, ils/elles sont
 = avoir : j'ai, tu as, il/elle a, nous avons, vous avez, ils/elles ont
+### Je vérifie
+? Complète : Nous … en classe. (être)
++ sommes
+- avons
+- êtes
+! être : nous sommes.
+? Complète : Ils … faim. (avoir)
++ ont
+- sont
+- as
+! avoir : ils ont.
 ### Je m'exerce
 1. Complète avec être : Je … content. Nous … en classe.
 2. Complète avec avoir : Tu … un vélo. Ils … faim.
@@ -315,6 +548,17 @@ Objectif : Écrire une phrase correcte qui dit ce qui se passe sur une image.
 > Ma phrase dit qui ? fait quoi ? (et parfois où ?). Elle commence par une majuscule et finit par un point.
 = Image : une fille porte un seau d'eau.
 = Phrase : La fille porte un seau d'eau sur la tête.
+### Je vérifie
+? Une bonne phrase sur une image dit :
++ qui fait quoi (et parfois où)
+- seulement des couleurs
+- des mots sans ordre
+! Exemple : La fille porte un seau d'eau.
+? Quelle phrase est bien écrite ?
++ Maman prépare le repas.
+- maman prépare le repas
+- Maman prépare le repas
+! Majuscule au début, point à la fin.
 ### Je m'exerce
 1. Écris une phrase pour : un garçon qui joue au ballon dans la cour.
 2. Écris une phrase pour : maman qui prépare le repas.
@@ -328,6 +572,17 @@ Objectif : Écrire trois phrases qui se suivent pour raconter un moment de sa jo
 > Je raconte dans l'ordre (d'abord, ensuite, enfin). Chaque phrase a une majuscule et un point. Je relis pour vérifier.
 ### Exemple
 D'abord, je me lève à six heures. Ensuite, je prends ma douche et je mange de la bouillie. Enfin, je pars à l'école avec mon frère.
+### Je vérifie
+? Pour raconter en trois phrases, j'utilise :
++ d'abord, ensuite, enfin
+- toujours, jamais, rien
+- oui, non, peut-être
+! Ces mots donnent l'ordre des actions.
+? Après avoir écrit, je dois :
++ relire mon texte
+- le déchirer
+- le cacher
+! Relire permet de corriger majuscules et points.
 ### Je m'exerce
 1. Raconte ton après-midi en trois phrases.
 2. Relis ton texte : as-tu mis les majuscules et les points ?
