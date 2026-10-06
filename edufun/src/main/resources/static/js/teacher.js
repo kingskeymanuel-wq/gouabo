@@ -82,12 +82,14 @@
     return scenes;
   }
 
-  function pickVoice() {
+  function pickVoice(lang = 'fr-FR') {
     if (!('speechSynthesis' in window)) return null;
-    const voices = speechSynthesis.getVoices().filter(v => /^fr/i.test(v.lang));
-    return voices.find(v => /fr-FR/i.test(v.lang) && /google|natural|neural|amelie|thomas|audrey|denise|henri/i.test(v.name))
-      || voices.find(v => /fr-FR/i.test(v.lang)) || voices[0] || null;
+    const base = lang.slice(0, 2);
+    const voices = speechSynthesis.getVoices().filter(v => v.lang.toLowerCase().startsWith(base));
+    return voices.find(v => v.lang === lang && /google|natural|neural|amelie|thomas|audrey|denise|henri|sonia|ryan|elvira|alvaro/i.test(v.name))
+      || voices.find(v => v.lang === lang) || voices[0] || null;
   }
+  const FOREIGN = { 'Anglais': 'en-GB', 'Espagnol': 'es-ES', 'Allemand': 'de-DE' };
 
   function mount(root, lesson) {
     if (!root) return;
@@ -142,15 +144,15 @@
       tv.classList.remove('tv-point'); void tv.offsetWidth; tv.classList.add('tv-point');
     }
 
-    function say(text, done) {
+    function say(text, done, lang = 'fr-FR') {
       const token = state.token;
       if (state.subtitles) sub.textContent = text; sub.classList.toggle('on', state.subtitles && !!text);
       const finish = () => { tv.classList.remove('tv-talking'); if (token === state.token) done(); };
       tv.classList.add('tv-talking');
       if (state.muted || !hasVoice) { clearTimeout(state.timer); state.timer = setTimeout(finish, Math.max(1600, text.length * 62) / state.rate); return; }
       const u = new SpeechSynthesisUtterance(text);
-      u.lang = 'fr-FR'; u.rate = 0.95 * state.rate; u.pitch = teacher.pitch;
-      const v = pickVoice(); if (v) u.voice = v;
+      u.lang = lang; u.rate = 0.95 * state.rate; u.pitch = teacher.pitch;
+      const v = pickVoice(lang); if (v) u.voice = v;
       // Si la voix échoue ou s'arrête anormalement vite (aucune voix installée),
       // on laisse le temps de lire le sous-titre avant de continuer.
       const started = Date.now(), minTime = Math.max(1200, text.length * 45) / state.rate;
@@ -174,7 +176,8 @@
       }
       if (state.item < s.items.length) {
         const i = state.item++; reveal(i);
-        say(s.say[i] || plain(s.items[i]), step);
+        const foreign = FOREIGN[lesson.subject] && /^=/.test(s.items[i].trim()) ? FOREIGN[lesson.subject] : 'fr-FR';
+        say(foreign === 'fr-FR' ? (s.say[i] || plain(s.items[i])) : plain(s.items[i]), step, foreign);
         return;
       }
       if (state.scene < scenes.length - 1) { state.scene++; renderScene(); setTimeout(step, 450); }
