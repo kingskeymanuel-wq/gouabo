@@ -6,12 +6,14 @@ import jakarta.persistence.*;
 @Table(indexes={@Index(name="idx_lesson_level_subject", columnList="level,subject")})
 public class Lesson {
  @Id @GeneratedValue(strategy=GenerationType.IDENTITY) private Long id;
+ @Column(unique=true, length=40) private String code;
  private String level; private String subject; private String chapter; private String title;
  private int orderIndex; private String status="PUBLISHED"; private String duration="20 min";
  @Column(length=500) private String objective;
  @Lob @Column(columnDefinition="CLOB") private String content;
  public Lesson(){}
  public Long getId(){return id;} public void setId(Long v){id=v;}
+ public String getCode(){return code;} public void setCode(String v){code=v;}
  public String getLevel(){return level;} public void setLevel(String v){level=v;}
  public String getSubject(){return subject;} public void setSubject(String v){subject=v;}
  public String getChapter(){return chapter;} public void setChapter(String v){chapter=v;}

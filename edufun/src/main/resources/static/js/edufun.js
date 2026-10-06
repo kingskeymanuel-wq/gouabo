@@ -32,96 +32,6 @@ function nav() {
   if (b) b.onclick = () => $('.sidebar').classList.toggle('open');
 }
 
-const courseCache = {};
-
-function courseCard(x, opts = {}) {
-  if (x.id) courseCache[x.id] = x;
-  const img = esc(x.coverImage || '/vendor/images/pexels-53621.jpg');
-  const desc = x.description ? `<p class="course-desc">${esc(x.description)}</p>` : '';
-  const meta = (x.duration || x.difficulty)
-    ? `<div class="course-meta">${x.duration ? `<span>⏱ ${esc(x.duration)}</span>` : ''}${x.difficulty ? `<span>🎯 ${esc(x.difficulty)}</span>` : ''}</div>`
-    : '';
-  const progress = opts.showProgress
-    ? `<div class="progress"><i style="width:${Math.min(95, 45 + (x.id || 1) * 7)}%"></i></div>`
-    : '';
-  const btnClass = opts.primary ? 'btn primary' : 'btn ghost';
-  const btnLabel = opts.primary ? 'Voir le parcours →' : 'Continuer →';
-  const target = `/programme?level=${encodeURIComponent(x.level || '')}&subject=${encodeURIComponent(x.subject || '')}`;
-  return `<article class="card course-card">
-    <img src="${img}" alt="${esc(x.title)}">
-    <div class="course-body">
-      <span class="pill">${esc(x.level || 'Tous')}</span>
-      <h3>${esc(x.title)}</h3>
-      <p>${esc(x.subject || 'Cours')} · ${esc(x.type || 'Parcours')}</p>
-      ${desc}
-      ${meta}
-      ${progress}
-      <a class="${btnClass}" href="${target}">${btnLabel}</a>
-    </div>
-  </article>`;
-}
-
-function ensureLessonModal() {
-  let m = $('#lessonModal');
-  if (m) return m;
-  m = document.createElement('div');
-  m.id = 'lessonModal';
-  m.className = 'modal-overlay';
-  m.innerHTML = `<div class="modal">
-    <button class="modal-close" onclick="closeLesson()">✕</button>
-    <img id="lessonImg" src="" alt="">
-    <div class="modal-body">
-      <span class="pill" id="lessonPill"></span>
-      <h2 id="lessonTitle"></h2>
-      <div class="course-meta" id="lessonMeta"></div>
-      <div id="lessonContent" class="lesson-content"></div>
-      <div class="modal-actions">
-        <button class="btn ghost" onclick="closeLesson()">Fermer</button>
-        <button class="btn primary" id="lessonDoneBtn">Marquer comme terminé ✓</button>
-      </div>
-    </div>
-  </div>`;
-  document.body.appendChild(m);
-  m.addEventListener('click', e => { if (e.target === m) closeLesson(); });
-  return m;
-}
-
-async function openLesson(id) {
-  let x = courseCache[id];
-  if (!x) {
-    try { x = await api('/courses/' + id); } catch (e) { toast('Cours introuvable'); return; }
-  }
-  const m = ensureLessonModal();
-  $('#lessonImg').src = x.coverImage || '/vendor/images/pexels-53621.jpg';
-  $('#lessonImg').alt = x.title;
-  $('#lessonPill').textContent = `${x.level || ''} · ${x.subject || ''}`;
-  $('#lessonTitle').textContent = x.title;
-  $('#lessonMeta').innerHTML = `${x.duration ? `<span>⏱ ${esc(x.duration)}</span>` : ''}${x.difficulty ? `<span>🎯 ${esc(x.difficulty)}</span>` : ''}${x.type ? `<span>${esc(x.type)}</span>` : ''}`;
-  const body = x.content || x.description || 'Contenu à venir pour ce cours.';
-  $('#lessonContent').innerHTML = body.split(/\n\n+/).map(p => `<p>${esc(p)}</p>`).join('');
-  const doneBtn = $('#lessonDoneBtn');
-  doneBtn.onclick = () => finishLesson(x);
-  m.classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-
-function closeLesson() {
-  const m = $('#lessonModal');
-  if (m) m.classList.remove('open');
-  document.body.style.overflow = '';
-}
-
-async function finishLesson(x) {
-  const studentId = localStorage.getItem('edufunStudentId');
-  if (studentId) {
-    try { await api(`/students/${studentId}/progress?xp=10`, { method: 'PATCH' }); } catch (e) {}
-    toast(`Bravo, +10 XP pour « ${x.title} » 🏆`);
-  } else {
-    toast(`« ${x.title} » terminé ! Inscris-toi pour suivre ta progression 🎉`);
-  }
-  closeLesson();
-}
-
 // ---- Session : un seul appel /auth/me partagé par la page ----
 let mePromise = null;
 function currentUser() {
@@ -144,7 +54,7 @@ async function applySessionNav() {
 
 // ---- Tableau de bord élève ----
 const SUBJECT_ICONS = {
-  'Français': '📖', 'Mathématiques': '📐', 'Anglais': '🇬🇧', 'Sciences': '🔬', 'SVT': '🧬', 'Physique-Chimie': '⚗️',
+  'Français': '📖', 'Mathématiques': '📐', 'Anglais': '🇬🇧', 'Sciences': '🔬', 'Sciences et Technologie': '🔬', 'AEC': '🎨', 'SVT': '🧬', 'Physique-Chimie': '⚗️',
   'Histoire-Géographie': '🌍', 'EDHC': '🤝', 'EPS': '⚽', 'Arts': '🎨', 'Arts Plastiques': '🎨', 'Éducation Musicale': '🎵',
   'Informatique': '💻', 'Développement Web': '🌐', 'Philosophie': '💭', 'Espagnol': '🇪🇸'
 };
@@ -343,47 +253,6 @@ async function registerTutor(f) {
   } catch (e) { toast('Erreur candidature'); }
 }
 
-async function loadCourses(level) {
-  const params = new URLSearchParams(location.search);
-  if (level === undefined) level = params.get('level') || '';
-  try {
-    let c = await api('/courses' + (level ? '?level=' + encodeURIComponent(level) : ''));
-    let box = $('#coursesList');
-    if (!box) return;
-    box.innerHTML = c.map(x => courseCard(x, { primary: true, showProgress: true })).join('')
-      || '<div class="empty">Aucun cours pour ce niveau.</div>';
-  } catch (e) { toast('Erreur catalogue'); }
-}
-
-function setupTabs() {
-  const wrap = $('#levelTabs');
-  if (!wrap) return;
-  const params = new URLSearchParams(location.search);
-  const current = params.get('level') || '';
-  const buttons = $$('#levelTabs button');
-  buttons.forEach(b => b.classList.toggle('active', (b.dataset.level || '') === current));
-  wrap.onclick = e => {
-    const btn = e.target.closest('button[data-level]');
-    if (!btn) return;
-    const level = btn.dataset.level || '';
-    buttons.forEach(b => b.classList.toggle('active', b === btn));
-    const url = level ? `/programme?level=${encodeURIComponent(level)}` : '/programme';
-    history.pushState({ level }, '', url);
-    loadCourses(level);
-  };
-}
-
-async function openLessonByTitle(title) {
-  let x = Object.values(courseCache).find(c => c.title === title);
-  if (!x) {
-    try {
-      const all = await api('/courses');
-      x = all.find(c => c.title === title);
-    } catch (e) {}
-  }
-  if (x) openLesson(x.id); else toast('Cours introuvable pour le moment.');
-}
-
 async function loadTutors() {
   try {
     let t = await api('/tutors'), box = $('#tutorsList');
@@ -455,110 +324,15 @@ function setup() {
   };
 }
 
-window.addEventListener('popstate', e => {
-  if ($('#levelTabs')) { setupTabs(); loadCourses(); }
-});
-
 document.addEventListener('DOMContentLoaded', () => {
   nav();
   setup();
   applySessionNav();
   if ($('#studentDashboard')) loadDashboard();
-  if ($('#coursesList')) { setupTabs(); loadCourses(); }
   if ($('#tutorsList')) loadTutors();
   if ($('#adminStudents')) loadAdmin();
 });
 
-// ---- EduFun Curriculum V3 ----
-let selectedLevel = '';
-let selectedSubject = '';
-const lessonCache = {};
-
-function lessonCard(l, i) {
-  lessonCache[l.id] = l;
-  const preview = (l.content || '').split(/\n\n+/)[0];
-  return `<article class="card lesson-card">
-    <span class="lesson-number">${i + 1}</span>
-    <span class="pill">${esc(l.level)} · ${esc(l.subject)}</span>
-    <h3>${esc(l.title)}</h3>
-    <p class="muted"><b>${esc(l.chapter)}</b> · ${esc(l.duration || '20 min')}</p>
-    <p class="lesson-content">${esc(preview)}</p>
-    <div class="lesson-actions">
-      <button class="btn primary" onclick="location.href='/lecon/'+${l.id}">Commencer</button>
-      <button class="btn ghost" onclick="openLessonVideos(${l.id})">🎥 Vidéo</button>
-    </div>
-  </article>`;
-}
-
-async function loadCurriculum(level = selectedLevel, subject = selectedSubject) {
-  selectedLevel = level || '';
-  selectedSubject = subject || '';
-  const box = $('#curriculumList');
-  if (!box) return;
-  if (!selectedLevel) {
-    box.innerHTML = '<div class="card empty">Choisis une classe pour afficher son parcours complet : CP1 → Terminale.</div>';
-    if ($('#programCount')) $('#programCount').textContent = '13 niveaux';
-    return;
-  }
-  try {
-    const q = new URLSearchParams({ level: selectedLevel });
-    if (selectedSubject) q.set('subject', selectedSubject);
-    const data = await api('/curriculum?' + q.toString());
-    data.forEach(x => lessonCache[x.id] = x);
-    box.innerHTML = data.map((x,i) => lessonCard(x,i)).join('') || '<div class="card empty">Aucune leçon publiée pour ce filtre.</div>';
-    if ($('#programCount')) $('#programCount').textContent = `${data.length} leçons`;
-  } catch (e) { box.innerHTML = '<div class="card empty">Impossible de charger le programme.</div>'; toast('Erreur programme'); }
-}
-
-async function populateSubjects() {
-  const s = $('#subjectSelect');
-  if (!s) return;
-  try {
-    const map = await api('/subjects');
-    const all = [...new Set(Object.values(map).flat())].sort((a,b)=>a.localeCompare(b,'fr'));
-    s.innerHTML = '<option value="">Toutes les matières</option>' + all.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('');
-    s.value = selectedSubject;
-  } catch (e) {}
-}
-
-function setupCurriculum() {
-  const tabs = $('#levelTabs');
-  if (!tabs) return;
-  const params = new URLSearchParams(location.search);
-  selectedLevel = params.get('level') || '';
-  selectedSubject = params.get('subject') || '';
-  [...tabs.querySelectorAll('button[data-level]')].forEach(b => b.classList.toggle('active', b.dataset.level === selectedLevel));
-  tabs.onclick = e => {
-    const b = e.target.closest('button[data-level]'); if (!b) return;
-    selectedLevel = b.dataset.level || '';
-    [...tabs.querySelectorAll('button[data-level]')].forEach(x => x.classList.toggle('active', x === b));
-    history.pushState({}, '', selectedLevel ? `/programme?level=${encodeURIComponent(selectedLevel)}` : '/programme');
-    loadCurriculum(selectedLevel, selectedSubject);
-  };
-  const s = $('#subjectSelect'); if (s) s.onchange = () => { selectedSubject = s.value; loadCurriculum(selectedLevel, selectedSubject); };
-  populateSubjects().then(() => loadCurriculum(selectedLevel, selectedSubject));
-}
-
-function ensureLearningModal() {
-  let m = $('#learningModal'); if (m) return m;
-  m = document.createElement('div'); m.id='learningModal'; m.className='modal-overlay';
-  m.innerHTML=`<div class="modal"><button class="modal-close" onclick="closeLearningLesson()">✕</button><div class="modal-body"><span id="learningPill" class="pill"></span><h2 id="learningTitle"></h2><p id="learningObjective" class="muted"></p><div id="learningVideo"></div><div id="learningContent" class="lesson-content"></div><div class="modal-actions"><button class="btn ghost" onclick="closeLearningLesson()">Fermer</button><button class="btn primary" id="learningDone">Terminer la leçon +20 XP</button></div></div></div>`;
-  document.body.appendChild(m); m.onclick=e=>{if(e.target===m)closeLearningLesson()}; return m;
-}
-
-async function openLearningLesson(id) {
-  const l = lessonCache[id] || await api('/lessons/'+id); lessonCache[id]=l;
-  const m=ensureLearningModal(); $('#learningPill').textContent=`${l.level} · ${l.subject} · ${l.chapter}`; $('#learningTitle').textContent=l.title; $('#learningObjective').textContent=l.objective||'';
-  $('#learningContent').innerHTML=(l.content||'').split(/\n\n+/).map(p=>`<p>${esc(p)}</p>`).join('');
-  $('#learningVideo').innerHTML='<div class="card" style="margin:14px 0;background:#faf9ff"><b>🎥 Vidéo didactique</b><p class="muted">Aucune vidéo publiée pour cette leçon. L’administrateur peut en ajouter une depuis l’espace Administration.</p></div>';
-  try { const vs=await api('/lessons/'+id+'/videos'); if(vs.length){const v=vs[0]; $('#learningVideo').innerHTML=`<div class="card" style="margin:14px 0"><b>🎥 ${esc(v.title)}</b><p class="muted">${esc(v.type)}</p><a class="btn ghost" target="_blank" rel="noopener" href="${esc(v.url)}">Ouvrir la vidéo →</a></div>`;} } catch(e){}
-  $('#learningDone').onclick=()=>completeLearningLesson(l); m.classList.add('open'); document.body.style.overflow='hidden';
-}
-function closeLearningLesson(){const m=$('#learningModal');if(m)m.classList.remove('open');document.body.style.overflow='';}
-async function completeLearningLesson(l){const sid=localStorage.getItem('edufunStudentId');if(!sid){toast('Inscris-toi pour enregistrer ta progression.');return;}try{const r=await api(`/lessons/${l.id}/complete?studentId=${sid}`,{method:'POST'});toast(r.alreadyCompleted?'Leçon déjà terminée ✓':`Bravo ! +20 XP · ${r.xp} XP au total 🏆`);closeLearningLesson();}catch(e){toast('Impossible d’enregistrer la progression.');}}
-async function openLessonVideos(id){try{const v=await api('/lessons/'+id+'/videos'); if(!v.length){toast('Aucune vidéo publiée pour le moment.');return;} window.open(v[0].url,'_blank','noopener');}catch(e){toast('Vidéo indisponible');}}
-
-window.addEventListener('DOMContentLoaded',()=>{if($('#curriculumList'))setupCurriculum();});
 window.addEventListener('DOMContentLoaded',()=>{
   const lf=$('#lessonForm'); if(lf) lf.onsubmit=async e=>{e.preventDefault();try{const d=Object.fromEntries(new FormData(lf));d.orderIndex=999;await api('/lessons',{method:'POST',body:JSON.stringify(d)});toast('Leçon publiée 📚');lf.reset();}catch(x){toast('Erreur de création de la leçon');}};
   const vf=$('#videoForm'); if(vf) vf.onsubmit=async e=>{e.preventDefault();try{const d=Object.fromEntries(new FormData(vf));d.lessonId=Number(d.lessonId);d.published=true;await api('/videos',{method:'POST',body:JSON.stringify(d)});toast('Vidéo publiée 🎥');vf.reset();}catch(x){toast('Erreur de publication vidéo');}};
@@ -582,11 +356,8 @@ async function loadLessonReader(){
     $('#readerTitle').textContent=l.title;
     $('#readerObjective').textContent=l.objective||'';
     $('#readerDuration').textContent=l.duration||'30 min';
-    const parts=(l.content||'').split(/\n\n+/);
-    $('#readerContent').innerHTML=parts.map((part,i)=>{
-      const lines=part.split('\n'); const heading=lines[0]; const body=lines.slice(1).join('\n');
-      return `<section class="lesson-section"><span class="lesson-index">${String(i+1).padStart(2,'0')}</span><div><h3>${esc(heading)}</h3><div class="lesson-richtext">${esc(body||heading).replace(/\n/g,'<br>')}</div></div></section>`;
-    }).join('');
+    const parts=(l.content||'').split(/\n\n+/).filter(Boolean);
+    $('#readerContent').innerHTML=parts.map((part,i)=>renderLessonSection(part,i)).join('');
     $('#readerPrev').disabled=!prev; $('#readerNext').disabled=!next;
     $('#readerPrev').onclick=()=>{if(prev)location.href='/lecon/'+prev.id};
     $('#readerNext').onclick=()=>{if(next)location.href='/lecon/'+next.id};
@@ -596,3 +367,112 @@ async function loadLessonReader(){
   }catch(e){root.innerHTML='<div class="card empty">Impossible de charger cette leçon.</div>';}
 }
 window.addEventListener('DOMContentLoaded',loadLessonReader);
+
+
+// ---- Rendu d'une section de leçon ----
+// Conventions du contenu : « - » puce, « 1. » liste numérotée, « > » encadré à retenir,
+// « = » ligne d'exemple ou de calcul, **gras**.
+function inlineFormat(t) { return esc(t).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>'); }
+
+function renderRichText(body) {
+  const out = []; let list = null;
+  const close = () => { if (list) { out.push(`</${list}>`); list = null; } };
+  for (const raw of body.split('\n')) {
+    const line = raw.trim(); if (!line) continue;
+    let m;
+    if ((m = line.match(/^[-•]\s+(.*)/))) { if (list !== 'ul') { close(); out.push('<ul>'); list = 'ul'; } out.push(`<li>${inlineFormat(m[1])}</li>`); continue; }
+    if ((m = line.match(/^\d+[.)]\s+(.*)/))) { if (list !== 'ol') { close(); out.push('<ol>'); list = 'ol'; } out.push(`<li>${inlineFormat(m[1])}</li>`); continue; }
+    close();
+    if ((m = line.match(/^>\s?(.*)/))) out.push(`<div class="lr-key">${inlineFormat(m[1])}</div>`);
+    else if ((m = line.match(/^=\s?(.*)/))) out.push(`<div class="lr-example">${inlineFormat(m[1])}</div>`);
+    else out.push(`<p>${inlineFormat(line)}</p>`);
+  }
+  close();
+  return out.join('');
+}
+
+function renderLessonSection(part, i) {
+  const lines = part.split('\n'); const heading = lines[0]; const body = lines.slice(1).join('\n');
+  const isCorrection = /^corrig/i.test(heading);
+  const html = renderRichText(body || heading);
+  const content = isCorrection ? `<details class="lr-correction"><summary>👀 Voir le corrigé</summary>${html}</details>` : html;
+  return `<section class="lesson-section${/retiens/i.test(heading) ? ' lr-retiens' : ''}"><span class="lesson-index">${String(i + 1).padStart(2, '0')}</span><div><h3>${esc(heading)}</h3><div class="lesson-richtext">${content}</div></div></section>`;
+}
+
+// ---- Page « Mon programme » ----
+const CYCLE_ORDER = ['Primaire', 'Collège', 'Lycée'];
+const programState = { catalog: [], level: '', subject: '', cycle: '', myLevel: '', done: new Set() };
+
+async function setupProgramme() {
+  const page = $('#curriculumPage'); if (!page) return;
+  const params = new URLSearchParams(location.search);
+  try {
+    const [catalog, me] = await Promise.all([api('/catalog'), currentUser()]);
+    programState.catalog = catalog;
+    programState.myLevel = me.level || '';
+    if (me.studentId) {
+      try { const pr = await api(`/students/${me.studentId}/progress`); (pr.records || []).filter(r => r.completed).forEach(r => programState.done.add(r.lessonId)); } catch (_) {}
+    }
+    const wanted = params.get('level');
+    const level = catalog.find(c => c.level === wanted) ? wanted : (catalog.find(c => c.level === me.level) ? me.level : catalog[0].level);
+    selectLevel(level, params.get('subject') || '', false);
+  } catch (e) { $('[data-chapters]').innerHTML = '<div class="cu-empty"><b>Programme indisponible</b>Réessaie dans un instant.</div>'; }
+}
+
+function selectLevel(level, subject, push = true) {
+  const entry = programState.catalog.find(c => c.level === level); if (!entry) return;
+  programState.level = level; programState.cycle = entry.cycle;
+  const firstWithLessons = entry.subjects.find(s => s.lessons > 0);
+  programState.subject = entry.subjects.some(s => s.subject === subject) ? subject : (firstWithLessons || entry.subjects[0]).subject;
+  if (push) history.replaceState({}, '', `/programme?level=${encodeURIComponent(level)}&subject=${encodeURIComponent(programState.subject)}`);
+  renderCycles(); renderLevels(); renderLevelHead(entry); renderSubjectChips(entry); loadChapters();
+}
+
+function renderCycles() {
+  const box = $('[data-cycles]');
+  box.innerHTML = CYCLE_ORDER.map(c => `<button role="tab" aria-selected="${c === programState.cycle}" data-cycle="${c}">${c}</button>`).join('');
+  box.onclick = e => { const b = e.target.closest('[data-cycle]'); if (!b) return; programState.cycle = b.dataset.cycle; renderCycles(); renderLevels(); };
+}
+
+function renderLevels() {
+  const box = $('[data-levels]');
+  box.innerHTML = programState.catalog.filter(c => c.cycle === programState.cycle).map(c =>
+    `<button class="cu-level" aria-pressed="${c.level === programState.level}" data-level="${esc(c.level)}">${esc(c.level)}${c.level === programState.myLevel ? '<span class="cu-mine">Ma classe</span>' : ''}</button>`).join('');
+  box.onclick = e => { const b = e.target.closest('[data-level]'); if (b) selectLevel(b.dataset.level, programState.subject); };
+}
+
+function renderLevelHead(entry) {
+  const withLessons = entry.subjects.filter(s => s.lessons > 0).length;
+  $('[data-level-head]').innerHTML = `<div><h2>${esc(entry.level)}</h2><p>${esc(entry.cycle)} · ${plural(entry.subjects.length, 'discipline', 'disciplines')} au programme</p></div>
+    <div class="cu-stats"><div class="cu-stat"><b>${fmtInt(entry.lessons)}</b>leçons</div><div class="cu-stat"><b>${withLessons}/${entry.subjects.length}</b>disciplines disponibles</div></div>`;
+}
+
+function renderSubjectChips(entry) {
+  const box = $('[data-subjects]');
+  box.innerHTML = entry.subjects.map(s => `<button class="cu-subject ${s.lessons ? '' : 'empty'}" aria-pressed="${s.subject === programState.subject}" data-subject="${esc(s.subject)}">
+    <span aria-hidden="true">${SUBJECT_ICONS[s.subject] || '📚'}</span>${esc(s.subject)} <small>${s.lessons}</small></button>`).join('');
+  box.onclick = e => { const b = e.target.closest('[data-subject]'); if (!b) return; selectLevel(programState.level, b.dataset.subject); };
+}
+
+async function loadChapters() {
+  const box = $('[data-chapters]');
+  box.innerHTML = '<div class="cu-skel"></div><div class="cu-skel"></div>';
+  const { level, subject } = programState;
+  try {
+    const lessons = await api(`/curriculum?level=${encodeURIComponent(level)}&subject=${encodeURIComponent(subject)}`);
+    if (level !== programState.level || subject !== programState.subject) return;
+    if (!lessons.length) { box.innerHTML = `<div class="cu-empty"><b>${esc(subject)} · ${esc(level)}</b>Les leçons de cette discipline sont en cours de rédaction.</div>`; return; }
+    const chapters = [];
+    lessons.forEach(l => { let c = chapters[chapters.length - 1]; if (!c || c.title !== l.chapter) chapters.push(c = { title: l.chapter, lessons: [] }); c.lessons.push(l); });
+    let n = 0;
+    box.innerHTML = chapters.map(c => {
+      const done = c.lessons.filter(l => programState.done.has(l.id)).length;
+      return `<article class="cu-chapter"><header class="cu-chapter-head"><h3>${esc(c.title)}</h3><span>${done}/${c.lessons.length} terminée${done > 1 ? 's' : ''}</span></header>
+        <ol class="cu-lessons">${c.lessons.map(l => { n++; const ok = programState.done.has(l.id);
+          return `<li class="cu-lesson ${ok ? 'done' : ''}"><a href="/lecon/${l.id}"><span class="cu-num">${ok ? '✓' : String(n).padStart(2, '0')}</span>
+            <span><b>${esc(l.title)}</b><small>${esc(l.objective || '')}</small></span><span class="cu-tag">${ok ? 'Terminée' : esc(l.duration || '30 min')}</span></a></li>`; }).join('')}</ol></article>`;
+    }).join('');
+  } catch (e) { box.innerHTML = '<div class="cu-empty"><b>Impossible de charger les leçons</b>Réessaie dans un instant.</div>'; }
+}
+
+window.addEventListener('DOMContentLoaded', setupProgramme);

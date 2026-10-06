@@ -2,13 +2,21 @@ package com.edufun.portal.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.ui.Model;
+import com.edufun.portal.curriculum.Levels;
+import java.util.*;
 
 @Controller
 public class PageController {
     @GetMapping("/") public String home(){ return "redirect:/dashboard"; }
     @GetMapping("/login") public String login(){ return "login"; }
     @GetMapping("/dashboard") public String dashboard(){return "dashboard";}
-    @GetMapping("/inscription") public String inscription(){return "inscription";}
+    @GetMapping("/inscription") public String inscription(Model model){
+        Map<String,List<String>> byCycle=new LinkedHashMap<>();
+        Levels.all().forEach(l->byCycle.computeIfAbsent(l.cycle(),k->new ArrayList<>()).add(l.code()));
+        model.addAttribute("levelsByCycle",byCycle);
+        return "inscription";
+    }
     @GetMapping("/programme") public String programme(){return "programme";}
     @GetMapping("/lecon/{id}") public String lessonReader(){return "lecon";}
     @GetMapping("/examens") public String examens(){return "examens";}

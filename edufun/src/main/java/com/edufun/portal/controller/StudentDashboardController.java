@@ -45,7 +45,7 @@ public class StudentDashboardController {
         List<LessonProgress> records = progress.findByStudentId(id);
         Map<Long, LessonProgress> doneByLesson = records.stream().filter(LessonProgress::isCompleted)
                 .collect(Collectors.toMap(LessonProgress::getLessonId, Function.identity(), (a, b) -> a));
-        List<Lesson> levelLessons = lessons.findByLevelOrderByOrderIndexAsc(level);
+        List<Lesson> levelLessons = lessons.findByLevelOrderByOrderIndexAsc(level).stream().filter(l -> "PUBLISHED".equals(l.getStatus())).toList();
         long levelDone = levelLessons.stream().filter(l -> doneByLesson.containsKey(l.getId())).count();
 
         Map<String, Object> out = new LinkedHashMap<>();

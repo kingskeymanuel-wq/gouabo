@@ -48,6 +48,7 @@ public class AuthController {
         if (name.length() < 2 || email.isBlank() || !email.contains("@") || password.length() < 8 || level.isBlank()) {
             throw new IllegalArgumentException("Nom, niveau, email valide et mot de passe de 8 caractères minimum sont requis.");
         }
+        if (!com.edufun.portal.curriculum.Levels.exists(level)) throw new IllegalArgumentException("Classe inconnue : choisis ta classe dans la liste.");
         if (accounts.existsByEmailIgnoreCase(email)) {
             throw new IllegalStateException("Cette adresse e-mail possède déjà un espace EduFun. Utilise la connexion.");
         }
