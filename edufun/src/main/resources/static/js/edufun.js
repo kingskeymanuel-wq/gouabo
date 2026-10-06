@@ -57,7 +57,7 @@ async function applySessionNav() {
 const SUBJECT_ICONS = {
   'Français': '📖', 'Mathématiques': '📐', 'Anglais': '🇬🇧', 'Sciences': '🔬', 'Sciences et Technologie': '🔬', 'AEC': '🎨', 'SVT': '🧬', 'Physique-Chimie': '⚗️',
   'Histoire-Géographie': '🌍', 'EDHC': '🤝', 'EPS': '⚽', 'Arts': '🎨', 'Arts Plastiques': '🎨', 'Éducation Musicale': '🎵',
-  'Informatique': '💻', 'Développement Web': '🌐', "Développement d'applications": '📱', 'Philosophie': '💭', 'Espagnol': '🇪🇸'
+  'Informatique': '💻', 'Développement Web': '🌐', "Développement d'applications": '📱', 'Philosophie': '💭', 'Espagnol': '🇪🇸', 'Allemand': '🇩🇪'
 };
 const ACTIVITY_ICONS = { LESSON: '📘', QUIZ: '🧠', EXAM: '🏆' };
 const fmtInt = n => Number(n || 0).toLocaleString('fr-FR');

@@ -4,7 +4,7 @@
 =========================================================== */
 (function () {
   const ICONS = { 'Français': '📖', 'Mathématiques': '📐', 'Philosophie': '💭', 'Physique-Chimie': '⚗️', 'SVT': '🧬',
-    'Histoire-Géographie': '🌍', 'Anglais': '🇬🇧', 'Espagnol': '🇪🇸', 'EDHC': '🤝' };
+    'Histoire-Géographie': '🌍', 'Anglais': '🇬🇧', 'Espagnol': '🇪🇸', 'Allemand': '🇩🇪', 'EDHC': '🤝' };
   const iconFor = name => ICONS[Object.keys(ICONS).find(k => name.startsWith(k))] || '📝';
   const state = { exams: [], exam: null, tab: 'matieres', timers: [] };
   const $p = s => document.querySelector(s);

@@ -21,16 +21,16 @@ public final class Levels {
             "Français", "Mathématiques", "Anglais", "Physique-Chimie", "SVT", "Histoire-Géographie", "EDHC",
             "Arts Plastiques", "Éducation Musicale", "EPS", "Informatique", "Développement d'applications");
     private static final List<String> COLLEGE_LV2_SUBJECTS = List.of(
-            "Français", "Mathématiques", "Anglais", "Espagnol", "Physique-Chimie", "SVT", "Histoire-Géographie", "EDHC",
+            "Français", "Mathématiques", "Anglais", "Espagnol", "Allemand", "Physique-Chimie", "SVT", "Histoire-Géographie", "EDHC",
             "Arts Plastiques", "Éducation Musicale", "EPS", "Informatique", "Développement d'applications");
     private static final List<String> LYCEE_SCIENCE_SUBJECTS = List.of(
             "Français", "Mathématiques", "Physique-Chimie", "SVT", "Histoire-Géographie", "Anglais", "EDHC", "EPS", "Développement d'applications");
     private static final List<String> LYCEE_SCIENCE_PHILO_SUBJECTS = List.of(
             "Français", "Philosophie", "Mathématiques", "Physique-Chimie", "SVT", "Histoire-Géographie", "Anglais", "EDHC", "EPS", "Développement d'applications");
     private static final List<String> LYCEE_A_SUBJECTS = List.of(
-            "Français", "Mathématiques", "Histoire-Géographie", "Anglais", "Espagnol", "SVT", "EDHC", "EPS", "Développement d'applications");
+            "Français", "Mathématiques", "Histoire-Géographie", "Anglais", "Espagnol", "Allemand", "SVT", "EDHC", "EPS", "Développement d'applications");
     private static final List<String> LYCEE_A_PHILO_SUBJECTS = List.of(
-            "Français", "Philosophie", "Mathématiques", "Histoire-Géographie", "Anglais", "Espagnol", "SVT", "EDHC", "EPS", "Développement d'applications");
+            "Français", "Philosophie", "Mathématiques", "Histoire-Géographie", "Anglais", "Espagnol", "Allemand", "SVT", "EDHC", "EPS", "Développement d'applications");
 
     private static final LinkedHashMap<String, Level> LEVELS = new LinkedHashMap<>();
     static {
