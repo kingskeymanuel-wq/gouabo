@@ -358,6 +358,7 @@ async function loadLessonReader(){
     $('#readerDuration').textContent=l.duration||'30 min';
     const parts=(l.content||'').split(/\n\n+/).filter(Boolean);
     $('#readerContent').innerHTML=parts.map((part,i)=>renderLessonSection(part,i)).join('');
+    if(window.EduTeacher) EduTeacher.mount($('#teacherStage'), l);
     $('#readerPrev').disabled=!prev; $('#readerNext').disabled=!next;
     $('#readerPrev').onclick=()=>{if(prev)location.href='/lecon/'+prev.id};
     $('#readerNext').onclick=()=>{if(next)location.href='/lecon/'+next.id};

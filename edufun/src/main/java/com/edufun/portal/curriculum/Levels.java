@@ -14,15 +14,15 @@ public final class Levels {
     public static final String LYCEE = "Lycée";
 
     private static final List<String> CP_SUBJECTS = List.of(
-            "Français", "Mathématiques", "Sciences et Technologie", "EDHC", "AEC", "EPS");
-    private static final List<String> PRIMAIRE_SUBJECTS = List.of(
             "Français", "Mathématiques", "Sciences et Technologie", "Histoire-Géographie", "EDHC", "AEC", "EPS");
+    private static final List<String> PRIMAIRE_SUBJECTS = List.of(
+            "Français", "Mathématiques", "Sciences et Technologie", "Histoire-Géographie", "EDHC", "AEC", "EPS", "Informatique");
     private static final List<String> COLLEGE_SUBJECTS = List.of(
             "Français", "Mathématiques", "Anglais", "Physique-Chimie", "SVT", "Histoire-Géographie", "EDHC",
-            "Arts Plastiques", "Éducation Musicale", "EPS");
+            "Arts Plastiques", "Éducation Musicale", "EPS", "Informatique");
     private static final List<String> COLLEGE_LV2_SUBJECTS = List.of(
             "Français", "Mathématiques", "Anglais", "Espagnol", "Physique-Chimie", "SVT", "Histoire-Géographie", "EDHC",
-            "Arts Plastiques", "Éducation Musicale", "EPS");
+            "Arts Plastiques", "Éducation Musicale", "EPS", "Informatique");
     private static final List<String> LYCEE_SCIENCE_SUBJECTS = List.of(
             "Français", "Mathématiques", "Physique-Chimie", "SVT", "Histoire-Géographie", "Anglais", "EDHC", "EPS");
     private static final List<String> LYCEE_SCIENCE_PHILO_SUBJECTS = List.of(

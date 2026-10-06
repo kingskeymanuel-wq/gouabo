@@ -1,0 +1,98 @@
+/* ===========================================================
+   EduFun — Professeur virtuel (lecteur animé de leçon)
+=========================================================== */
+.tv{--tv-accent:#6c4df6;border-radius:24px;overflow:hidden;background:#0f1330;box-shadow:0 20px 50px rgba(15,19,48,.25);margin-bottom:20px;color:#fff}
+.tv[data-cycle=primaire]{--tv-accent:#ff8a3d}
+.tv[data-cycle=college]{--tv-accent:#2f7de1}
+.tv[data-cycle=lycee]{--tv-accent:#18a66a}
+.tv:fullscreen{border-radius:0;display:flex;flex-direction:column;justify-content:center}
+.tv:fullscreen .tv-stage{flex:1;aspect-ratio:auto}
+
+.tv-stage{position:relative;aspect-ratio:16/9;min-height:300px;overflow:hidden;
+  background:radial-gradient(circle at 18% 80%,rgba(255,255,255,.07),transparent 40%),linear-gradient(135deg,#151a3d 0%,#22265a 60%,#2d2f6e 100%)}
+.tv-bg span{position:absolute;border-radius:50%;filter:blur(2px);opacity:.35;animation:tv-float 14s ease-in-out infinite}
+.tv-bg span:nth-child(1){width:220px;height:220px;left:-60px;top:-60px;background:var(--tv-accent)}
+.tv-bg span:nth-child(2){width:140px;height:140px;right:8%;bottom:-50px;background:#8f6cff;animation-delay:-5s}
+.tv-bg span:nth-child(3){width:70px;height:70px;left:30%;top:12%;background:#4cc9f0;animation-delay:-9s}
+@keyframes tv-float{50%{transform:translate(20px,-16px) scale(1.06)}}
+
+/* Professeur */
+.tv-avatar{position:absolute;left:2%;bottom:0;width:30%;max-width:300px;display:flex;flex-direction:column;align-items:center;z-index:2}
+.tv-avatar-svg{width:100%;height:auto;display:block}
+.tv-body{animation:tv-breathe 4s ease-in-out infinite;transform-origin:100px 250px}
+@keyframes tv-breathe{50%{transform:translateY(-3px)}}
+.tv-head{transform-origin:100px 140px;animation:tv-nod 6s ease-in-out infinite}
+@keyframes tv-nod{30%{transform:rotate(-2deg)}60%{transform:rotate(2deg)}}
+.tv-eyes{transform-origin:100px 85px;animation:tv-blink 5s infinite}
+@keyframes tv-blink{0%,95%,100%{transform:scaleY(1)}97%{transform:scaleY(.1)}}
+.tv-mouth{transform-origin:100px 116px;transition:transform .15s}
+.tv-talking .tv-mouth{animation:tv-talk .32s ease-in-out infinite alternate}
+@keyframes tv-talk{from{transform:scaleY(1)}to{transform:scaleY(2.6) scaleX(.8)}}
+.tv-talking .tv-head{animation:tv-talkhead 1.6s ease-in-out infinite}
+@keyframes tv-talkhead{25%{transform:rotate(-3deg)}75%{transform:rotate(2deg)}}
+.tv-arm{transform-origin:150px 196px;transition:transform .4s cubic-bezier(.3,1.6,.5,1)}
+.tv-point .tv-arm{animation:tv-point .9s cubic-bezier(.3,1.6,.5,1)}
+@keyframes tv-point{40%{transform:rotate(-14deg)}}
+.tv-name{margin-top:-6px;background:rgba(10,12,30,.75);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:6px 12px;text-align:center;line-height:1.2;margin-bottom:10px}
+.tv-name b{display:block;font-size:13px}
+.tv-name small{font-size:11px;color:#c8cbe6}
+
+/* Tableau */
+.tv-board{position:absolute;right:3%;top:7%;bottom:18%;left:31%;z-index:1;display:flex;flex-direction:column;
+  background:linear-gradient(180deg,#1f3b34,#173029);border:10px solid #6b4a2b;border-radius:14px;box-shadow:inset 0 0 40px rgba(0,0,0,.35),0 14px 30px rgba(0,0,0,.35);padding:16px 22px;overflow:hidden}
+.tv[data-kind=intro] .tv-board,.tv[data-kind=outro] .tv-board{justify-content:center;text-align:center}
+.tv-board-head{margin-bottom:10px}
+.tv-step{display:inline-block;font:600 11px 'IBM Plex Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:#1f3b34;background:var(--tv-accent);padding:4px 9px;border-radius:999px}
+.tv-board-title{margin:8px 0 0;font:700 clamp(18px,2.6vw,30px)/1.15 'Space Grotesk',sans-serif;color:#fffbe8;text-shadow:0 1px 0 rgba(0,0,0,.25)}
+.tv[data-kind=intro] .tv-board-title{font-size:clamp(22px,3.4vw,40px)}
+.tv-board-body{flex:1;overflow:auto;display:flex;flex-direction:column;gap:8px;font-family:'DM Sans',sans-serif;color:#f1f5e8;font-size:clamp(13px,1.45vw,18px);line-height:1.45;scrollbar-width:none}
+.tv[data-kind=intro] .tv-board-body,.tv[data-kind=outro] .tv-board-body{flex:none;align-items:center;color:#d9ead9;margin-top:6px}
+.tv-item{opacity:0;transform:translateY(10px);transition:opacity .45s,transform .45s,background .3s}
+.tv-item.shown{opacity:1;transform:none}
+.tv-item.active{background:rgba(255,255,255,.07);border-radius:8px}
+.tv-li,.tv-num{padding:2px 8px 2px 26px;position:relative}
+.tv-li:before{content:'';position:absolute;left:10px;top:.62em;width:7px;height:7px;border-radius:50%;background:var(--tv-accent)}
+.tv-num:before{content:'✎';position:absolute;left:6px;color:var(--tv-accent)}
+.tv-p{padding:2px 8px}
+.tv-key{padding:10px 14px;border-left:4px solid var(--tv-accent);background:rgba(255,255,255,.08);border-radius:0 10px 10px 0;font-weight:700;color:#fff}
+.tv-ex{font-family:'IBM Plex Mono',monospace;font-size:1.08em;padding:6px 12px;color:#fff8c4;letter-spacing:.02em;white-space:pre-wrap}
+.tv-board-body.tv-hidden .tv-item{filter:blur(7px);opacity:.5}
+.tv-enter .tv-board{animation:tv-boardin .6s cubic-bezier(.2,.8,.2,1)}
+@keyframes tv-boardin{from{opacity:0;transform:translateX(30px) scale(.98)}}
+
+/* Sous-titres */
+.tv-subtitle{position:absolute;left:31%;right:3%;bottom:4%;z-index:3;text-align:center;font-size:clamp(12px,1.35vw,16px);line-height:1.35;color:#fff;
+  background:rgba(0,0,0,.62);padding:7px 12px;border-radius:10px;opacity:0;transition:opacity .25s;pointer-events:none}
+.tv-subtitle.on{opacity:1}
+
+/* Bouton de lancement */
+.tv-bigplay{position:absolute;inset:0;z-index:5;border:0;cursor:pointer;color:#fff;font-size:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
+  background:radial-gradient(circle at center,rgba(15,19,48,.35),rgba(15,19,48,.75))}
+.tv-bigplay span{font:700 16px 'Space Grotesk',sans-serif;letter-spacing:.02em}
+.tv-bigplay:before{content:'';position:absolute;width:96px;height:96px;border-radius:50%;background:var(--tv-accent);z-index:-1;margin-top:-34px;box-shadow:0 0 0 14px rgba(255,255,255,.12);animation:tv-pulse 2s infinite}
+@keyframes tv-pulse{50%{box-shadow:0 0 0 22px rgba(255,255,255,.04)}}
+.tv-started .tv-bigplay{display:none}
+
+/* Contrôles */
+.tv-controls{display:flex;align-items:center;gap:6px;padding:10px 12px;background:#0b0e24}
+.tv-btn{border:0;background:transparent;color:#e3e6ff;min-width:38px;height:36px;border-radius:10px;cursor:pointer;font-weight:800;font-size:15px}
+.tv-btn:hover{background:rgba(255,255,255,.08)}
+.tv-btn[aria-pressed=false]{opacity:.45}
+.tv-play{background:var(--tv-accent);color:#fff}
+.tv-play:hover{background:var(--tv-accent);filter:brightness(1.1)}
+.tv-progress{flex:1;display:flex;gap:3px;align-items:center;min-width:60px}
+.tv-seg{flex:1;height:22px;border:0;background:transparent;cursor:pointer;padding:0;display:flex;align-items:center}
+.tv-seg i{display:block;width:100%;height:5px;border-radius:4px;background:rgba(255,255,255,.18);transition:background .3s,height .2s}
+.tv-seg:hover i{height:8px}
+.tv-seg.done i{background:rgba(255,255,255,.6)}
+.tv-seg.current i{background:var(--tv-accent)}
+
+@media(max-width:700px){
+  .tv-stage{aspect-ratio:3/4}
+  .tv-avatar{width:42%;left:-2%}
+  .tv-board{left:4%;right:4%;top:4%;bottom:46%}
+  .tv-avatar{width:38%}
+  .tv-subtitle{left:40%;right:3%;bottom:4%}
+  .tv-controls{flex-wrap:wrap}.tv-progress{order:10;flex-basis:100%}
+}
+@media(prefers-reduced-motion:reduce){.tv *{animation:none!important;transition:none!important}}
