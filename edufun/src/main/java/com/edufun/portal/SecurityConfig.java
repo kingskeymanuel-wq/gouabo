@@ -46,7 +46,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/exams").authenticated()
                 .requestMatchers(HttpMethod.PATCH, "/api/exams/*/review").hasRole("ADMIN")
                 .requestMatchers("/api/curriculum", "/api/levels", "/api/subjects", "/api/lessons/**", "/api/lessons/*/videos", "/api/quizzes", "/api/quizzes/**").authenticated()
-                .requestMatchers("/dashboard", "/programme", "/lecon/**", "/examens", "/quiz", "/tech-lab", "/repetiteurs", "/certificats", "/api/exams/**", "/api/quiz-attempts", "/api/students/*/progress", "/api/students/*/quiz-attempts", "/api/students/*/badges", "/api/lessons/*/complete").authenticated()
+                .requestMatchers("/dashboard", "/programme", "/lecon/**", "/examens", "/quiz", "/tech-lab", "/repetiteurs", "/certificats", "/api/exams/**", "/api/quiz-attempts", "/api/students/*/progress", "/api/students/*/quiz-attempts", "/api/students/*/badges", "/api/lessons/*/complete", "/api/student-dashboard/*").authenticated()
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form.loginPage("/login").defaultSuccessUrl("/dashboard", true).failureUrl("/login?error").permitAll())

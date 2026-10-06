@@ -122,26 +122,195 @@ async function finishLesson(x) {
   closeLesson();
 }
 
+// ---- Session : un seul appel /auth/me partagé par la page ----
+let mePromise = null;
+function currentUser() {
+  if (!mePromise) mePromise = api('/auth/me').catch(() => ({ authenticated: false }));
+  return mePromise;
+}
+
+// Adapte le menu à la personne connectée (élève, administrateur ou visiteur).
+async function applySessionNav() {
+  if (!$('.nav')) return;
+  const me = await currentUser();
+  const hide = sel => $$(sel).forEach(e => e.hidden = true);
+  if (me.authenticated) {
+    hide('.nav a[href="/inscription"], .nav a[href="/login"]');
+    if (me.role !== 'ADMIN') hide('.nav a[href="/administration"]');
+  } else {
+    hide('.nav a[href="/administration"], .nav .logout-form');
+  }
+}
+
+// ---- Tableau de bord élève ----
+const SUBJECT_ICONS = {
+  'Français': '📖', 'Mathématiques': '📐', 'Anglais': '🇬🇧', 'Sciences': '🔬', 'SVT': '🧬', 'Physique-Chimie': '⚗️',
+  'Histoire-Géographie': '🌍', 'EDHC': '🤝', 'EPS': '⚽', 'Arts': '🎨', 'Arts Plastiques': '🎨', 'Éducation Musicale': '🎵',
+  'Informatique': '💻', 'Développement Web': '🌐', 'Philosophie': '💭', 'Espagnol': '🇪🇸'
+};
+const ACTIVITY_ICONS = { LESSON: '📘', QUIZ: '🧠', EXAM: '🏆' };
+const fmtInt = n => Number(n || 0).toLocaleString('fr-FR');
+const plural = (n, one, many) => `${fmtInt(n)} ${Number(n) > 1 ? many : one}`;
+
+function setText(sel, value) { const e = $(sel); if (e) e.textContent = value; }
+
+function relativeDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso), today = new Date();
+  const days = Math.round((new Date(today.toDateString()) - new Date(d.toDateString())) / 86400000);
+  if (days === 0) return "Aujourd'hui";
+  if (days === 1) return 'Hier';
+  if (days < 7) return `Il y a ${days} j`;
+  return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+}
+
+function initials(name) {
+  return (name || '?').trim().split(/\s+/).slice(0, 2).map(p => p[0] || '').join('').toUpperCase() || '?';
+}
+
 async function loadDashboard() {
-  try {
-    const me = await api('/auth/me');
-    if (!me.authenticated) { location.href = '/login'; return; }
-    localStorage.setItem('edufunStudentId', me.studentId || '');
-    localStorage.setItem('edufunStudentName', me.name || '');
-    const welcome = document.querySelector('[data-user-name]');
-    if (welcome) welcome.textContent = me.name || 'Mon espace';
-    const level = document.querySelector('[data-user-level]');
-    if (level) level.textContent = me.level ? `Niveau ${me.level}` : '';
-    const xp = document.querySelector('[data-user-xp]');
-    if (xp) xp.textContent = `${me.xp || 0} XP`;
-    let d = await api('/student-dashboard/' + me.studentId);
-    for (let k of ['completedLessons', 'lessonXp']) { let e=document.querySelector(`[data-personal-kpi="${k}"]`); if(e)e.textContent=d[k]??0; }
-    let qe=document.querySelector('[data-personal-kpi="quizAttempts"]'); if(qe) qe.textContent=(d.quizAttempts||[]).length;
-    let be=document.querySelector('[data-personal-kpi="badges"]'); if(be) be.textContent=(d.badges||[]).length;
-    let c = await api('/courses?level=' + encodeURIComponent(me.level || ''));
-    let box = $('#courseGrid');
-    if (box) box.innerHTML = c.slice(0, 6).map(x => courseCard(x, { primary: false })).join('') || '<div class="empty">Aucun cours publié pour ton niveau.</div>';
-  } catch (e) { toast('Impossible de charger ton espace.'); }
+  const root = $('#studentDashboard');
+  setText('[data-today]', new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }));
+  const me = await currentUser();
+  if (!me.authenticated) { location.href = '/login'; return; }
+  if (!me.studentId) { location.href = me.role === 'ADMIN' ? '/administration' : '/login'; return; }
+  localStorage.setItem('edufunStudentId', me.studentId);
+  localStorage.setItem('edufunStudentName', me.name || '');
+  setText('[data-user-first]', (me.name || '').trim().split(/\s+/)[0] || 'à toi');
+  setText('[data-user-name]', me.name || 'Mon espace');
+  setText('[data-user-level]', me.level ? `Élève de ${me.level}` : '');
+  setText('[data-user-initials]', initials(me.name));
+
+  let d;
+  try { d = await api('/student-dashboard/' + me.studentId); }
+  catch (e) { toast('Impossible de charger ton espace. Réessaie dans un instant.'); return; }
+  finally { if (root) root.removeAttribute('aria-busy'); }
+
+  const level = d.student.level;
+  const programUrl = `/programme?level=${encodeURIComponent(level)}`;
+  $$('[data-program-link]').forEach(a => a.href = programUrl);
+  setText('[data-subjects-caption]', `Programme de ${level} · ${plural(d.subjects.length, 'matière', 'matières')}`);
+
+  renderContinue(d, programUrl);
+  renderLevelRing(d.levelProgress);
+  renderKpis(d);
+  renderSubjects(d.subjects, level);
+  renderNextBadge(d.badges.next, d.student.xp);
+  renderWeek(d.week);
+  renderActivity(d.recentActivity);
+  renderBadges(d.badges.items);
+  setText('[data-quiz-sub]', d.quiz.attempts ? `${plural(d.quiz.passed, 'quiz réussi', 'quiz réussis')} sur ${fmtInt(d.quiz.attempts)}` : 'Teste tes connaissances');
+  setText('[data-exam-sub]', d.exams.pending ? `${plural(d.exams.pending, 'épreuve', 'épreuves')} en correction` : 'Simulations BEPC et BAC');
+}
+
+function renderContinue(d, programUrl) {
+  const c = d.continueLesson;
+  const link = $('[data-continue-link]');
+  if (!c) {
+    setText('[data-continue-eyebrow]', 'Programme terminé');
+    setText('[data-continue-title]', `Bravo, tu as terminé tout le programme de ${d.student.level} !`);
+    setText('[data-continue-meta]', 'Révise avec les quiz et prépare tes examens.');
+    if (link) { link.textContent = 'Faire un quiz →'; link.href = '/quiz'; }
+    return;
+  }
+  const first = d.completedLessons === 0;
+  setText('[data-continue-eyebrow]', first ? 'Ta première leçon' : (c.resumed ? 'Reprends où tu t’es arrêté' : 'Ton prochain pas'));
+  setText('[data-continue-title]', c.title);
+  setText('[data-continue-meta]', `${c.subject} · ${c.chapter} · ${c.duration || '30 min'}`);
+  setText('[data-continue-objective]', c.objective || '');
+  if (link) { link.href = '/lecon/' + c.id; link.textContent = first ? 'Commencer la leçon →' : 'Reprendre la leçon →'; }
+}
+
+function renderLevelRing(p) {
+  const ring = $('[data-ring]');
+  if (ring) {
+    const length = 2 * Math.PI * 52;
+    ring.style.opacity = p.completed ? 1 : 0;
+    requestAnimationFrame(() => ring.style.strokeDashoffset = length * (1 - Math.min(100, p.percent) / 100));
+  }
+  setText('[data-level-percent]', `${p.percent} %`);
+  setText('[data-level-count]', `${fmtInt(p.completed)} / ${fmtInt(p.total)} leçons`);
+}
+
+function renderKpis(d) {
+  setText('[data-kpi-lessons]', fmtInt(d.completedLessons));
+  setText('[data-kpi-lessons-sub]', `${fmtInt(d.levelProgress.completed)} sur ${fmtInt(d.levelProgress.total)} en ${d.student.level}`);
+  setText('[data-kpi-xp]', fmtInt(d.student.xp));
+  setText('[data-kpi-xp-sub]', `dont ${fmtInt(d.lessonXp)} XP de leçons`);
+  setText('[data-kpi-streak]', plural(d.streak, 'jour', 'jours'));
+  setText('[data-kpi-streak-sub]', d.streak ? 'Continue sur ta lancée !' : 'Termine une leçon pour démarrer');
+  setText('[data-kpi-badges]', `${fmtInt(d.badges.earned)} / ${fmtInt(d.badges.total)}`);
+  setText('[data-kpi-badges-sub]', d.badges.next ? `Prochain : ${d.badges.next.name}` : 'Collection complète');
+}
+
+function renderSubjects(subjects, level) {
+  const box = $('[data-subjects]');
+  if (!box) return;
+  if (!subjects.length) { box.innerHTML = `<div class="sd-empty"><b>Aucune leçon publiée pour ${esc(level)}</b>Le programme de ton niveau sera bientôt disponible.</div>`; return; }
+  box.innerHTML = subjects.map(s => {
+    const done = s.completed >= s.total;
+    const href = s.nextLessonId ? `/lecon/${s.nextLessonId}` : `/programme?level=${encodeURIComponent(level)}&subject=${encodeURIComponent(s.subject)}`;
+    return `<a class="sd-subject" href="${href}">
+      <span class="sd-subject-icon" aria-hidden="true">${SUBJECT_ICONS[s.subject] || '📚'}</span>
+      <span class="sd-subject-body">
+        <span class="sd-subject-row"><span class="sd-subject-name">${esc(s.subject)}</span><span class="sd-subject-count">${s.completed}/${s.total} · ${s.percent} %</span></span>
+        <span class="sd-subject-next">${done ? 'Toutes les leçons sont terminées' : 'Suivant : ' + esc(s.nextLessonTitle)}</span>
+        <span class="sd-bar" role="progressbar" aria-label="${esc(s.subject)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${s.percent}"><i data-w="${s.percent}"></i></span>
+      </span>
+      <span class="sd-subject-go ${done ? 'done' : ''}">${done ? '✓ Terminé' : s.completed ? 'Continuer' : 'Commencer'}</span>
+    </a>`;
+  }).join('');
+  requestAnimationFrame(() => box.querySelectorAll('[data-w]').forEach(i => i.style.width = i.dataset.w + '%'));
+}
+
+function renderNextBadge(next, xp) {
+  const box = $('[data-next-badge]');
+  if (!box) return;
+  const head = '<div class="sd-panel-head"><h3>Prochain badge</h3></div>';
+  if (!next) { box.innerHTML = head + '<div class="sd-empty"><b>🏆 Collection complète</b>Tu as obtenu tous les badges disponibles.</div>'; return; }
+  box.innerHTML = head + `<div class="sd-nextbadge-body"><span class="sd-nextbadge-icon" aria-hidden="true">${esc(next.icon)}</span>
+      <div><b>${esc(next.name)}</b><p>${esc(next.description)}</p></div></div>
+    <div class="sd-bar" role="progressbar" aria-label="Progression vers ${esc(next.name)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${next.percent}"><i data-w="${next.percent}"></i></div>
+    <div class="sd-nextbadge-foot"><span>${fmtInt(xp)} / ${fmtInt(next.xpRequired)} XP</span><span>encore ${fmtInt(next.remaining)} XP</span></div>`;
+  requestAnimationFrame(() => box.querySelectorAll('[data-w]').forEach(i => i.style.width = i.dataset.w + '%'));
+}
+
+function renderWeek(week) {
+  const box = $('[data-week]');
+  if (!box) return;
+  const max = Math.max(1, ...week.map(w => w.lessons));
+  const total = week.reduce((n, w) => n + w.lessons, 0);
+  setText('[data-week-total]', plural(total, 'leçon', 'leçons'));
+  const todayIso = new Date().toLocaleDateString('sv-SE');
+  box.innerHTML = week.map(w => {
+    const day = new Date(w.date + 'T12:00:00');
+    const label = day.toLocaleDateString('fr-FR', { weekday: 'short' }).replace('.', '');
+    const full = day.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+    const tip = `${full} · ${plural(w.lessons, 'leçon', 'leçons')}`;
+    return `<div class="sd-day ${w.date === todayIso ? 'today' : ''}" role="listitem" tabindex="0" aria-label="${esc(tip)}">
+      <div class="sd-day-track"><span class="sd-day-bar ${w.lessons ? '' : 'zero'}" data-h="${w.lessons ? Math.max(6, w.lessons / max * 100) : 2}" style="height:0"></span></div>
+      <span class="sd-day-label">${esc(label)}</span><span class="sd-day-tip">${esc(tip)}</span></div>`;
+  }).join('');
+  requestAnimationFrame(() => box.querySelectorAll('[data-h]').forEach(b => b.style.height = b.dataset.h + '%'));
+}
+
+function renderActivity(items) {
+  const box = $('[data-activity]');
+  if (!box) return;
+  if (!items.length) { box.innerHTML = '<li class="sd-empty"><b>Rien pour le moment</b>Tes leçons terminées, quiz et examens apparaîtront ici.</li>'; return; }
+  box.innerHTML = items.map(a => `<li><a href="${esc(a.href)}">
+      <span class="sd-activity-icon ${esc(a.type)}" aria-hidden="true">${ACTIVITY_ICONS[a.type] || '•'}</span>
+      <span><b>${esc(a.title)}</b><small>${esc(a.detail)}</small></span>
+      <time datetime="${esc(a.at)}">${esc(relativeDate(a.at))}</time></a></li>`).join('');
+}
+
+function renderBadges(items) {
+  const box = $('[data-badges]');
+  if (!box) return;
+  box.innerHTML = items.map(b => `<div class="sd-badge ${b.earned ? '' : 'locked'}">
+      <span class="sd-badge-icon" aria-hidden="true">${esc(b.icon)}</span>
+      <div><b>${esc(b.name)}</b><small>${b.earned ? 'Obtenu ' + esc(relativeDate(b.awardedAt).toLowerCase()) : fmtInt(b.xpRequired) + ' XP requis'}</small></div>
+    </div>`).join('') || '<div class="sd-empty">Aucun badge configuré.</div>';
 }
 
 async function registerStudent(f) {
@@ -293,7 +462,8 @@ window.addEventListener('popstate', e => {
 document.addEventListener('DOMContentLoaded', () => {
   nav();
   setup();
-  if ($('#courseGrid')) loadDashboard();
+  applySessionNav();
+  if ($('#studentDashboard')) loadDashboard();
   if ($('#coursesList')) { setupTabs(); loadCourses(); }
   if ($('#tutorsList')) loadTutors();
   if ($('#adminStudents')) loadAdmin();
@@ -385,7 +555,7 @@ async function openLearningLesson(id) {
   $('#learningDone').onclick=()=>completeLearningLesson(l); m.classList.add('open'); document.body.style.overflow='hidden';
 }
 function closeLearningLesson(){const m=$('#learningModal');if(m)m.classList.remove('open');document.body.style.overflow='';}
-async function completeLearningLesson(l){const sid=localStorage.getItem('edufunStudentId');if(!sid){toast('Inscris-toi pour enregistrer ta progression.');return;}try{const r=await api(`/lessons/${l.id}/complete?studentId=${sid}`,{method:'POST'});toast(`Bravo ! +20 XP · ${r.xp} XP au total 🏆`);closeLearningLesson();}catch(e){toast('Impossible d’enregistrer la progression.');}}
+async function completeLearningLesson(l){const sid=localStorage.getItem('edufunStudentId');if(!sid){toast('Inscris-toi pour enregistrer ta progression.');return;}try{const r=await api(`/lessons/${l.id}/complete?studentId=${sid}`,{method:'POST'});toast(r.alreadyCompleted?'Leçon déjà terminée ✓':`Bravo ! +20 XP · ${r.xp} XP au total 🏆`);closeLearningLesson();}catch(e){toast('Impossible d’enregistrer la progression.');}}
 async function openLessonVideos(id){try{const v=await api('/lessons/'+id+'/videos'); if(!v.length){toast('Aucune vidéo publiée pour le moment.');return;} window.open(v[0].url,'_blank','noopener');}catch(e){toast('Vidéo indisponible');}}
 
 window.addEventListener('DOMContentLoaded',()=>{if($('#curriculumList'))setupCurriculum();});
@@ -420,7 +590,8 @@ async function loadLessonReader(){
     $('#readerPrev').disabled=!prev; $('#readerNext').disabled=!next;
     $('#readerPrev').onclick=()=>{if(prev)location.href='/lecon/'+prev.id};
     $('#readerNext').onclick=()=>{if(next)location.href='/lecon/'+next.id};
-    $('#readerDone').onclick=async()=>{const sid=localStorage.getItem('edufunStudentId');if(!sid){toast('Inscris-toi pour enregistrer ta progression.');return;}try{const r=await api(`/lessons/${l.id}/complete?studentId=${sid}`,{method:'POST'});toast(`Leçon validée · +20 XP · ${r.xp} XP`);$('#readerDone').textContent='✓ Leçon terminée';$('#readerDone').disabled=true;}catch(e){toast('Impossible d’enregistrer la progression.')}};
+    $('#readerDone').onclick=async()=>{const sid=localStorage.getItem('edufunStudentId');if(!sid){toast('Inscris-toi pour enregistrer ta progression.');return;}try{const r=await api(`/lessons/${l.id}/complete?studentId=${sid}`,{method:'POST'});toast(r.alreadyCompleted?'Leçon déjà terminée ✓':`Leçon validée · +20 XP · ${r.xp} XP`);$('#readerDone').textContent='✓ Leçon terminée';$('#readerDone').disabled=true;}catch(e){toast('Impossible d’enregistrer la progression.')}};
+    try{const sid=localStorage.getItem('edufunStudentId');if(sid){const pr=await api(`/students/${sid}/progress`);if((pr.records||[]).some(r=>r.lessonId===l.id&&r.completed)){$('#readerDone').textContent='✓ Leçon terminée';$('#readerDone').disabled=true;}}}catch(_){}
     const list=$('#readerLessons'); list.innerHTML=all.map((x,i)=>`<a class="reader-lesson ${x.id===l.id?'active':''}" href="/lecon/${x.id}"><span>${String(i+1).padStart(2,'0')}</span><div><b>${esc(x.title)}</b><small>${esc(x.chapter)}</small></div></a>`).join('');
   }catch(e){root.innerHTML='<div class="card empty">Impossible de charger cette leçon.</div>';}
 }
