@@ -20,6 +20,17 @@ Une petite fille ajoute : « Je m'appelle Awa. J'ai six ans. Je suis au CP1. »
 1. « Je m'appelle Yao Kouamé. »
 2. « J'ai six ans. »
 3. « Je suis au CP1 à l'école primaire de Bouaké. »
+### Je vérifie
+? Pour te présenter, que dis-tu en premier ?
++ Je m'appelle… et je dis mon nom
+- Au revoir
+- J'ai faim
+! On commence par dire son nom : « Je m'appelle Koffi. »
+? Comment dit-on son âge ?
+- J'ai six école.
++ J'ai six ans.
+- Je suis six.
+! On dit : « J'ai six ans. »
 ### Je m'exerce
 1. Présente-toi à ton voisin avec trois phrases.
 2. Complète à l'oral : « Je m'appelle … J'ai … ans. »
@@ -46,6 +57,17 @@ Le matin, Awa arrive à l'école. Elle dit : « Bonjour Madame ! » La maîtress
 1. « Bonjour Monsieur le Directeur. »
 2. « Pardon, Madame, je suis en retard. »
 3. « Merci maman, au revoir ! »
+### Je vérifie
+? Que dis-tu quand quelqu'un te donne un cadeau ?
++ Merci
+- Pardon
+- Au revoir
+! On remercie : « Merci beaucoup ! »
+? Le soir, pour saluer, on dit :
+- Bonjour
++ Bonsoir
+- Bonne nuit
+! Le soir, on dit « Bonsoir » ; « Bonne nuit » se dit avant d'aller dormir.
 ### Je m'exerce
 1. Que dis-tu quand tu arrives à l'école le matin ?
 2. Ton camarade te prête son crayon. Que lui dis-tu ?
@@ -69,6 +91,17 @@ Pendant la séance d'EPS, le maître chante : « Tête, épaules, genoux, pieds 
 1. « Je vois avec mes yeux. »
 2. « Je marche avec mes pieds. »
 3. « J'écris avec ma main. »
+### Je vérifie
+? Avec quoi entends-tu ?
+- Avec les yeux
++ Avec les oreilles
+- Avec le nez
+! On entend avec les oreilles.
+? Combien as-tu de doigts aux deux mains ?
+- cinq
++ dix
+- vingt
+! Cinq doigts à chaque main : dix en tout.
 ### Je m'exerce
 1. Avec quoi entends-tu la maîtresse ?
 2. Combien as-tu de doigts ?
@@ -91,6 +124,17 @@ Koffi montre une photo à la classe : « Voici mon papa. Il s'appelle Yao. Voici
 1. « Mon papa s'appelle … »
 2. « J'ai un frère et deux sœurs. »
 3. « Ma grand-mère habite au village. »
+### Je vérifie
+? La maman de ma maman est :
++ ma grand-mère
+- ma tante
+- ma sœur
+! La mère de ma mère est ma grand-mère.
+? Le frère de mon papa est :
+- mon cousin
++ mon oncle
+- mon grand-père
+! Le frère de mon père est mon oncle.
 ### Je m'exerce
 1. Comment s'appelle ta maman ?
 2. As-tu des frères ou des sœurs ? Combien ?
@@ -112,6 +156,17 @@ Le premier jour, le directeur fait visiter l'école : « Voici la cour de récr�
 1. « J'écris sur mon ardoise avec la craie. »
 2. « Je range mon cahier dans mon cartable. »
 3. « Pendant la récréation, je joue dans la cour. »
+### Je vérifie
+? Sur quoi la maîtresse écrit-elle pour toute la classe ?
++ Sur le tableau
+- Sur l'ardoise
+- Sur la porte
+! Le tableau est visible par toute la classe.
+? Où joue-t-on pendant la récréation ?
+- Dans l'armoire
++ Dans la cour
+- Au bureau du directeur
+! La récréation se passe dans la cour.
 ### Je m'exerce
 1. Cite trois objets que tu ranges dans ton cartable.
 2. Où manges-tu à midi quand tu restes à l'école ?
@@ -132,6 +187,17 @@ Image 1 : Awa se réveille. Image 2 : Awa se lave et s'habille. Image 3 : Awa pa
 - Enfin : ce qui arrive à la fin.
 ### Je dis
 « D'abord, Awa se réveille. Ensuite, elle se lave et s'habille. Enfin, elle part à l'école. »
+### Je vérifie
+? Pour raconter dans l'ordre, quel mot vient en premier ?
++ D'abord
+- Enfin
+- Ensuite
+! D'abord, ensuite, enfin.
+? Quel mot annonce la fin de l'histoire ?
+- D'abord
+- Ensuite
++ Enfin
+! « Enfin » montre ce qui arrive à la fin.
 ### Je m'exerce
 1. Raconte ta matinée avec d'abord, ensuite, enfin.
 2. Remets dans l'ordre : « Koffi mange. Koffi lave ses mains. Koffi a faim. »
@@ -154,6 +220,17 @@ Objectif : Reconnaître, prononcer et lire les voyelles a, i, o.
 = a   i   o   a   o   i
 = A   I   O
 = i a o   o a i   a i o
+### Je vérifie
+? Quelle lettre entends-tu au début du mot « ananas » ?
++ a
+- o
+- i
+! a comme ananas.
+? Quelle lettre fait la bouche ronde ?
+- i
++ o
+- a
+! Pour dire « o », la bouche est ronde.
 ### Je m'exerce
 1. Dans « ananas », combien de fois entends-tu [a] ?
 2. Entends-tu [i] dans « igname » ? dans « moto » ?
@@ -176,6 +253,17 @@ u comme l**u**ne, e comme p**e**tit, é comme **é**cole. Attention : le petit t
 = u   e   é   u   é   e
 = a   i   o   u   e   é
 = é u a   i e o   u é i
+### Je vérifie
+? Quelle lettre porte un accent dans « école » ?
++ é
+- e
+- u
+! Le é a un accent aigu.
+? Dans « lune », quelle voyelle entends-tu ?
+- o
++ u
+- é
+! lu-ne : on entend le son u.
 ### Je m'exerce
 1. Entends-tu [é] dans « école » ? dans « lune » ?
 2. Quelle voyelle porte un accent ?
@@ -196,6 +284,17 @@ l comme **l**ait, **l**une, **l**apin. On met la langue derrière les dents du h
 = al   il   ol   ul
 = il — lu — lé — la — Lili — Lola
 = il a lu.
+### Je vérifie
+? l + a, cela fait :
++ la
+- al
+- li
+! La consonne et la voyelle forment la syllabe « la ».
+? Combien de syllabes dans « Lili » ?
+- une
++ deux
+- trois
+! Li-li : deux syllabes.
 ### Je m'exerce
 1. Lis les syllabes : lo, lé, li, la.
 2. Combien de syllabes dans « Lili » ?
@@ -216,6 +315,17 @@ m comme **m**aman, **m**angue, **m**oto. On ferme la bouche et on fait vibrer : 
 = am   im   om
 = ami — Mali — mule — lame — Émile — mamie
 = Ali a mal.   Mamie a lu.   Émile a mal.
+### Je vérifie
+? m + a, cela fait :
+- am
++ ma
+- na
+! m + a = ma.
+? Quel mot commence par le son [m] ?
++ maman
+- papa
+- lune
+! ma-man commence par m.
 ### Je m'exerce
 1. Lis : mo, mé, mu, mi.
 2. Sépare les syllabes : « ami », « mamie ».
@@ -236,6 +346,17 @@ r comme **r**iz, **r**adio, **r**ue. Le son roule dans la gorge : rrrr.
 = ar   ir   or   ur
 = rire — rame — rare — Marie — mur — Rémi — Omar
 = Marie a ri.   Rémi a le mal.   Omar rame.
+### Je vérifie
+? Quel mot commence par le son [r] ?
+- mur
++ rame
+- ami
+! rame commence par r ; dans « mur », le r est à la fin.
+? r + i, cela fait :
++ ri
+- ir
+- li
+! r + i = ri.
 ### Je m'exerce
 1. Lis : ru, ré, ro, ra.
 2. Trouve le mot qui commence par [r] : « mur », « rame », « ami ».
@@ -256,6 +377,17 @@ s comme **s**ac, **s**alade, **s**ol. Le serpent siffle : ssss.
 = as   is   os   us
 = sale — salami — Sali — Sami — sel — os
 = Sali a sali le sol.   Le sol se salit.
+### Je vérifie
+? Quel mot commence par le son [s] ?
++ salade
+- tomate
+- moto
+! sa-la-de commence par s.
+? s + o, cela fait :
+- os
++ so
+- to
+! s + o = so.
 ### Je m'exerce
 1. Lis : si, su, sé, so.
 2. Dans « salade », la première syllabe est-elle « sa » ou « so » ?
@@ -276,6 +408,17 @@ t comme **t**omate, **t**able, **t**ortue. La langue tape derrière les dents : 
 = at   it   ot
 = tomate — tortue — moto — titi — tata — été — tôt
 = Tata a mis la tomate.   La moto est là.   Titi a pris la moto.
+### Je vérifie
+? Combien de syllabes dans « tomate » ?
+- deux
++ trois
+- quatre
+! to-ma-te : trois syllabes.
+? t + u, cela fait :
++ tu
+- ut
+- du
+! t + u = tu.
 ### Je m'exerce
 1. Lis : tu, té, ti, to.
 2. Combien de syllabes dans « tomate » ?
@@ -295,6 +438,17 @@ p comme **p**apa, **p**ain, **p**irogue. Les lèvres se ferment puis s'ouvrent :
 = pa   pi   po   pu   pe   pé
 = papa — pile — pâte — épi — purée — tapis — Paris
 = Papa a mis le tapis.   La pâte est molle.   Pépé a pris la pile.
+### Je vérifie
+? Quel son entends-tu au début de « papa » ?
++ [p]
+- [b]
+- [t]
+! pa-pa commence par le son [p].
+? p + i, cela fait :
+- ip
++ pi
+- bi
+! p + i = pi.
 ### Je m'exerce
 1. Lis : po, pé, pu, pi.
 2. Trouve le son commun : « papa », « pile », « épi ».
@@ -314,6 +468,17 @@ n comme **n**ez, **n**atte, **n**id. La langue touche le palais et le son passe 
 = na   ni   no   nu   ne   né
 = ananas — Nina — animal — narine — une — Anita
 = Nina a une natte.   Ana a lu une note.   Anita a mal à la narine.
+### Je vérifie
+? Combien de « ponts » a la lettre n ?
++ un
+- deux
+- trois
+! n a un pont, m en a deux.
+? Quel mot commence par n ?
+- mur
++ Nina
+- rire
+! Ni-na commence par n.
 ### Je m'exerce
 1. Lis : nu, né, no, ni.
 2. Combien de ponts a la lettre n ? et la lettre m ?
@@ -333,6 +498,17 @@ d comme **d**ent, **d**ame, **d**odo. Comme t, mais la gorge vibre : d, d, d.
 = da   di   do   du   de   dé
 = dodo — malade — salade — midi — Dédé — le dé — dune
 = Dédé est malade.   À midi, Dédé a la salade.   Le petit fait dodo.
+### Je vérifie
+? Quand je dis [d], ma gorge :
++ vibre
+- ne bouge pas
+- siffle
+! Avec d, la gorge vibre ; avec t, elle ne vibre pas.
+? Quel mot commence par d ?
++ dodo
+- tomate
+- banane
+! do-do commence par d.
 ### Je m'exerce
 1. Lis : du, dé, do, di.
 2. Entends-tu [d] ou [t] : « dodo » ? « tomate » ?
@@ -352,6 +528,17 @@ f comme **f**ête, **f**orêt, **f**ille : l'air souffle sans bruit, ffff. v com
 = fa   fi   fo   fu   fé   —   va   vi   vo   vu   vé
 = fête — farine — fumée — vélo — vide — lave — rive
 = Fati lave le vélo.   Le vase est vide.   Fifi a la farine.
+### Je vérifie
+? Quel mot commence par le son [v] ?
+- fête
++ vélo
+- farine
+! vé-lo commence par v.
+? Avec quelle lettre la gorge ne vibre-t-elle pas ?
++ f
+- v
+- b
+! f souffle sans bruit, v fait vibrer la gorge.
 ### Je m'exerce
 1. Lis : fu, vé, fa, vo.
 2. Classe les mots : « vélo », « fête », « vide », « farine ».
@@ -371,6 +558,17 @@ b comme **b**anane, **b**ébé, **b**ateau. Les lèvres se ferment et la gorge v
 = ba   bi   bo   bu   be   bé
 = bébé — robe — bol — bobo — tube — bulle — habit
 = Le bébé a bu.   Bibi a une belle robe.   Le bol est vide.
+### Je vérifie
+? Le ventre du b regarde :
++ à droite
+- à gauche
+- en haut
+! b a le ventre à droite, d à gauche.
+? b + é, cela fait :
+- dé
++ bé
+- pé
+! b + é = bé, comme dans bébé.
 ### Je m'exerce
 1. Lis : bu, bé, bo, ba.
 2. Écris b ou d : …anane, …odo.
@@ -390,6 +588,17 @@ c comme **c**olis, **c**arotte, **c**ube ; k comme **k**ilo ; qu comme **qu**atr
 = ca   co   cu   —   ka   ki   ko   —   qui   que   quo
 = cola — café — cube — école — kilo — Koffi — qui — quatre
 = Koffi va à l'école.   Il a pris le kilo de café.   Qui a pris le cube ?
+### Je vérifie
+? Devant a, o, u, la lettre c se lit :
++ [k]
+- [s]
+- [ch]
+! ca, co, cu se lisent [ka], [ko], [ku].
+? Dans « kilo », comment s'écrit le son [k] ?
+- avec c
++ avec k
+- avec qu
+! kilo s'écrit avec la lettre k.
 ### Je m'exerce
 1. Lis : cu, ko, ca, qui.
 2. Comment s'écrit [k] dans « kilo » ? dans « café » ?
@@ -409,6 +618,17 @@ Objectif : Lire le son [ou] écrit avec deux lettres o + u.
 = ou   lou   mou   rou   sou   tou   pou   nou   dou   fou   bou   cou
 = loup — roue — soupe — tout — poule — bouche — boule — route
 = La poule a pondu.   Il a bu la soupe.   La roue roule sur la route.
+### Je vérifie
+? Le son [ou] s'écrit avec :
++ o et u
+- u seul
+- o seul
+! Deux lettres, un seul son : ou.
+? Quel mot contient le son [ou] ?
+- moto
++ poule
+- lune
+! pou-le contient [ou].
 ### Je m'exerce
 1. Lis : rou, tou, bou, cou.
 2. Combien de lettres pour écrire le son [ou] ?
@@ -428,6 +648,17 @@ Objectif : Lire le son [on] écrit on (et om devant b et p).
 = on   lon   mon   ron   son   ton   pon   don   fon   bon   con
 = bonbon — melon — mouton — pont — monde — nom — pompe
 = Mon mouton a le nom de Bobo.   Le melon est bon.   Ils ont des bonbons.
+### Je vérifie
+? Quel mot contient le son [on] ?
++ mouton
+- maman
+- moto
+! mou-ton se termine par [on].
+? Devant b et p, le son [on] s'écrit :
+- on
++ om
+- an
+! On écrit om : pompe, bombe.
 ### Je m'exerce
 1. Lis : bon, ton, ron, don.
 2. Écris on ou om : p…pe, b…bon.
@@ -447,6 +678,17 @@ Objectif : Lire le son [an] écrit an, en (et am, em devant b et p).
 = an   lan   man   ran   san   tan   pan   dan   ban   —   en   den   ten
 = maman — manger — enfant — dent — banane — lampe — tante
 = Maman mange une mangue.   L'enfant a mal à la dent.   Ma tante a une lampe.
+### Je vérifie
+? Le son [an] peut s'écrire :
++ an ou en
+- on ou ou
+- oi
+! [an] s'écrit an (maman) ou en (enfant).
+? Quel mot contient le son [an] ?
+- bonbon
++ mangue
+- poule
+! man-gue contient [an].
 ### Je m'exerce
 1. Lis : ban, ten, man, den.
 2. Écris an ou en : la d…t, une m…gue.
@@ -466,6 +708,17 @@ Objectif : Lire le son [wa] écrit oi.
 = oi   loi   moi   roi   soi   toi   poi   noi   doi   foi   boi
 = roi — toi — moi — boire — voiture — étoile — mouchoir
 = Le roi a une voiture.   Le soir, le roi boit.   Toi et moi, nous lisons.
+### Je vérifie
+? Comment se lit « oi » ?
++ [wa]
+- [o] puis [i]
+- [ou]
+! o + i se lit [wa] : roi, toi.
+? Quel mot contient le son [wa] ?
+- route
++ voiture
+- banane
+! voi-tu-re contient [wa].
 ### Je m'exerce
 1. Lis : toi, roi, boi, voi.
 2. Trouve le son [wa] dans : « voiture », « moto », « soir ».
@@ -485,6 +738,17 @@ Objectif : Lire le son [ch] écrit avec c + h.
 = cha   chi   cho   chu   che   ché
 = chat — vache — chemise — marché — chaton — riche — bouche
 = Le chat dort sur le mur.   Maman va au marché.   Le chaton boit.
+### Je vérifie
+? Le son [ch] s'écrit avec :
++ c et h
+- s seul
+- k
+! c + h = ch : chat, vache.
+? Quel mot contient le son [ch] ?
++ marché
+- maison
+- table
+! mar-ché contient [ch].
 ### Je m'exerce
 1. Lis : chu, ché, cho, cha.
 2. Où entends-tu [ch] dans « marché » : au début ou à la fin ?
@@ -505,6 +769,17 @@ Le samedi, Awa va au marché avec maman. Maman achète des tomates, du riz et un
 3. Que porte Awa ?
 ### Je retiens
 > Pour bien comprendre, je lis chaque phrase jusqu'au point, puis je me demande : qui ? quoi ? où ? quand ?
+### Je vérifie
+? Pour bien comprendre un texte, je cherche :
++ qui ? quoi ? où ? quand ?
+- seulement le titre
+- le nombre de mots
+! Ces questions aident à comprendre l'histoire.
+? Une phrase se termine par :
+- une virgule
++ un point
+- une majuscule
+! La phrase commence par une majuscule et se termine par un point.
 ### Corrigé
 1. Avec sa maman.
 2. Des tomates, du riz et une banane.
@@ -522,6 +797,17 @@ Avant d'écrire des lettres, on prépare sa main : on trace des traits, des rond
 - Le rond : je tourne dans le sens contraire des aiguilles d'une montre.
 - Le pont : je monte, je tourne, je descends.
 - La boucle : je monte en penchant, je tourne en haut, je redescends.
+### Je vérifie
+? Comment dois-je m'asseoir pour écrire ?
++ Le dos droit, les pieds au sol
+- Couché sur la table
+- Debout sur la chaise
+! Une bonne posture aide à bien écrire.
+? Le crayon se tient entre :
++ le pouce et l'index
+- le petit doigt et l'annulaire
+- les deux mains
+! Pouce et index, posé sur le majeur, sans serrer.
 ### Je m'exerce
 1. Trace une ligne de traits droits sur ton ardoise.
 2. Trace une ligne de ronds de la même taille.
@@ -538,6 +824,17 @@ Objectif : Écrire les voyelles a, i, o, u, e, é en lettres attachées (cursive
 - **e** : une petite boucle couchée.
 - **a** et **o** : je commence par un rond ; a a une petite canne, o a une petite attache en haut.
 - **é** : un e avec un accent qui monte vers la droite.
+### Je vérifie
+? En cursive, les lettres d'un mot sont :
++ attachées
+- séparées
+- en majuscules
+! On ne lève pas le crayon au milieu d'un mot.
+? Que met-on sur la lettre i ?
+- un accent
++ un point
+- une barre
+! Le i a un point au-dessus.
 ### Je m'exerce
 1. Écris une ligne de i puis une ligne de u.
 2. Écris une ligne de e puis une ligne de é.
@@ -552,6 +849,17 @@ Objectif : Écrire en cursive des syllabes et des mots avec l, m, n, t, p.
 - **l** : une grande boucle qui monte haut.
 - **m** : trois ponts ; **n** : deux ponts (en cursive).
 - **t** : je monte, je redescends, puis je barre.
+### Je vérifie
+? Pour écrire « la », j'attache :
++ l et a
+- a et l
+- l et i
+! l + a → la.
+? Combien de ponts a la lettre m en cursive ?
+- un
+- deux
++ trois
+! En cursive, m a trois ponts et n en a deux.
 ### Je m'exerce
 1. Écris : la, li, lo, lu.
 2. Écris : ma, mi, no, nu.
@@ -569,6 +877,17 @@ Une phrase commence par une majuscule et se termine par un point.
 - La première lettre de la phrase est une majuscule.
 - Je laisse un espace entre deux mots (la largeur d'un doigt).
 - Je n'oublie pas le point à la fin.
+### Je vérifie
+? Une phrase commence par :
++ une majuscule
+- un point
+- un chiffre
+! La première lettre de la phrase est une majuscule.
+? Entre deux mots, je laisse :
++ un espace
+- un point
+- une virgule
+! On laisse l'espace d'un doigt entre deux mots.
 ### Je m'exerce
 1. Copie : « Ali a lu. »
 2. Copie : « Mamie a une tomate. »
@@ -583,6 +902,17 @@ Objectif : Écrire sous la dictée des syllabes, des mots et une courte phrase c
 ### Je retiens
 > J'écoute le mot en entier, je le découpe en syllabes, puis j'écris chaque syllabe.
 = mo-to → moto      ta-pis → tapis
+### Je vérifie
+? Pendant la dictée, avant d'écrire un mot, je :
++ l'écoute en entier puis je le découpe en syllabes
+- l'écris tout de suite sans écouter
+- regarde mon voisin
+! Écouter, découper, écrire : mo-to → moto.
+? Combien de syllabes dans « tapis » ?
+- une
++ deux
+- trois
+! ta-pis : deux syllabes.
 ### Je m'exerce
 Demande à un adulte de te dicter :
 1. Les syllabes : ri, mo, la, tu.

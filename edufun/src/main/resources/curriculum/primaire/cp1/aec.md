@@ -11,6 +11,17 @@ Objectif : Reconnaître et nommer les couleurs principales et les utiliser pour 
 - Jaune + bleu = vert.
 - Rouge + jaune = orange.
 - Rouge + bleu = violet.
+### Je vérifie
+? Jaune + bleu donnent :
++ vert
+- orange
+- violet
+! Mélanger jaune et bleu donne du vert.
+? Lesquelles sont des couleurs primaires ?
++ rouge, jaune, bleu
+- vert, orange, violet
+- noir et blanc
+! Avec elles, on fabrique les autres couleurs.
 ### Je m'exerce
 1. Quelles couleurs faut-il mélanger pour obtenir le vert ?
 2. Colorie le drapeau ivoirien avec les bonnes couleurs.
@@ -22,6 +33,17 @@ Objectif : Reconnaître et nommer les couleurs principales et les utiliser pour 
 Objectif : Colorier une surface proprement, dans un seul sens, sans dépasser les traits.
 ### Je retiens
 > Je colorie d'abord le bord de la forme, puis l'intérieur, en faisant des traits dans le même sens.
+### Je vérifie
+? Pour colorier proprement, je commence par :
++ le bord de la forme
+- le milieu au hasard
+- l'extérieur de la forme
+! D'abord le bord, puis l'intérieur.
+? Mes traits de coloriage vont :
++ dans le même sens
+- dans tous les sens
+- hors de la forme
+! Des traits réguliers donnent un beau coloriage.
 ### Je m'exerce
 1. Colorie un grand rond en jaune : c'est le soleil.
 2. Colorie une maison en commençant par les bords.
@@ -39,6 +61,17 @@ Objectif : Mémoriser et chanter une comptine en respectant le rythme.
 = Dix, onze, douze, elles seront toutes rouges.
 ### Je retiens
 > Pour bien chanter, je me tiens droit, je respire, j'articule et je suis le rythme en frappant dans mes mains.
+### Je vérifie
+? Pour bien chanter, je :
++ me tiens droit et je respire
+- crie très fort
+- chante la bouche fermée
+! Une bonne posture aide à chanter juste.
+? Dans la comptine, après « Un, deux, trois », on dit :
++ nous irons au bois
+- cueillir des cerises
+- dans un panier neuf
+! « Un, deux, trois, nous irons au bois. »
 ### Je m'exerce
 1. Chante la comptine en frappant dans tes mains à chaque nombre.
 2. Récite-la à un adulte.
@@ -49,6 +82,17 @@ Tu dois dire tous les nombres de 1 à 12 dans l'ordre, sans oublier de vers.
 Objectif : Écouter et reconnaître des sons de l'environnement : forts, faibles, aigus, graves.
 ### Je retiens
 > Un son peut être fort (le tambour) ou faible (le chuchotement), aigu (le sifflet) ou grave (la grosse voix).
+### Je vérifie
+? Le son du tambour est :
++ fort
+- faible
+- muet
+! Le tambour fait un son fort.
+? Lequel est un instrument de chez nous ?
++ le balafon
+- la neige
+- le stylo
+! Balafon, tam-tam, djembé, kora.
 ### Je m'exerce
 1. Le klaxon d'un camion est-il un son fort ou faible ?
 2. Cite un instrument de musique de chez nous.
