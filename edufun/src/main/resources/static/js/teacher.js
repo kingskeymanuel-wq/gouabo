@@ -21,7 +21,7 @@
   /** Texte prononcé : on lit les symboles mathématiques en toutes lettres. */
   function spoken(t) {
     return plain(t)
-      .replace(/\s—\s/g, ', ').replace(/→/g, ' donne ').replace(/×/g, ' fois ').replace(/÷/g, ' divisé par ')
+      .replace(/\s—\s/g, ', ').replace(/→/g, ' donne ').replace(/×/g, ' fois ').replace(/÷/g, ' divisé par ').replace(/≠/g, ' différent de ').replace(/≈/g, ' environ ').replace(/≤/g, ' inférieur ou égal à ').replace(/≥/g, ' supérieur ou égal à ').replace(/²/g, ' au carré').replace(/³/g, ' au cube').replace(/√/g, ' racine de ').replace(/π/g, ' pi ').replace(/(\d)\s?%/g, '$1 pour cent')
       .replace(/\s−\s/g, ' moins ').replace(/\s\+\s/g, ' plus ').replace(/\s=\s/g, ' égale ')
       .replace(/\s<\s/g, ' est plus petit que ').replace(/\s>\s/g, ' est plus grand que ')
       .replace(/\[(\w+)\]/g, ' le son $1 ').replace(/…/g, ' ... ').replace(/\s+/g, ' ');
