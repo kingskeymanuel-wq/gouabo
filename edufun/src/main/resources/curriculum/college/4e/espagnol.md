@@ -13,6 +13,17 @@ Une correspondante de Madrid envoie un message vidéo à la classe. Les élèves
 = ¿Cómo te llamas? — Me llamo Awa. ¿Cuántos años tienes? — Tengo trece años.
 = ¿Cómo estás? — Estoy bien, gracias. ¡Hasta luego! ¡Adiós!
 > En espagnol, les phrases interrogatives et exclamatives commencent par un signe renversé : ¿ … ? ¡ … !
+### Je vérifie
+? Comment dit-on « Je m'appelle Koffi » en espagnol ?
++ Me llamo Koffi.
+- Soy llamo Koffi.
+- Tengo Koffi.
+! Me llamo sert à se présenter.
+? Comment dit-on « J'ai quatorze ans » ?
++ Tengo catorce años.
+- Soy catorce años.
+- Estoy catorce años.
+! En espagnol, on utilise tener pour l'âge : tengo.
 ### Je m'exerce
 1. Traduis : « Bonjour, je m'appelle Koffi, j'ai quatorze ans. »
 ### Corrigé
@@ -26,6 +37,17 @@ Objectif : Prononcer correctement les lettres particulières de l'espagnol.
 - ll (elle) ≈ « y » : calle, llamar
 - v se prononce presque comme b ; h est muet : hola
 - rr est roulé fortement : perro
+### Je vérifie
+? Comment se prononce la lettre h en espagnol ?
++ elle est muette
+- comme un r raclé
+- comme gn
+! Le h est muet : hola se prononce « ola ».
+? Dans quel mot entend-on le son « gn » ?
++ mañana
+- perro
+- calle
+! La lettre ñ se prononce gn.
 ### Je m'exerce
 1. Lis : mañana, llave, joven, perro.
 ### Corrigé
@@ -37,6 +59,17 @@ Objectif : Conjuguer et distinguer ser et estar au présent.
 = ser: soy, eres, es, somos, sois, son
 = estar: estoy, estás, está, estamos, estáis, están
 > Ser : identité, nationalité, caractère (Soy marfileño). Estar : lieu, état passager (Estoy cansado. Abiyán está en Costa de Marfil).
+### Je vérifie
+? On utilise « ser » pour exprimer :
++ l'identité ou la nationalité
+- un lieu
+- un état passager
+! Ser : identité, nationalité, caractère (Soy marfileño).
+? Complète : « Abiyán … en Costa de Marfil. »
++ está
+- es
+- son
+! On utilise estar pour la situation dans un lieu.
 ### Je m'exerce
 1. Complète : Yo … de Bouaké. Nosotros … en clase.
 ### Corrigé
@@ -49,6 +82,17 @@ Objectif : Présenter sa famille.
 ### Je retiens
 = el padre, la madre, el hermano, la hermana, el abuelo, la abuela, el tío, la tía, el primo
 = Tengo dos hermanos y una hermana. Mi padre se llama Yao.
+### Je vérifie
+? Comment dit-on « la grand-mère » en espagnol ?
++ la abuela
+- la tía
+- la hermana
+! la abuela = la grand-mère ; la tía = la tante.
+? Traduis : « J'ai deux frères. »
++ Tengo dos hermanos.
+- Tengo dos primos.
+- Tengo dos tíos.
+! el hermano = le frère, los hermanos = les frères.
 ### Je m'exerce
 1. Présente ta famille en trois phrases.
 ### Corrigé
@@ -60,6 +104,17 @@ Objectif : Conjuguer les verbes en -ar, -er, -ir au présent.
 = hablar: hablo, hablas, habla, hablamos, habláis, hablan
 = comer: como, comes, come, comemos, coméis, comen
 = vivir: vivo, vives, vive, vivimos, vivís, viven
+### Je vérifie
+? Quelle est la forme de « hablar » à la 1re personne du singulier ?
++ hablo
+- habla
+- hablas
+! hablar : hablo, hablas, habla...
+? Complète : « Nosotros … en Daloa. » (vivir)
++ vivimos
+- vivemos
+- viven
+! vivir avec nosotros : vivimos.
 ### Je m'exerce
 1. Conjugue « estudiar » au présent.
 ### Corrigé
@@ -70,6 +125,17 @@ Objectif : Compter et dire l'heure.
 ### Je retiens
 = uno, dos, tres, cuatro, cinco, seis, siete, ocho, nueve, diez … veinte, treinta, cien
 = ¿Qué hora es? — Es la una. Son las tres y media. Son las ocho menos cuarto.
+### Je vérifie
+? Comment dit-on « Il est 3 h 30 » ?
++ Son las tres y media.
+- Es las tres y media.
+- Son las tres y cuarto.
+! Y media = et demie ; on dit son las pour plusieurs heures.
+? Comment dit-on « Il est une heure » ?
++ Es la una.
+- Son las una.
+- Es el uno.
+! Pour une heure, on utilise le singulier : es la una.
 ### Je m'exerce
 1. Dis en espagnol : 7 h 30 ; 10 h 15.
 ### Corrigé
