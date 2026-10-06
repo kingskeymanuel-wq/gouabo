@@ -52,9 +52,9 @@ async function applySessionNav() {
   if (me.authenticated) {
     hide('.nav a[href="/inscription"], .nav a[href="/login"]');
     if (me.role !== 'ADMIN') hide('.nav a[href="/administration"]');
-    if (!me.studentId) hide('.nav a[href="/profil"]');
+    if (!me.studentId) hide('.nav a[href="/profil"], .nav a[href="/abonnement"]');
   } else {
-    hide('.nav a[href="/administration"], .nav a[href="/profil"], .nav .logout-form');
+    hide('.nav a[href="/administration"], .nav a[href="/profil"], .nav a[href="/abonnement"], .nav .logout-form');
   }
 }
 
@@ -260,18 +260,12 @@ async function registerTutor(f) {
 }
 
 async function loadTutors() {
+  const box = $('#tutorsList'); if (!box) return;
   try {
-    let t = await api('/tutors'), box = $('#tutorsList');
-    if (!box) return;
-    box.innerHTML = t.map(x => `<tr>
-      <td><b>${esc(x.name)}</b><br><span class="muted">${esc(x.email)}</span></td>
-      <td>${esc(x.specialties)}</td>
-      <td>${esc(x.levels)}</td>
-      <td><span class="pill">${esc(x.status)}</span></td>
-      <td>${x.status === 'PENDING'
-        ? `<button class="btn success" onclick="approveTutor(${x.id})">Valider</button> <button class="btn danger" onclick="rejectTutor(${x.id})">Refuser</button>`
-        : '<span class="muted">Disponible au suivi</span>'}</td>
-    </tr>`).join('') || '<tr><td colspan="5" class="empty">Aucune candidature.</td></tr>';
+    const list = await api('/tutors');
+    box.innerHTML = list.map(x => `<div class="tutor-card"><span class="tutor-avatar">${esc(initials(x.name))}</span>
+      <div><b>${esc(x.name)}</b><small>${esc(x.specialties)}</small>${x.levels ? `<span class="pill">${esc(x.levels)}</span>` : ''}</div></div>`).join('')
+      || '<div class="empty">Les premiers répétiteurs validés apparaîtront ici très bientôt.</div>';
   } catch (e) { toast('Erreur répétiteurs'); }
 }
 

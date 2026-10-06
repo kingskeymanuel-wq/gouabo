@@ -36,7 +36,9 @@ public class EduFunApiController {
  @PostMapping("/courses") @ResponseStatus(HttpStatus.CREATED) public Course courseCreate(@RequestBody Course x){if(x.getStatus()==null)x.setStatus("PUBLISHED");return courses.save(x);}
  @PatchMapping("/courses/{id}/publish") public Course publish(@PathVariable Long id){Course x=course(id);x.setStatus("PUBLISHED");return courses.save(x);}
  @DeleteMapping("/courses/{id}") @ResponseStatus(HttpStatus.NO_CONTENT) public void deleteCourse(@PathVariable Long id){courses.deleteById(id);}
- @GetMapping("/tutors") public List<Tutor> tutors(){return tutors.findAll();}
+ @GetMapping("/tutors") public List<?> tutors(Authentication auth){if(isAdmin(auth))return tutors.findAll();
+   // Élèves : uniquement les répétiteurs validés, sans leurs coordonnées.
+   return tutors.findAll().stream().filter(t->"APPROVED".equals(t.getStatus())).map(t->Map.of("id",t.getId(),"name",String.valueOf(t.getName()),"specialties",String.valueOf(t.getSpecialties()==null?"":t.getSpecialties()),"levels",String.valueOf(t.getLevels()==null?"":t.getLevels()))).toList();}
  @PostMapping("/tutors") @ResponseStatus(HttpStatus.CREATED) public Tutor tutorCreate(@RequestBody Tutor x){x.setStatus("PENDING");return tutors.save(x);}
  @PatchMapping("/tutors/{id}/approve") public Tutor approve(@PathVariable Long id){Tutor x=tutors.findById(id).orElseThrow();x.setStatus("APPROVED");return tutors.save(x);}
  @PatchMapping("/tutors/{id}/reject") public Tutor reject(@PathVariable Long id){Tutor x=tutors.findById(id).orElseThrow();x.setStatus("REJECTED");return tutors.save(x);}
