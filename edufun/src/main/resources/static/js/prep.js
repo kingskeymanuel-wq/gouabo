@@ -12,7 +12,21 @@
   function defaultExam(level) {
     if (['CP1', 'CP2', 'CE1', 'CE2', 'CM1', 'CM2'].includes(level)) return 'cepe';
     if (['6e', '5e', '4e', '3e'].includes(level)) return 'bepc';
-    return 'bac';
+    return /^(Seconde|Première|Terminale) (E|F\d|G\d)$/.test(level || '') ? 'bact' : 'bac';
+  }
+
+  // Série de l'élève (« Terminale F3 » → « F3 ») et épreuves qui la concernent.
+  const serieOf = level => (/^(?:Seconde|Première|Terminale) (\S+)$/.exec(level || '') || [])[1] || '';
+  function concerns(subject, serie) {
+    const text = subject.series || '';
+    if (!serie || !text || /toutes/i.test(text)) return true;
+    return (text.match(/\b(A|C|D|E|F\d|G\d)\b/g) || []).includes(serie);
+  }
+  function subjectCard(s) {
+    return `<button class="px-subject" data-subject="${esc(s.slug)}">
+        <span class="px-subject-icon">${iconFor(s.name)}</span><b>${esc(s.name)}</b>
+        <small>${s.series ? esc(s.series) + ' · ' : ''}${esc(s.duration || '')}</small>
+        <span class="px-subject-meta"><span class="px-chip">${s.sujets} sujet${s.sujets > 1 ? 's' : ''} corrigé${s.sujets > 1 ? 's' : ''}</span><span class="px-chip">${s.qcm} QCM</span></span></button>`;
   }
 
   async function init() {
@@ -28,6 +42,7 @@
 
   function selectExam(code, myLevel) {
     state.exam = state.exams.find(e => e.code === code) || state.exams[0];
+    state.myLevel = myLevel || '';
     const mine = defaultExam(myLevel || '');
     $p('[data-exams]').innerHTML = state.exams.map(e => {
       const qcm = e.subjects.reduce((n, s) => n + s.qcm, 0), sujets = e.subjects.reduce((n, s) => n + s.sujets, 0);
@@ -52,11 +67,17 @@
     }
     if (state.tab === 'resultats') { renderHistory(view); return; }
     view.innerHTML = `<div class="px-intro lesson-richtext">${renderRichText(e.intro)}</div>
-      <div class="px-subjects">${e.subjects.map(s => `<button class="px-subject" data-subject="${esc(s.slug)}">
-        <span class="px-subject-icon">${iconFor(s.name)}</span><b>${esc(s.name)}</b>
-        <small>${s.series ? esc(s.series) + ' · ' : ''}${esc(s.duration || '')}</small>
-        <span class="px-subject-meta"><span class="px-chip">${s.sujets} sujet${s.sujets > 1 ? 's' : ''} corrigé${s.sujets > 1 ? 's' : ''}</span><span class="px-chip">${s.qcm} QCM</span></span></button>`).join('')}</div>`;
-    view.querySelector('.px-subjects').onclick = ev => { const b = ev.target.closest('[data-subject]'); if (b) openSubject(b.dataset.subject); };
+      ${subjectGroups(e)}`;
+    view.querySelectorAll('.px-subjects').forEach(g => g.onclick = ev => { const b = ev.target.closest('[data-subject]'); if (b) openSubject(b.dataset.subject); });
+  }
+
+  // Au BAC, les épreuves de la série de l'élève passent en premier.
+  function subjectGroups(e) {
+    const serie = ['bac', 'bact'].includes(e.code) && defaultExam(state.myLevel) === e.code ? serieOf(state.myLevel) : '';
+    const mine = e.subjects.filter(s => concerns(s, serie)), others = e.subjects.filter(s => !concerns(s, serie));
+    if (!serie || !others.length) return `<div class="px-subjects">${e.subjects.map(subjectCard).join('')}</div>`;
+    return `<h3 class="px-group">Pour ta série ${esc(serie)}</h3><div class="px-subjects">${mine.map(subjectCard).join('')}</div>
+      <h3 class="px-group px-group-other">Autres séries</h3><div class="px-subjects">${others.map(subjectCard).join('')}</div>`;
   }
 
   async function openSubject(slug, sub = 'methode') {

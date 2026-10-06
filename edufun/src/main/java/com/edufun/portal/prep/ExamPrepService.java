@@ -20,7 +20,7 @@ import java.util.*;
 @Service
 public class ExamPrepService {
     private static final Logger log = LoggerFactory.getLogger(ExamPrepService.class);
-    public static final List<String> EXAMS = List.of("cepe", "bepc", "bac");
+    public static final List<String> EXAMS = List.of("cepe", "bepc", "bac", "bact");
 
     public record Faq(String question, String answer) {}
     public record Sujet(String title, String statement, String correction) {}
@@ -56,6 +56,21 @@ public class ExamPrepService {
                 }
             }
             if (meta.isEmpty()) continue;
+            // « shared: bac/philosophie; bac/mathematiques-cd=Séries E et F1 » : épreuves communes reprises
+            // d'un autre examen (avec, si besoin, un libellé de séries propre à cet examen).
+            for (String ref : meta.getOrDefault("shared", "").split(";")) {
+                if (ref.isBlank()) continue;
+                String[] kv = ref.trim().split("=", 2);
+                Resource r = resolver.getResource("classpath:exams/" + kv[0].trim() + ".md");
+                if (!r.exists()) throw new IllegalStateException("Épreuve partagée introuvable : " + kv[0]);
+                String text = read(r);
+                Map<String, String> m = meta(text);
+                String body = stripMeta(text);
+                String slug = kv[0].trim().substring(kv[0].trim().lastIndexOf('/') + 1);
+                order.put(slug, Integer.parseInt(m.getOrDefault("order", "99")));
+                subjects.add(new Subject(slug, m.getOrDefault("subject", slug), m.getOrDefault("duration", ""),
+                        kv.length > 1 ? kv[1].trim() : m.getOrDefault("series", ""), section(body, "Méthode"), sujets(body), section(body, "QCM")));
+            }
             subjects.sort(Comparator.comparingInt((Subject x) -> order.getOrDefault(x.slug(), 99)));
             exams.put(code, new Exam(code, meta.get("name"), meta.get("fullName"), meta.get("level"), intro, faq, subjects));
         }
