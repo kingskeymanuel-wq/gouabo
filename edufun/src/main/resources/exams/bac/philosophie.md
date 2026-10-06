@@ -101,3 +101,13 @@ Explique ce texte en dégageant son intérêt philosophique.
 - la paix et l'abondance
 - la démocratie
 ! D'où la nécessité d'un contrat qui institue un pouvoir fort.
+? Pour Aristote, l'homme est par nature :
++ un animal politique
+- un loup pour l'homme
+- un être solitaire
+! Aristote affirme que l'homme ne s'accomplit que dans la cité.
+? Selon Rousseau, la volonté générale vise :
++ l'intérêt commun
+- l'intérêt du plus fort
+- la somme des intérêts particuliers
+! Rousseau distingue la volonté générale, tournée vers le bien commun, de la volonté de tous.
