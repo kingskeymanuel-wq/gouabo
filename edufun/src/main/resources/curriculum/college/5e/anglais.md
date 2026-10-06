@@ -10,6 +10,17 @@ Objectif : Décrire l'apparence et le caractère d'une personne.
 = She is tall and slim. He has got short black hair and brown eyes.
 = He is kind, funny and hard-working. She is shy but clever.
 > « have got » sert à décrire ce qu'on possède (cheveux, yeux) ; « be » sert pour la taille et le caractère.
+### Je vérifie
+? Pour parler de la taille ou du caractère, on utilise :
++ be (She is tall. He is kind.)
+- have got (She has got tall.)
+- can (She can tall.)
+! « be » sert pour la taille et le caractère ; « have got » pour ce qu'on possède.
+? Quelle phrase décrit correctement Aya ?
++ She has got long hair and she is very kind.
+- She is got long hair and she has kind.
+- She have long hair and she are kind.
+! On dit « has got » pour les cheveux et « is » pour le caractère.
 ### Je m'exerce
 1. Describe your best friend in three sentences.
 ### Corrigé
@@ -20,6 +31,17 @@ Objectif : Décrire sa ville ou son quartier.
 ### Je retiens
 = There is a market. There are two schools. Is there a hospital? — Yes, there is. / No, there isn't.
 = next to, opposite, between, behind, in front of
+### Je vérifie
+? Quelle phrase est correcte ?
++ There are two schools in my town.
+- There is two schools in my town.
+- There be two schools in my town.
+! Avec un nom au pluriel, on utilise « there are ».
+? À Yamoussoukro, la pharmacie est en face de la gare. En anglais :
++ The pharmacy is opposite the station.
+- The pharmacy is behind the station.
+- The pharmacy is between the station.
+! « opposite » signifie « en face de ».
 ### Je m'exerce
 1. Complete: « There … a big mosque and there … many shops. »
 ### Corrigé
@@ -33,6 +55,17 @@ Objectif : Décrire une action en cours avec be + V-ing.
 = I am reading. She is cooking. They are playing football.
 = Negative: He isn't sleeping. Question: Are you listening?
 > Présent simple = habitude (I play every Sunday). Présent continu = maintenant (I am playing now).
+### Je vérifie
+? Le présent continu sert à décrire :
++ une action en train de se passer maintenant
+- une habitude
+- une action terminée hier
+! be + V-ing exprime une action en cours.
+? Look! The children … in the yard.
++ are running
+- run
+- is running
+! Action en cours avec un sujet pluriel : are + running.
 ### Je m'exerce
 1. Put the verb in the correct form: « Look! The children (run) … »
 2. Simple or continuous? « She (go) … to church every Sunday. »
@@ -45,6 +78,17 @@ Objectif : Exprimer la capacité et la permission.
 ### Je retiens
 = I can swim. She can't drive. Can you speak English? — Yes, I can.
 > « can » ne prend jamais de -s : he can (pas he cans).
+### Je vérifie
+? Quelle phrase est correcte ?
++ He can swim.
+- He cans swim.
+- He can swims.
+! « can » ne prend jamais de -s et le verbe reste à la base verbale.
+? Koffi ne sait pas conduire. En anglais :
++ Koffi can't drive.
+- Koffi can drive.
+- Koffi doesn't can drive.
+! La négation de « can » est « can't ».
 ### Je m'exerce
 1. Write two things you can do and one thing you can't do.
 ### Corrigé
@@ -56,6 +100,17 @@ Objectif : Exprimer la capacité et la permission.
 Objectif : Utiliser was / were.
 ### Je retiens
 = I was at home yesterday. They were at the market. Were you tired? — Yes, I was.
+### Je vérifie
+? Le passé de « to be » avec « they » est :
++ were
+- was
+- are
+! I/he/she/it was ; you/we/they were.
+? « Where … you last Saturday? — I … in Grand-Bassam. »
++ were ; was
+- was ; were
+- are ; am
+! On dit « you were » et « I was » au passé.
 ### Je m'exerce
 1. Complete: « Where … you last Saturday? — I … in Grand-Bassam. »
 ### Corrigé
@@ -67,6 +122,17 @@ Objectif : Raconter des événements passés.
 = Regular: play → played, visit → visited, stop → stopped
 = Irregular: go → went, eat → ate, see → saw, have → had, buy → bought
 = Negative: I didn't go. Question: Did you see the match?
+### Je vérifie
+? Quel est le passé de « buy » ?
++ bought
+- buyed
+- brought
+! « buy » est irrégulier : buy → bought.
+? « We … foutou yesterday. »
++ ate
+- eated
+- eat
+! « eat » est irrégulier : eat → ate.
 ### Je m'exerce
 1. Put into the past: « We (visit) … our grandparents and we (eat) … foutou. »
 ### Corrigé
@@ -80,6 +146,17 @@ Objectif : Comparer des personnes, des lieux et des objets.
 = short adjectives: tall → taller → the tallest ; big → bigger → the biggest
 = long adjectives: beautiful → more beautiful → the most beautiful
 = irregular: good → better → the best ; bad → worse → the worst
+### Je vérifie
+? Le superlatif de « good » est :
++ the best
+- the goodest
+- the better
+! good → better → the best est irrégulier.
+? « Abidjan is … than Man. »
++ bigger
+- more big
+- biggest
+! Adjectif court : big → bigger (on double le g).
 ### Je m'exerce
 1. Complete: « Abidjan is (big) … than Man. The Nile is (long) … river in Africa. »
 ### Corrigé
