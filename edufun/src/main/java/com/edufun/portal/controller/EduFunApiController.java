@@ -62,7 +62,19 @@ public class EduFunApiController {
  @PostMapping("/curriculum-versions") @ResponseStatus(HttpStatus.CREATED) public CurriculumVersion curriculumVersion(@RequestBody CurriculumVersion x){return curriculumVersions.save(x);}
  @GetMapping("/quizzes") public List<Quiz> quizzes(@RequestParam(required=false)String level,@RequestParam(required=false)String subject){return quizzes.findAll();}
  @PostMapping("/quizzes") @ResponseStatus(HttpStatus.CREATED) public Quiz quizCreate(@RequestBody Quiz x){return quizzes.save(x);}
- @GetMapping("/quizzes/{id}") public Map<String,Object> quiz(@PathVariable Long id){Quiz q=quizzes.findById(id).orElseThrow();return Map.of("quiz",q,"questions",questions.findByQuizIdOrderByOrderIndexAsc(id));}
+ @GetMapping("/quizzes/{id}") public Map<String,Object> quiz(@PathVariable Long id, Authentication auth){Quiz q=quizzes.findById(id).orElseThrow();List<QuizQuestion> qs=questions.findByQuizIdOrderByOrderIndexAsc(id);if(isAdmin(auth))return Map.of("quiz",q,"questions",qs);
+   // Les élèves ne reçoivent jamais les bonnes réponses : la correction se fait côté serveur.
+   List<Map<String,Object>> safe=qs.stream().map(x->{Map<String,Object> m=new LinkedHashMap<>();m.put("id",x.getId());m.put("type",x.getType());m.put("question",x.getQuestion());m.put("options",x.getOptions());m.put("points",x.getPoints());return m;}).toList();
+   return Map.of("quiz",q,"questions",safe);}
+ @PostMapping("/quizzes/{id}/submit") @ResponseStatus(HttpStatus.CREATED) public Map<String,Object> quizSubmit(@PathVariable Long id,@RequestBody Map<String,Object> body, Authentication auth){
+   Long sid=Long.valueOf(String.valueOf(body.get("studentId")));assertStudentAccess(sid,auth);Quiz q=quizzes.findById(id).orElseThrow();
+   Map<?,?> answers=body.get("answers") instanceof Map<?,?> m?m:Map.of();int score=0,total=0;List<Map<String,Object>> review=new ArrayList<>();
+   for(QuizQuestion x:questions.findByQuizIdOrderByOrderIndexAsc(id)){int pts=x.getPoints()==null?1:x.getPoints();total+=pts;Object a=answers.get(String.valueOf(x.getId()));boolean ok=a!=null&&String.valueOf(a).trim().equalsIgnoreCase(String.valueOf(x.getCorrectAnswer()).trim());if(ok)score+=pts;review.add(Map.of("questionId",x.getId(),"correct",ok,"correctAnswer",String.valueOf(x.getCorrectAnswer())));}
+   QuizAttempt at=new QuizAttempt();at.setQuizId(id);at.setStudentId(sid);at.setScore(score);at.setTotal(total);at.setPassed(score*100/Math.max(1,total)>=q.getPassingScore());at.setAttemptedAt(LocalDateTime.now());QuizAttempt saved=quizAttempts.save(at);
+   // XP accordé une seule fois par quiz réussi, pour empêcher de « farmer » en rejouant.
+   boolean firstPass=saved.isPassed()&&quizAttempts.findByStudentIdOrderByAttemptedAtDesc(sid).stream().filter(t->t.getQuizId().equals(id)&&t.isPassed()).count()==1;
+   if(firstPass){Student s=student(sid);s.setXp(s.getXp()+50);students.save(s);awardEligibleBadges(s);}
+   return Map.of("attempt",saved,"xpAwarded",firstPass?50:0,"review",review);}
  @PostMapping("/quizzes/{id}/questions") @ResponseStatus(HttpStatus.CREATED) public QuizQuestion questionCreate(@PathVariable Long id,@RequestBody QuizQuestion x){x.setQuizId(id);return questions.save(x);}
  @PostMapping("/quiz-attempts") @ResponseStatus(HttpStatus.CREATED) public QuizAttempt quizAttempt(@RequestBody QuizAttempt x, Authentication auth){assertStudentAccess(x.getStudentId(),auth);Quiz q=quizzes.findById(x.getQuizId()).orElseThrow();x.setPassed(x.getScore()*100/Math.max(1,x.getTotal())>=q.getPassingScore());x.setAttemptedAt(LocalDateTime.now());QuizAttempt saved=quizAttempts.save(x);if(saved.isPassed()){Student s=student(saved.getStudentId());s.setXp(s.getXp()+50);students.save(s);awardEligibleBadges(s);}return saved;}
  @GetMapping("/students/{id}/quiz-attempts") public List<QuizAttempt> quizAttempts(@PathVariable Long id, Authentication auth){assertStudentAccess(id,auth);return quizAttempts.findByStudentIdOrderByAttemptedAtDesc(id);}
@@ -70,11 +82,12 @@ public class EduFunApiController {
  @PostMapping("/badges") @ResponseStatus(HttpStatus.CREATED) public Badge badgeCreate(@RequestBody Badge x){return badges.save(x);}
  @GetMapping("/students/{id}/badges") public List<StudentBadge> studentBadges(@PathVariable Long id, Authentication auth){assertStudentAccess(id,auth);return studentBadges.findByStudentId(id);}
  @PostMapping("/students/{studentId}/badges/{badgeId}") @ResponseStatus(HttpStatus.CREATED) public StudentBadge awardBadge(@PathVariable Long studentId,@PathVariable Long badgeId){return awardBadgeInternal(studentId,badgeId);}
- @GetMapping("/certificates") public List<Certificate> certificates(@RequestParam(required=false)Long studentId, Authentication auth){if(studentId!=null)assertStudentAccess(studentId,auth);return studentId==null?certificates.findAll():certificates.findByStudentId(studentId);}
+ @GetMapping("/certificates") public List<Certificate> certificates(@RequestParam(required=false)Long studentId, Authentication auth){if(studentId!=null)assertStudentAccess(studentId,auth);else if(!isAdmin(auth))throw new org.springframework.security.access.AccessDeniedException("Accès réservé à l'administration");return studentId==null?certificates.findAll():certificates.findByStudentId(studentId);}
  @PostMapping("/certificates") @ResponseStatus(HttpStatus.CREATED) public Certificate certificate(@RequestBody Certificate x){if(x.getCertificateNumber()==null)x.setCertificateNumber("EDU-"+UUID.randomUUID().toString().substring(0,8).toUpperCase());if(x.getIssuedAt()==null)x.setIssuedAt(LocalDateTime.now());return certificates.save(x);}
  @GetMapping("/certificates/verify/{number}") public Map<String,Object> verify(@PathVariable String number){return certificates.findByCertificateNumber(number).<Map<String,Object>>map(c->Map.of("valid",true,"certificate",c)).orElse(Map.of("valid",false));}
  private void awardEligibleBadges(Student s){for(Badge b:badges.findAll())if(s.getXp()>=b.getXpRequired()&&!studentBadges.existsByStudentIdAndBadgeId(s.getId(),b.getId()))awardBadgeInternal(s.getId(),b.getId());}
  private StudentBadge awardBadgeInternal(Long sid,Long bid){if(studentBadges.existsByStudentIdAndBadgeId(sid,bid))return studentBadges.findByStudentId(sid).stream().filter(x->x.getBadgeId().equals(bid)).findFirst().orElseThrow();StudentBadge x=new StudentBadge();x.setStudentId(sid);x.setBadgeId(bid);x.setAwardedAt(LocalDateTime.now());return studentBadges.save(x);}
+ private boolean isAdmin(Authentication auth){return auth!=null&&auth.getAuthorities().stream().anyMatch(a->a.getAuthority().equals("ROLE_ADMIN"));}
  private void assertStudentAccess(Long id, Authentication auth){
    if(auth==null || !auth.isAuthenticated()) throw new org.springframework.security.access.AccessDeniedException("Connexion requise");
    if(auth.getAuthorities().stream().anyMatch(a->a.getAuthority().equals("ROLE_ADMIN"))) return;

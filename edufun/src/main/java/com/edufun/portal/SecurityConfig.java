@@ -34,19 +34,16 @@ public class SecurityConfig {
         http
             .authorizeHttpRequests(a -> a
                 .requestMatchers("/login", "/inscription", "/", "/css/**", "/js/**", "/vendor/**", "/api/auth/register", "/api/auth/me", "/api/auth/csrf").permitAll()
-                .requestMatchers("/administration", "/api/dashboard", "/api/students", "/api/students/*", "/api/tutor-assignments/**", "/api/lessons", "/api/videos", "/api/exam-sessions/**", "/api/curriculum-versions", "/api/badges").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.GET, "/api/courses/**", "/api/tutors", "/api/certificates").authenticated()
-                .requestMatchers(HttpMethod.POST, "/api/courses").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.POST, "/api/tutors").authenticated()
-                .requestMatchers(HttpMethod.PATCH, "/api/courses/**", "/api/tutors/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/students/*").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.PATCH, "/api/students/*/progress").authenticated()
-                .requestMatchers(HttpMethod.POST, "/api/certificates").hasRole("ADMIN")
+                // Écritures autorisées à un élève connecté (la propriété du compte est vérifiée dans les contrôleurs)
+                .requestMatchers(HttpMethod.POST, "/api/lessons/*/complete", "/api/quizzes/*/submit", "/api/exams", "/api/tutors", "/api/prep/attempts").authenticated()
+                // Toute autre écriture sur l'API est réservée à l'administration
+                .requestMatchers(HttpMethod.POST, "/api/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PATCH, "/api/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/**").hasRole("ADMIN")
+                // Lectures réservées à l'administration
+                .requestMatchers("/administration", "/api/dashboard", "/api/students", "/api/students/*", "/api/tutor-assignments/**", "/api/lessons", "/api/videos", "/api/exam-sessions/**", "/api/curriculum-versions", "/api/badges", "/api/program/summary").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET, "/api/exams").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.POST, "/api/exams").authenticated()
-                .requestMatchers(HttpMethod.PATCH, "/api/exams/*/review").hasRole("ADMIN")
-                .requestMatchers("/api/curriculum", "/api/levels", "/api/subjects", "/api/lessons/**", "/api/lessons/*/videos", "/api/quizzes", "/api/quizzes/**").authenticated()
-                .requestMatchers("/dashboard", "/programme", "/lecon/**", "/examens", "/quiz", "/tech-lab", "/repetiteurs", "/certificats", "/api/exams/**", "/api/quiz-attempts", "/api/students/*/progress", "/api/students/*/quiz-attempts", "/api/students/*/badges", "/api/lessons/*/complete", "/api/student-dashboard/*").authenticated()
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form.loginPage("/login").defaultSuccessUrl("/dashboard", true).failureUrl("/login?error").permitAll())
