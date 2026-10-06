@@ -12,6 +12,17 @@ Un élève affirme : « La philosophie ne sert à rien, elle ne donne pas de mé
 > Étymologiquement, philosophie signifie « amour de la sagesse » (philein : aimer ; sophia : sagesse). C'est une réflexion critique, rationnelle et radicale (qui va à la racine) sur l'homme, le monde et les valeurs. Elle commence par l'étonnement (Platon, Aristote) et le doute.
 - Socrate : « Tout ce que je sais, c'est que je ne sais rien. »
 - Elle est utile : elle forme l'esprit critique et libère des préjugés.
+### Je vérifie
+? Que signifie étymologiquement « philosophie » ?
++ Amour de la sagesse
+- Science des nombres
+- Amour de la nature
+! Du grec philein (aimer) et sophia (sagesse).
+? Selon la leçon, la philosophie est utile parce qu'elle :
++ forme l'esprit critique et libère des préjugés
+- donne directement un métier
+- remplace toutes les autres matières
+! Elle apprend à penser par soi-même et à examiner les opinions.
 ### Je m'exerce
 1. Donne l'étymologie du mot « philosophie ».
 2. Réponds à l'élève de la situation en deux phrases.
@@ -23,6 +34,17 @@ Un élève affirme : « La philosophie ne sert à rien, elle ne donne pas de mé
 Objectif : Distinguer la pensée mythique de la pensée rationnelle.
 ### Je retiens
 > Le mythe est un récit sacré qui explique l'origine du monde par l'action de forces surnaturelles ; il est transmis et cru sans démonstration. La philosophie cherche des explications par la raison, l'argumentation et la critique. Le passage du « mythos » au « logos » marque la naissance de la philosophie en Grèce (VIe siècle av. J.-C.).
+### Je vérifie
+? Quelle différence fondamentale entre mythe et philosophie ?
++ Le mythe est cru sans démonstration, la philosophie justifie par la raison
+- Le mythe est écrit, la philosophie est seulement orale
+- Le mythe utilise l'argumentation, la philosophie les forces surnaturelles
+! La philosophie cherche des explications rationnelles et argumentées.
+? Le passage du « mythos » au « logos » marque :
++ la naissance de la philosophie en Grèce
+- la fin de la philosophie
+- l'invention de l'écriture
+! Au VIe siècle av. J.-C., on passe du récit sacré à la raison.
 ### Je m'exerce
 1. Quelle différence fondamentale entre mythe et philosophie ?
 ### Corrigé
@@ -32,6 +54,17 @@ Objectif : Distinguer la pensée mythique de la pensée rationnelle.
 Objectif : Présenter le débat sur l'existence d'une philosophie africaine.
 ### Je retiens
 > Placide Tempels (« La philosophie bantoue », 1945) affirme l'existence d'une pensée africaine collective : l'ethnophilosophie. Paulin Hountondji (« Sur la philosophie africaine », 1976) la critique : la philosophie est une œuvre individuelle, critique et écrite. Auteurs ivoiriens : Niamkey Koffi, Harris Memel-Fotê.
+### Je vérifie
+? Comment appelle-t-on la pensée africaine collective décrite par Tempels ?
++ L'ethnophilosophie
+- Le cogito
+- L'humanisme
+! Tempels, dans « La philosophie bantoue », fonde l'ethnophilosophie.
+? Que reproche Hountondji à l'ethnophilosophie ?
++ De présenter une vision collective non critiquée comme une philosophie
+- D'être trop individuelle et trop critique
+- D'être écrite en langue bantoue
+! Pour lui, la philosophie est une œuvre individuelle, critique et écrite.
 ### Je m'exerce
 1. Que reproche Hountondji à l'ethnophilosophie ?
 ### Corrigé
@@ -41,6 +74,17 @@ Objectif : Présenter le débat sur l'existence d'une philosophie africaine.
 Objectif : Analyser la notion de conscience et ses limites.
 ### Je retiens
 > La conscience est la connaissance que l'homme a de lui-même et du monde. Descartes : « Je pense, donc je suis » (le cogito). Freud montre l'existence de l'inconscient : une partie de notre vie psychique nous échappe. La conscience morale permet de juger le bien et le mal.
+### Je vérifie
+? Qui a formulé « Je pense, donc je suis » ?
++ Descartes
+- Freud
+- Socrate
+! C'est le cogito de Descartes.
+? Freud remet en cause la toute-puissance de la conscience en montrant :
++ l'existence de l'inconscient
+- que les animaux pensent
+- que le doute est impossible
+! Une partie de notre vie psychique nous échappe : c'est l'inconscient.
 ### Je m'exerce
 1. Que signifie « Je pense, donc je suis » ?
 ### Corrigé
@@ -50,6 +94,17 @@ Objectif : Analyser la notion de conscience et ses limites.
 Objectif : Réfléchir au langage comme propre de l'homme.
 ### Je retiens
 > Le langage humain est articulé, créatif et conventionnel (Saussure : le signe linguistique est arbitraire). Les animaux communiquent par des signaux, mais l'homme seul invente sans cesse de nouveaux énoncés (Benveniste : le langage des abeilles n'est pas un langage). Le langage permet la pensée, le dialogue et la vie sociale ; il peut aussi manipuler.
+### Je vérifie
+? Selon Saussure, le signe linguistique est :
++ arbitraire
+- naturel
+- identique dans toutes les langues
+! Le lien entre le mot et ce qu'il désigne est conventionnel.
+? Pourquoi la danse des abeilles n'est-elle pas un langage selon Benveniste ?
++ Elle ne permet pas le dialogue et transmet un seul type de message
+- Elle est trop rapide pour être comprise
+- Elle est apprise à l'école
+! Le langage humain est créatif et permet le dialogue, ce que n'est pas la danse des abeilles.
 ### Je m'exerce
 1. Pourquoi la danse des abeilles n'est-elle pas un langage selon Benveniste ?
 ### Corrigé
@@ -59,6 +114,17 @@ Objectif : Réfléchir au langage comme propre de l'homme.
 Objectif : Connaître les étapes des exercices philosophiques.
 ### Je retiens
 > Dissertation : analyser le sujet (définir les termes), dégager le problème, construire un plan (souvent : thèse, antithèse, dépassement), argumenter avec des références, conclure en répondant à la question. Explication de texte : dégager le thème, la thèse et le problème, étudier la structure, expliquer, puis évaluer l'intérêt du texte.
+### Je vérifie
+? Quelle est la première étape d'une dissertation de philosophie ?
++ Analyser le sujet en définissant les termes
+- Rédiger directement la conclusion
+- Recopier des citations au hasard
+! L'analyse du sujet permet de dégager le problème posé.
+? Dans une explication de texte, il faut dégager :
++ le thème, la thèse et le problème
+- uniquement la biographie de l'auteur
+- seulement le nombre de lignes
+! L'explication commence par le thème, la thèse et le problème du texte.
 ### Je m'exerce
 1. Quelle est la première étape d'une dissertation ?
 ### Corrigé
