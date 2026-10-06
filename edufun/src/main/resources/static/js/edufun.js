@@ -47,8 +47,9 @@ async function applySessionNav() {
   if (me.authenticated) {
     hide('.nav a[href="/inscription"], .nav a[href="/login"]');
     if (me.role !== 'ADMIN') hide('.nav a[href="/administration"]');
+    if (!me.studentId) hide('.nav a[href="/profil"]');
   } else {
-    hide('.nav a[href="/administration"], .nav .logout-form');
+    hide('.nav a[href="/administration"], .nav a[href="/profil"], .nav .logout-form');
   }
 }
 
@@ -310,18 +311,20 @@ async function reviewExam(id, total) {
 }
 
 function setup() {
-  let f = $('#studentForm'); if (f) f.onsubmit = e => { e.preventDefault(); registerStudent(f); };
-  f = $('#tutorForm'); if (f) f.onsubmit = e => { e.preventDefault(); registerTutor(f); };
-  f = $('#examForm'); if (f) f.onsubmit = e => { e.preventDefault(); submitExam(f); };
-  f = $('#courseForm'); if (f) f.onsubmit = async e => {
-    e.preventDefault();
+  // Chaque gestionnaire reçoit son propre formulaire (e.currentTarget) : une variable partagée
+  // valait null au moment de l'envoi et cassait l'inscription et la candidature répétiteur.
+  const bind = (sel, fn) => { const form = $(sel); if (form) form.onsubmit = e => { e.preventDefault(); fn(e.currentTarget); }; };
+  bind('#studentForm', registerStudent);
+  bind('#tutorForm', registerTutor);
+  bind('#examForm', submitExam);
+  bind('#courseForm', async f => {
     try {
       await api('/courses', { method: 'POST', body: JSON.stringify(Object.fromEntries(new FormData(f))) });
       toast('Cours publié 📚');
       f.reset();
       loadAdmin();
     } catch (x) { toast('Erreur de création'); }
-  };
+  });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -331,7 +334,57 @@ document.addEventListener('DOMContentLoaded', () => {
   if ($('#studentDashboard')) loadDashboard();
   if ($('#tutorsList')) loadTutors();
   if ($('#adminStudents')) loadAdmin();
+  if ($('#profilePage')) loadProfile();
 });
+
+// ---- Mon profil ----
+function apiErrorMessage(e, fallback) {
+  try { return JSON.parse(e.message).message || fallback; } catch (_) { return fallback; }
+}
+
+async function loadProfile() {
+  const me = await currentUser();
+  if (!me.authenticated) { location.href = '/login'; return; }
+  if (!me.studentId) { location.href = me.role === 'ADMIN' ? '/administration' : '/login'; return; }
+  const show = u => {
+    setText('[data-pf-name]', u.name || '');
+    setText('[data-pf-meta]', `Élève de ${u.level || '—'} · ${u.email || ''}`);
+    setText('[data-pf-initials]', initials(u.name));
+    setText('[data-pf-xp]', fmtInt(u.xp));
+    setText('[data-pf-streak]', fmtInt(u.streak));
+  };
+  show(me);
+  const f = $('#profileForm'), note = $('[data-pf-level-note]');
+  f.name.value = me.name || ''; $('#pfEmail').value = me.email || ''; f.level.value = me.level || '';
+  let current = me.level;
+  f.level.onchange = () => {
+    note.hidden = f.level.value === current;
+    note.textContent = `Ton programme passera de ${current} à ${f.level.value}. Ton XP, tes badges et tes leçons terminées sont conservés.`;
+  };
+  f.onsubmit = async e => {
+    e.preventDefault();
+    const btn = f.querySelector('button'); btn.disabled = true;
+    try {
+      const u = await api('/auth/profile', { method: 'PATCH', body: JSON.stringify({ name: f.name.value, level: f.level.value }) });
+      const changed = u.level !== current; current = u.level; note.hidden = true;
+      localStorage.setItem('edufunStudentName', u.name || '');
+      show({ ...me, ...u });
+      toast(changed ? `C'est noté : tu es maintenant en ${u.level} 🎒` : 'Profil enregistré ✅');
+    } catch (x) { toast(apiErrorMessage(x, "Impossible d'enregistrer ton profil.")); }
+    finally { btn.disabled = false; }
+  };
+  const pf = $('#passwordForm');
+  pf.onsubmit = async e => {
+    e.preventDefault();
+    if (pf.newPassword.value !== pf.confirm.value) { toast('Les deux nouveaux mots de passe ne sont pas identiques.'); return; }
+    const btn = pf.querySelector('button'); btn.disabled = true;
+    try {
+      await api('/auth/password', { method: 'POST', body: JSON.stringify({ currentPassword: pf.currentPassword.value, newPassword: pf.newPassword.value }) });
+      pf.reset(); toast('Mot de passe modifié 🔒');
+    } catch (x) { toast(apiErrorMessage(x, 'Impossible de changer le mot de passe.')); }
+    finally { btn.disabled = false; }
+  };
+}
 
 window.addEventListener('DOMContentLoaded',()=>{
   const lf=$('#lessonForm'); if(lf) lf.onsubmit=async e=>{e.preventDefault();try{const d=Object.fromEntries(new FormData(lf));d.orderIndex=999;await api('/lessons',{method:'POST',body:JSON.stringify(d)});toast('Leçon publiée 📚');lf.reset();}catch(x){toast('Erreur de création de la leçon');}};

@@ -73,6 +73,40 @@ public class AuthController {
         return mePayload(student, account);
     }
 
+    public record ProfileRequest(String name, String level) {}
+    public record PasswordRequest(String currentPassword, String newPassword) {}
+
+    // L'élève modifie son nom et sa classe (changement de série, passage en classe supérieure).
+    @PatchMapping("/profile")
+    @Transactional
+    public Map<String,Object> updateProfile(@RequestBody ProfileRequest request, Authentication auth) {
+        UserAccount account = studentAccount(auth);
+        Student student = students.findById(account.getStudentId()).orElseThrow();
+        String name = request.name() == null ? student.getName() : request.name().trim();
+        String level = request.level() == null ? student.getLevel() : request.level().trim();
+        if (name.length() < 2) throw new IllegalArgumentException("Ton nom doit contenir au moins 2 caractères.");
+        if (!com.edufun.portal.curriculum.Levels.exists(level)) throw new IllegalArgumentException("Classe inconnue : choisis ta classe dans la liste.");
+        student.setName(name); student.setLevel(level);
+        return mePayload(students.save(student), account);
+    }
+
+    @PostMapping("/password")
+    @Transactional
+    public Map<String,Object> changePassword(@RequestBody PasswordRequest request, Authentication auth) {
+        UserAccount account = accounts.findByEmailIgnoreCase(auth == null ? "" : auth.getName()).orElseThrow(() -> new org.springframework.security.access.AccessDeniedException("Connexion requise"));
+        if (request.currentPassword() == null || !encoder.matches(request.currentPassword(), account.getPasswordHash())) throw new IllegalArgumentException("Le mot de passe actuel est incorrect.");
+        if (request.newPassword() == null || request.newPassword().length() < 8) throw new IllegalArgumentException("Le nouveau mot de passe doit contenir au moins 8 caractères.");
+        account.setPasswordHash(encoder.encode(request.newPassword()));
+        accounts.save(account);
+        return Map.of("success", true);
+    }
+
+    private UserAccount studentAccount(Authentication auth) {
+        UserAccount account = accounts.findByEmailIgnoreCase(auth == null ? "" : auth.getName()).orElseThrow(() -> new org.springframework.security.access.AccessDeniedException("Connexion requise"));
+        if (account.getStudentId() == null) throw new org.springframework.security.access.AccessDeniedException("Cet espace est réservé aux élèves.");
+        return account;
+    }
+
     @GetMapping("/csrf")
     public Map<String,String> csrf(CsrfToken token) { return Map.of("token", token.getToken(), "headerName", token.getHeaderName()); }
 

@@ -35,7 +35,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(a -> a
                 .requestMatchers("/login", "/inscription", "/", "/css/**", "/js/**", "/vendor/**", "/api/auth/register", "/api/auth/me", "/api/auth/csrf").permitAll()
                 // Écritures autorisées à un élève connecté (la propriété du compte est vérifiée dans les contrôleurs)
-                .requestMatchers(HttpMethod.POST, "/api/lessons/*/complete", "/api/quizzes/*/submit", "/api/exams", "/api/tutors", "/api/prep/attempts").authenticated()
+                .requestMatchers(HttpMethod.PATCH, "/api/auth/profile").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/auth/password", "/api/lessons/*/complete", "/api/quizzes/*/submit", "/api/exams", "/api/tutors", "/api/prep/attempts").authenticated()
                 // Toute autre écriture sur l'API est réservée à l'administration
                 .requestMatchers(HttpMethod.POST, "/api/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/api/**").hasRole("ADMIN")

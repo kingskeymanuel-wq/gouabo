@@ -1,0 +1,11 @@
+/* EduFun — Mon profil */
+.pf-id{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.pf-id h2{margin:0;font:700 22px 'Space Grotesk',sans-serif}
+.pf-id p{margin:4px 0 0;color:var(--muted);font-size:14px}
+.pf-avatar{width:64px;height:64px;border-radius:20px;display:grid;place-items:center;background:linear-gradient(135deg,var(--brand),#8b7bff);color:#fff;font:700 22px 'Space Grotesk',sans-serif;flex:none}
+.pf-stats{display:flex;gap:10px;margin-left:auto}
+.pf-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;align-items:start}
+.pf-h{margin:0 0 4px;font:700 18px 'Space Grotesk',sans-serif}
+.pf-help{margin:0 0 14px;color:var(--muted);font-size:14px;line-height:1.5}
+.pf-note{margin:0;padding:10px 12px;border-radius:12px;background:#fff7e6;border:1px solid #f5d48a;color:#7a5200;font-size:13px}
+@media(max-width:900px){.pf-grid{grid-template-columns:1fr}.pf-stats{margin-left:0}}

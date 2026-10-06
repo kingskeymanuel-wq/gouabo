@@ -11,11 +11,12 @@ public class PageController {
     @GetMapping("/") public String home(){ return "redirect:/dashboard"; }
     @GetMapping("/login") public String login(){ return "login"; }
     @GetMapping("/dashboard") public String dashboard(){return "dashboard";}
-    @GetMapping("/inscription") public String inscription(Model model){
+    @GetMapping("/inscription") public String inscription(Model model){ model.addAttribute("levelsByCycle",levelsByCycle()); return "inscription"; }
+    @GetMapping("/profil") public String profile(Model model){ model.addAttribute("levelsByCycle",levelsByCycle()); return "profil"; }
+    private static Map<String,List<String>> levelsByCycle(){
         Map<String,List<String>> byCycle=new LinkedHashMap<>();
         Levels.all().forEach(l->byCycle.computeIfAbsent(l.cycle(),k->new ArrayList<>()).add(l.code()));
-        model.addAttribute("levelsByCycle",byCycle);
-        return "inscription";
+        return byCycle;
     }
     @GetMapping("/programme") public String programme(){return "programme";}
     @GetMapping("/lecon/{id}") public String lessonReader(){return "lecon";}
