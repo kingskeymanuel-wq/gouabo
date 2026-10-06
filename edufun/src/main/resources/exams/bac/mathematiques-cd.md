@@ -38,7 +38,7 @@ Soit f la fonction définie sur ]0 ; +∞[ par f(x) = x − 1 + ln(x)/x. On note
 2. P(X = 2) = C₃² × 0,4² × 0,6 = 3 × 0,16 × 0,6 = 0,288. P(X ≥ 1) = 1 − P(X = 0) = 1 − 0,6³ = 1 − 0,216 = 0,784.
 3. E(X) = np = 3 × 0,4 = 1,2.
 **Exercice 2**
-Δ = 4 − 16 = −12 = (2i√3)². z₁ = 1 + i√3, z₂ = 1 − i√3. |z₁| = 2 et arg(z₁) = π/3 : z₁ = 2e^(iπ/3), z₂ = 2e^(−iπ/3).
+Δ = 4 − 16 = −12 = (2i√3)². z₁ = 1 + i√3, z₂ = 1 − i√3. Le module de z₁ vaut √(1 + 3) = 2 et arg(z₁) = π/3 : z₁ = 2e^(iπ/3), z₂ = 2e^(−iπ/3).
 
 # QCM
 ? lim (x → +∞) ln(x)/x vaut :
@@ -96,3 +96,8 @@ Soit f la fonction définie sur ]0 ; +∞[ par f(x) = x − 1 + ln(x)/x. On note
 - incompatibles
 - contraires
 ! C'est la définition de l'indépendance de deux événements.
+? La forme exponentielle de 1 + i est :
++ √2 e^(iπ/4)
+- 2 e^(iπ/4)
+- √2 e^(iπ/2)
+! Le module vaut √(1 + 1) = √2 et un argument est π/4 (cos θ = sin θ = √2/2).

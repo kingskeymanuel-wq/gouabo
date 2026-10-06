@@ -24,6 +24,27 @@ duration: Épreuve écrite
 **III. Détente et fin de la guerre froide** : coexistence pacifique, accords de limitation des armements ; réformes de Gorbatchev ; chute du mur de Berlin (1989), disparition de l'URSS (1991).
 **Conclusion** : un affrontement idéologique global, mené par crises et conflits indirects, qui s'achève par la victoire du modèle américain.
 
+# Sujet type 2 — Question de géographie : la Côte d'Ivoire, puissance économique régionale
+« La Côte d'Ivoire, une puissance économique en Afrique de l'Ouest : atouts et limites. »
+## Corrigé
+**Introduction** : indépendante depuis le 7 août 1960, la Côte d'Ivoire (environ 29 millions d'habitants au recensement de 2021) est la première économie de l'UEMOA. Une puissance économique régionale est un État dont la production, les échanges et l'influence entraînent ses voisins. Problématique : sur quels atouts repose la puissance ivoirienne et quelles limites la freinent ?
+**I. Une puissance agricole et commerciale**
+- Premier producteur mondial de cacao (environ 2 millions de tonnes par an, près de 40 % de la production mondiale) et de noix de cajou brutes ; production importante de café, hévéa, palmier à huile, coton.
+- Deux grands ports : le Port autonome d'Abidjan, l'un des premiers ports d'Afrique de l'Ouest, et San-Pédro, premier port mondial d'exportation de cacao.
+- Abidjan, métropole économique de plus de 6 millions d'habitants, concentre industries, services, sièges d'entreprises et la Banque africaine de développement.
+**II. Une puissance qui rayonne dans la sous-région**
+- Moteur de l'UEMOA (1994) et membre actif de la CEDEAO (1975) ; elle produit une part importante du PIB de l'UEMOA.
+- Débouché maritime des pays enclavés (Burkina Faso, Mali, Niger) par le port d'Abidjan, la route et le chemin de fer Abidjan-Ouagadougou.
+- Pôle d'attraction migratoire : nombreux ressortissants de la CEDEAO ; exportation d'électricité vers les pays voisins (barrages de Kossou, Taabo, Soubré, centrales thermiques).
+- Forte croissance depuis 2012 (environ 7 à 8 % par an en moyenne sur la décennie 2012-2019), grands travaux (ponts, autoroutes), début de production du gisement pétrolier et gazier Baleine (découvert en 2021).
+**III. Des limites importantes**
+- Dépendance aux matières premières agricoles dont les cours fluctuent ; faible transformation locale du cacao (l'objectif est d'en transformer davantage sur place).
+- Déséquilibres territoriaux : concentration des activités à Abidjan et dans le Sud forestier, retard du Nord ; pauvreté encore élevée et chômage des jeunes.
+- Dégradation de l'environnement : forte déforestation liée à l'extension des plantations.
+- Fragilité politique passée : crises de 1999 à 2011 (coup d'État de 1999, crise de 2002, crise post-électorale de 2010-2011).
+**Conclusion** : la Côte d'Ivoire est une puissance régionale réelle, fondée sur l'agriculture d'exportation, ses ports et son rôle dans l'intégration ouest-africaine, mais elle doit diversifier et transformer sa production et réduire ses inégalités pour devenir un pays émergent.
+**Barème indicatif (20 points)** : introduction (définition, problématique, annonce du plan) 3 pts ; partie I 5 pts ; partie II 5 pts ; partie III 4 pts ; conclusion 2 pts ; expression et présentation 1 pt.
+
 # QCM
 ? Le mur de Berlin tombe en :
 + 1989
@@ -65,3 +86,23 @@ duration: Épreuve écrite
 + développer le commerce entre pays africains
 - supprimer l'Union africaine
 ! Zone de libre-échange continentale africaine.
+? La conférence de Bandung, qui annonce le mouvement des non-alignés, se tient en :
+- 1945
++ 1955
+- 1975
+! Elle réunit en Indonésie 29 pays d'Asie et d'Afrique qui condamnent le colonialisme.
+? La Côte d'Ivoire accède à l'indépendance le :
++ 7 août 1960
+- 4 avril 1960
+- 7 décembre 1993
+! Félix Houphouët-Boigny devient le premier président du pays.
+? La CEDEAO est créée en 1975 par le traité de :
+- Rome
++ Lagos
+- Abidjan
+! Communauté économique des États de l'Afrique de l'Ouest.
+? La Triade désigne les trois pôles majeurs de l'économie mondiale :
++ Amérique du Nord, Europe occidentale, Asie orientale (Japon)
+- Afrique, Amérique latine, Océanie
+- Chine, Inde, Russie
+! Ces pôles concentrent l'essentiel de la richesse, des échanges et des sièges de firmes multinationales.
