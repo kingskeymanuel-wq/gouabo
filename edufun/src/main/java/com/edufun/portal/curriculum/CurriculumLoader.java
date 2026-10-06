@@ -117,9 +117,25 @@ public class CurriculumLoader {
             }
             i++;
         }
-        String level = meta.get("level"), subject = meta.get("subject");
-        if (!Levels.exists(level)) throw new IllegalStateException(fileName + " : classe inconnue « " + level + " »");
+        String subject = meta.get("subject");
         if (subject == null || subject.isBlank()) throw new IllegalStateException(fileName + " : discipline manquante");
+        // « levels: Première A, Première C » : un même programme partagé par plusieurs séries.
+        if (meta.containsKey("levels")) {
+            List<ParsedLesson> all = new ArrayList<>();
+            for (String lv : meta.get("levels").split(",")) {
+                String level = lv.trim();
+                String suffix = level.substring(level.lastIndexOf(' ') + 1);
+                for (ParsedLesson p : parseBody(lines, i, level, subject, fileName))
+                    all.add(new ParsedLesson(p.code() + "-" + suffix, level, subject, p.chapter(), p.title(), p.duration(), p.objective(), p.content()));
+            }
+            return all;
+        }
+        return parseBody(lines, i, meta.get("level"), subject, fileName);
+    }
+
+    private static List<ParsedLesson> parseBody(String[] lines, int start, String level, String subject, String fileName) {
+        if (!Levels.exists(level)) throw new IllegalStateException(fileName + " : classe inconnue « " + level + " »");
+        int i = start;
 
         List<ParsedLesson> out = new ArrayList<>();
         String chapter = null;
