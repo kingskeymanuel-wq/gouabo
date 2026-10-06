@@ -1,0 +1,91 @@
+package com.edufun.portal.controller;
+
+import com.edufun.portal.model.Student;
+import com.edufun.portal.model.UserAccount;
+import com.edufun.portal.repository.StudentRepository;
+import com.edufun.portal.repository.UserAccountRepository;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.web.csrf.CsrfToken;
+import jakarta.transaction.Transactional;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+@RestController
+@RequestMapping("/api/auth")
+public class AuthController {
+    private final StudentRepository students;
+    private final UserAccountRepository accounts;
+    private final PasswordEncoder encoder;
+    private final AuthenticationManager authenticationManager;
+    private final SecurityContextRepository securityContextRepository;
+
+    public AuthController(StudentRepository students, UserAccountRepository accounts, PasswordEncoder encoder,
+                          AuthenticationManager authenticationManager, SecurityContextRepository securityContextRepository) {
+        this.students = students; this.accounts = accounts; this.encoder = encoder;
+        this.authenticationManager = authenticationManager; this.securityContextRepository = securityContextRepository;
+    }
+
+    public record RegisterRequest(String name, String email, String password, String level) {}
+
+    @PostMapping("/register")
+    @Transactional
+    @ResponseStatus(HttpStatus.CREATED)
+    public Map<String,Object> register(@RequestBody RegisterRequest request, HttpServletRequest httpRequest, HttpServletResponse response) {
+        String name = request.name() == null ? "" : request.name().trim();
+        String email = request.email() == null ? "" : request.email().trim().toLowerCase();
+        String password = request.password() == null ? "" : request.password();
+        String level = request.level() == null ? "" : request.level().trim();
+        if (name.length() < 2 || email.isBlank() || !email.contains("@") || password.length() < 8 || level.isBlank()) {
+            throw new IllegalArgumentException("Nom, niveau, email valide et mot de passe de 8 caractères minimum sont requis.");
+        }
+        if (accounts.existsByEmailIgnoreCase(email)) {
+            throw new IllegalStateException("Cette adresse e-mail possède déjà un espace EduFun. Utilise la connexion.");
+        }
+
+        Student student = students.findByEmailIgnoreCase(email).orElseGet(Student::new);
+        student.setName(name); student.setEmail(email); student.setLevel(level);
+        if (student.getXp() < 0) student.setXp(0);
+        if (student.getStreak() < 0) student.setStreak(0);
+        student.setStatus("ACTIVE");
+        student = students.save(student);
+
+        UserAccount account = new UserAccount();
+        account.setEmail(email); account.setPasswordHash(encoder.encode(password)); account.setRole("STUDENT"); account.setStudentId(student.getId()); account.setEnabled(true);
+        accounts.save(account);
+
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(authentication);
+        SecurityContextHolder.setContext(context);
+        securityContextRepository.saveContext(context, httpRequest, response);
+
+        return mePayload(student, account);
+    }
+
+    @GetMapping("/csrf")
+    public Map<String,String> csrf(CsrfToken token) { return Map.of("token", token.getToken(), "headerName", token.getHeaderName()); }
+
+    @GetMapping("/me")
+    public Map<String,Object> me(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated() || !(authentication.getPrincipal() instanceof org.springframework.security.core.userdetails.UserDetails)) return Map.of("authenticated", false);
+        UserAccount account = accounts.findByEmailIgnoreCase(authentication.getName()).orElseThrow();
+        Map<String,Object> out = new LinkedHashMap<>(); out.put("authenticated", true); out.putAll(mePayload(account.getStudentId() == null ? null : students.findById(account.getStudentId()).orElse(null), account)); return out;
+    }
+
+    private Map<String,Object> mePayload(Student student, UserAccount account) {
+        Map<String,Object> out = new LinkedHashMap<>();
+        out.put("authenticated", true); out.put("email", account.getEmail()); out.put("role", account.getRole()); out.put("studentId", account.getStudentId());
+        if (student != null) { out.put("name", student.getName()); out.put("level", student.getLevel()); out.put("xp", student.getXp()); out.put("streak", student.getStreak()); }
+        return out;
+    }
+}

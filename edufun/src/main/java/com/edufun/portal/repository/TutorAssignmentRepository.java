@@ -1,0 +1,1 @@
+package com.edufun.portal.repository; import com.edufun.portal.model.TutorAssignment; import org.springframework.data.jpa.repository.JpaRepository; import java.util.*; public interface TutorAssignmentRepository extends JpaRepository<TutorAssignment,Long>{ List<TutorAssignment> findByStudentId(Long studentId); List<TutorAssignment> findByTutorId(Long tutorId); }

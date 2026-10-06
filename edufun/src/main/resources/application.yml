@@ -1,0 +1,24 @@
+server:
+  port: 8082
+spring:
+  application:
+    name: edufun-portal
+  datasource:
+    url: jdbc:h2:file:./data/edufun;MODE=MSSQLServer;AUTO_SERVER=TRUE
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+  h2:
+    console:
+      enabled: true
+  thymeleaf:
+    cache: false
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
