@@ -40,11 +40,16 @@ public class DataInitializer {
         }
     }
 
+    // Compte administrateur initial : à définir en production avec EDUFUN_ADMIN_EMAIL et EDUFUN_ADMIN_PASSWORD,
+    // puis à changer depuis la console. Il n'est créé qu'une fois et n'est jamais réinitialisé.
+    @org.springframework.beans.factory.annotation.Value("${edufun.admin.email:admin@edufun.ci}") private String adminEmail;
+    @org.springframework.beans.factory.annotation.Value("${edufun.admin.password:EduFun@2026}") private String adminPassword;
+
     private void seedAdmin(UserAccountRepository accounts, PasswordEncoder encoder) {
-        String email = "admin@edufun.ci";
+        String email = adminEmail.trim().toLowerCase();
         if (accounts.findByEmailIgnoreCase(email).isEmpty()) {
             UserAccount a = new UserAccount();
-            a.setEmail(email); a.setPasswordHash(encoder.encode("EduFun@2026")); a.setRole("ADMIN"); a.setEnabled(true);
+            a.setEmail(email); a.setPasswordHash(encoder.encode(adminPassword)); a.setRole("ADMIN"); a.setEnabled(true);
             accounts.save(a);
         }
     }

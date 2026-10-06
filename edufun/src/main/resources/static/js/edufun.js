@@ -9,7 +9,12 @@ async function api(path, opts = {}) {
     try { const c = await fetch(API + '/auth/csrf', { credentials: 'same-origin' }); const cj = await c.json(); if (cj.token) headers[cj.headerName || 'X-CSRF-TOKEN'] = cj.token; } catch (_) {}
   }
   const r = await fetch(API + path, { credentials: 'same-origin', headers, ...opts });
-  if (!r.ok) { const text = await r.text(); throw new Error(text || `Erreur HTTP ${r.status}`); }
+  if (!r.ok) {
+    const text = await r.text();
+    // 402 : contenu réservé aux abonnés (ui.js affiche l'écran d'abonnement).
+    if (r.status === 402) { let msg = ''; try { msg = JSON.parse(text).message; } catch (_) {} window.dispatchEvent(new CustomEvent('edufun:paywall', { detail: msg })); const err = new Error(text); err.paywall = true; throw err; }
+    throw new Error(text || `Erreur HTTP ${r.status}`);
+  }
   return r.status === 204 ? null : r.json();
 }
 
@@ -419,7 +424,7 @@ async function loadLessonReader(){
     $('#readerDone').onclick=async()=>{const sid=localStorage.getItem('edufunStudentId');if(!sid){toast('Inscris-toi pour enregistrer ta progression.');return;}const total=lessonChecks.all.length;const score=total?Math.round(lessonChecks.firstTry.size*100/total):100;try{const r=await api(`/lessons/${l.id}/complete?studentId=${sid}&score=${score}`,{method:'POST'});$('#readerDone').dataset.completed='1';toast(r.alreadyCompleted?'Leçon déjà terminée ✓':`Leçon validée · score ${score} % · +20 XP · ${r.xp} XP`);$('#readerDone').textContent='✓ Leçon terminée';$('#readerDone').disabled=true;}catch(e){toast('Impossible d’enregistrer la progression.')}};
     try{const sid=localStorage.getItem('edufunStudentId');if(sid){const pr=await api(`/students/${sid}/progress`);if((pr.records||[]).some(r=>r.lessonId===l.id&&r.completed)){$('#readerDone').dataset.completed='1';$('#readerDone').textContent='✓ Leçon terminée';$('#readerDone').disabled=true;}}}catch(_){}
     const list=$('#readerLessons'); list.innerHTML=all.map((x,i)=>`<a class="reader-lesson ${x.id===l.id?'active':''}" href="/lecon/${x.id}"><span>${String(i+1).padStart(2,'0')}</span><div><b>${esc(x.title)}</b><small>${esc(x.chapter)}</small></div></a>`).join('');
-  }catch(e){root.innerHTML='<div class="card empty">Impossible de charger cette leçon.</div>';}
+  }catch(e){if(!e.paywall)root.innerHTML='<div class="card empty">Impossible de charger cette leçon.</div>';}
 }
 window.addEventListener('DOMContentLoaded',loadLessonReader);
 

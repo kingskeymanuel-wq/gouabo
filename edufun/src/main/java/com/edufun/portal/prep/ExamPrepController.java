@@ -14,6 +14,7 @@ import java.util.*;
 @RestController
 @RequestMapping("/api/prep")
 public class ExamPrepController {
+    @org.springframework.beans.factory.annotation.Autowired private com.edufun.portal.billing.BillingService billing;
     private final ExamPrepService prep;
     private final ExamAttemptRepository attempts;
     private final UserAccountRepository accounts;
@@ -38,7 +39,12 @@ public class ExamPrepController {
     }
 
     @GetMapping("/{exam}/{subject}")
-    public ExamPrepService.Subject subject(@PathVariable String exam, @PathVariable String subject) {
+    public ExamPrepService.Subject subjectRead(@PathVariable String exam, @PathVariable String subject, Authentication auth) {
+        billing.assertAccess(auth);
+        return subject(exam, subject);
+    }
+
+    private ExamPrepService.Subject subject(String exam, String subject) {
         return prep.exam(exam).flatMap(e -> e.subjects().stream().filter(s -> s.slug().equals(subject)).findFirst())
                 .orElseThrow(() -> new NoSuchElementException("Matière introuvable"));
     }
@@ -50,6 +56,7 @@ public class ExamPrepController {
     @ResponseStatus(HttpStatus.CREATED)
     public Map<String, Object> attempt(@RequestBody AttemptRequest r, Authentication auth) {
         UserAccount account = student(auth);
+        billing.assertAccess(auth);
         ExamPrepService.Exam e = prep.exam(r.exam()).orElseThrow(() -> new NoSuchElementException("Examen introuvable"));
         ExamPrepService.Subject s = subject(r.exam(), r.subject());
         if (r.total() <= 0 || r.score() < 0 || r.score() > r.total()) throw new IllegalArgumentException("Score invalide");

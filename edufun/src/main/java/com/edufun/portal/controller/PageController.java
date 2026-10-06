@@ -19,6 +19,7 @@ public class PageController {
         return byCycle;
     }
     @GetMapping("/programme") public String programme(){return "programme";}
+    @GetMapping("/abonnement") public String subscription(){return "abonnement";}
     @GetMapping("/lecon/{id}") public String lessonReader(){return "lecon";}
     @GetMapping("/examens") public String examens(){return "examens";}
     @GetMapping("/tech-lab") public String tech(){return "tech-lab";}

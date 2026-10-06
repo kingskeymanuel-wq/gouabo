@@ -36,14 +36,14 @@ public class SecurityConfig {
                 .requestMatchers("/login", "/inscription", "/", "/css/**", "/js/**", "/vendor/**", "/api/auth/register", "/api/auth/me", "/api/auth/csrf").permitAll()
                 // Écritures autorisées à un élève connecté (la propriété du compte est vérifiée dans les contrôleurs)
                 .requestMatchers(HttpMethod.PATCH, "/api/auth/profile").authenticated()
-                .requestMatchers(HttpMethod.POST, "/api/auth/password", "/api/lessons/*/complete", "/api/quizzes/*/submit", "/api/exams", "/api/tutors", "/api/prep/attempts").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/auth/password", "/api/billing/payments", "/api/lessons/*/complete", "/api/quizzes/*/submit", "/api/exams", "/api/tutors", "/api/prep/attempts").authenticated()
                 // Toute autre écriture sur l'API est réservée à l'administration
                 .requestMatchers(HttpMethod.POST, "/api/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/api/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PATCH, "/api/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/**").hasRole("ADMIN")
                 // Lectures réservées à l'administration
-                .requestMatchers("/administration", "/api/dashboard", "/api/students", "/api/students/*", "/api/tutor-assignments/**", "/api/lessons", "/api/videos", "/api/exam-sessions/**", "/api/curriculum-versions", "/api/badges", "/api/program/summary").hasRole("ADMIN")
+                .requestMatchers("/administration", "/api/admin/**", "/api/dashboard", "/api/students", "/api/students/*", "/api/tutor-assignments/**", "/api/lessons", "/api/videos", "/api/exam-sessions/**", "/api/curriculum-versions", "/api/badges", "/api/program/summary").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET, "/api/exams").hasRole("ADMIN")
                 .anyRequest().authenticated()
             )

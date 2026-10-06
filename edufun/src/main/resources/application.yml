@@ -22,3 +22,19 @@ management:
     web:
       exposure:
         include: health,info
+# Abonnements EduFun (montants en F CFA par mois)
+edufun:
+  billing:
+    price:
+      primaire: 5000
+      college: 7000
+      lycee: 10000
+    # Jours d'essai gratuit offerts à chaque nouvel élève
+    trial-days: 7
+    # Numéro Mobile Money sur lequel les familles envoient le paiement (à renseigner)
+    merchant-number: ""
+    merchant-name: EduFun
+  # Compte administrateur créé au premier démarrage (définir EDUFUN_ADMIN_EMAIL / EDUFUN_ADMIN_PASSWORD en production)
+  admin:
+    email: ${EDUFUN_ADMIN_EMAIL:admin@edufun.ci}
+    password: ${EDUFUN_ADMIN_PASSWORD:EduFun@2026}

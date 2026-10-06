@@ -85,7 +85,7 @@
     view.innerHTML = '<div class="cu-skel"></div>';
     let s;
     try { s = await api(`/prep/${state.exam.code}/${encodeURIComponent(slug)}`); }
-    catch (e) { view.innerHTML = '<div class="cu-empty"><b>Matière indisponible</b></div>'; return; }
+    catch (e) { if (!e.paywall) view.innerHTML = '<div class="cu-empty"><b>Matière indisponible</b></div>'; return; }
     view.innerHTML = `<div class="px-detail">
       <div class="px-detail-head"><button class="btn ghost" data-back>← ${esc(state.exam.name)}</button><h2>${iconFor(s.name)} ${esc(s.name)}</h2>${s.series ? `<span class="px-chip">${esc(s.series)}</span>` : ''}</div>
       <div class="px-tabs" role="tablist" data-subtabs>

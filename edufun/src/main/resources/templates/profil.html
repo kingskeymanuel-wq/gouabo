@@ -6,8 +6,9 @@
 <link rel="stylesheet" href="/css/edufun.css">
 <link rel="stylesheet" href="/css/curriculum.css">
 <link rel="stylesheet" href="/css/profil.css">
-<script defer src="/js/edufun.js"></script>
+<script defer src="/js/edufun.js"></script><script defer src="/js/ui.js"></script>
 <title>Mon profil — EduFun</title>
+<link rel="stylesheet" href="/css/ui.css">
 </head>
 <body>
 <div class="layout">
@@ -17,6 +18,7 @@
       <small>Mon espace</small>
       <a href="/dashboard">🏠 Tableau de bord</a>
       <a href="/profil">👤 Mon profil</a>
+      <a href="/abonnement">💳 Mon abonnement</a>
       <a href="/programme">📚 Mon programme</a>
       <a href="/quiz">🧠 Quiz &amp; défis</a>
       <a href="/examens">🏆 Prépa Examen</a>
@@ -24,7 +26,6 @@
       <a href="/tech-lab">💻 Tech Lab</a>
       <small>Accompagnement</small>
       <a href="/repetiteurs">👨‍🏫 Répétiteurs</a>
-      <a href="/administration">⚙️ Administration</a>
       <a href="/inscription">📝 Inscription</a>
       <a href="/login">🔐 Se connecter</a>
       <form th:action="@{/logout}" method="post" class="logout-form"><input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"><button class="nav-logout" type="submit">↪️ Se déconnecter</button></form>

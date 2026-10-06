@@ -28,9 +28,12 @@ public class AuthController {
     private final PasswordEncoder encoder;
     private final AuthenticationManager authenticationManager;
     private final SecurityContextRepository securityContextRepository;
+    private final com.edufun.portal.billing.BillingService billing;
 
     public AuthController(StudentRepository students, UserAccountRepository accounts, PasswordEncoder encoder,
-                          AuthenticationManager authenticationManager, SecurityContextRepository securityContextRepository) {
+                          AuthenticationManager authenticationManager, SecurityContextRepository securityContextRepository,
+                          com.edufun.portal.billing.BillingService billing) {
+        this.billing = billing;
         this.students = students; this.accounts = accounts; this.encoder = encoder;
         this.authenticationManager = authenticationManager; this.securityContextRepository = securityContextRepository;
     }
@@ -58,6 +61,7 @@ public class AuthController {
         if (student.getXp() < 0) student.setXp(0);
         if (student.getStreak() < 0) student.setStreak(0);
         student.setStatus("ACTIVE");
+        billing.startTrial(student);
         student = students.save(student);
 
         UserAccount account = new UserAccount();
@@ -120,7 +124,7 @@ public class AuthController {
     private Map<String,Object> mePayload(Student student, UserAccount account) {
         Map<String,Object> out = new LinkedHashMap<>();
         out.put("authenticated", true); out.put("email", account.getEmail()); out.put("role", account.getRole()); out.put("studentId", account.getStudentId());
-        if (student != null) { out.put("name", student.getName()); out.put("level", student.getLevel()); out.put("xp", student.getXp()); out.put("streak", student.getStreak()); }
+        if (student != null) { out.put("name", student.getName()); out.put("level", student.getLevel()); out.put("xp", student.getXp()); out.put("streak", student.getStreak()); out.put("subscription", billing.summary(student)); }
         return out;
     }
 }

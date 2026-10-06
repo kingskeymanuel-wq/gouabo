@@ -1,0 +1,121 @@
+/* ===========================================================
+   EduFun — couche visuelle commune (chargée après les feuilles de page)
+   Palette, profondeur, mouvements, transitions et typographie de lecture.
+=========================================================== */
+
+:root{
+  --ink:#141a2e; --ink-2:#2b3350; --muted:#6b7590; --line:#e6e9f2; --bg:#f4f6fb; --card:#fff;
+  --brand:#5b3df5; --brand-2:#7c5cff; --brand-3:#a78bfa; --brand-soft:#efebff;
+  --ci-orange:#f77f00; --ci-green:#009e60;
+  --grad:linear-gradient(135deg,#5b3df5 0%,#7c5cff 55%,#9b7bff 100%);
+  --grad-night:linear-gradient(160deg,#0f1530 0%,#1b1f4b 45%,#3a2a9a 100%);
+  --radius:20px; --radius-sm:12px;
+  --shadow-1:0 1px 2px rgba(20,26,46,.04),0 4px 14px rgba(20,26,46,.05);
+  --shadow-2:0 2px 6px rgba(20,26,46,.05),0 18px 40px -12px rgba(40,30,120,.18);
+  --shadow-3:0 30px 70px -20px rgba(40,30,120,.35);
+  --ease:cubic-bezier(.22,1,.36,1); --ease-spring:cubic-bezier(.34,1.56,.64,1);
+}
+
+/* ---------- Base ---------- */
+html{scroll-behavior:smooth}
+body{background:
+    radial-gradient(1200px 600px at 110% -10%,rgba(124,92,255,.10),transparent 60%),
+    radial-gradient(900px 500px at -10% 110%,rgba(247,127,0,.06),transparent 60%),
+    var(--bg);
+  background-attachment:fixed;color:var(--ink);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
+::selection{background:rgba(124,92,255,.22)}
+*{scrollbar-width:thin;scrollbar-color:#c9c3ef transparent}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:#d4cff3;border-radius:10px;border:3px solid transparent;background-clip:padding-box}
+:focus-visible{outline:3px solid rgba(124,92,255,.45);outline-offset:2px;border-radius:10px}
+h1,h2,h3{letter-spacing:-.015em}
+
+/* ---------- Barre latérale ---------- */
+.sidebar{background:var(--grad-night);border-right:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;overflow-y:auto}
+.sidebar:before{content:'';position:absolute;inset:0;background:radial-gradient(400px 260px at 0% 0%,rgba(167,139,250,.22),transparent 70%);pointer-events:none}
+.brand{position:relative;letter-spacing:-.02em}
+.brand span{background:linear-gradient(90deg,#c4b5fd,#fbbf24);-webkit-background-clip:text;background-clip:text;color:transparent}
+.nav{position:relative}
+.nav a{position:relative;display:flex;align-items:center;gap:10px;color:#b7c0da;transition:background .25s var(--ease),color .25s,transform .25s var(--ease)}
+.nav a:hover{background:rgba(255,255,255,.07);color:#fff;box-shadow:none;transform:translateX(3px)}
+.nav a.active{background:var(--grad);color:#fff;box-shadow:0 10px 26px -8px rgba(124,92,255,.65)}
+.nav a.active:after{content:'';position:absolute;right:12px;width:6px;height:6px;border-radius:50%;background:#fff;box-shadow:0 0 0 4px rgba(255,255,255,.18)}
+.nav small{color:#7c87a6}
+.nav a[hidden],.nav [hidden]{display:none !important}
+.nav-logout{transition:color .2s,transform .25s var(--ease)}.nav-logout:hover{transform:translateX(3px)}
+
+/* Accès administrateur discret : un petit point en bas de la barre, visible uniquement par l'administrateur. */
+.admin-door{margin-top:auto;position:relative;display:flex;align-items:center;justify-content:center;gap:6px;padding:14px 0 2px;color:#5d6788;font:600 10px 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;opacity:.55;transition:opacity .25s,color .25s}
+.admin-door:hover{opacity:1;color:#c4b5fd}
+.admin-door i{width:7px;height:7px;border-radius:50%;background:#7c5cff;box-shadow:0 0 10px #7c5cff}
+.admin-door[hidden]{display:none}
+
+/* ---------- Surfaces ---------- */
+.card,.cu-panel,.sd-card,.px-panel{border-color:rgba(20,26,46,.06);box-shadow:var(--shadow-1);transition:transform .35s var(--ease),box-shadow .35s var(--ease),border-color .35s}
+.card:hover{box-shadow:var(--shadow-2)}
+.hero{background:var(--grad-night);box-shadow:var(--shadow-3)}
+
+/* ---------- Boutons ---------- */
+.btn{position:relative;overflow:hidden;transition:transform .25s var(--ease),box-shadow .25s var(--ease),background .25s,color .25s}
+.btn:hover{transform:translateY(-2px)}
+.btn:active{transform:translateY(0) scale(.98)}
+.btn.primary{background:var(--grad);box-shadow:0 10px 24px -10px rgba(91,61,245,.7)}
+.btn.primary:hover{box-shadow:0 16px 30px -12px rgba(91,61,245,.8)}
+.btn.primary:after,.auth-submit:after{content:'';position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.35),transparent);transform:skewX(-20deg);transition:left .7s var(--ease)}
+.btn.primary:hover:after,.auth-submit:hover:after{left:130%}
+.btn[disabled]{opacity:.55;cursor:not-allowed;transform:none}
+
+/* ---------- Formulaires ---------- */
+input,select,textarea{transition:border-color .2s,box-shadow .2s,background .2s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#a78bfa !important;box-shadow:0 0 0 4px rgba(124,92,255,.14) !important;background:#fff}
+
+/* ---------- Toast ---------- */
+.toast{border-radius:14px;backdrop-filter:blur(10px);box-shadow:var(--shadow-3);transition:transform .45s var(--ease-spring),opacity .3s}
+
+/* ---------- Entrée des pages et apparitions ---------- */
+@view-transition{navigation:auto}
+::view-transition-old(root){animation:ui-fade-out .22s var(--ease) both}
+::view-transition-new(root){animation:ui-fade-up .45s var(--ease) both}
+.main{animation:ui-fade-up .55s var(--ease) both}
+.ui-reveal{opacity:0;transform:translateY(18px) scale(.985)}
+.ui-reveal.ui-in{opacity:1;transform:none;transition:opacity .6s var(--ease),transform .7s var(--ease);transition-delay:var(--ui-delay,0ms)}
+body.ui-leaving .main{opacity:0;transform:translateY(-6px);transition:opacity .18s,transform .18s}
+@keyframes ui-fade-up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes ui-fade-out{to{opacity:0}}
+@keyframes ui-pop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.06)}100%{transform:scale(1);opacity:1}}
+@keyframes ui-shimmer{to{background-position:-200% 0}}
+.cu-skel,.sd-skel{background:linear-gradient(90deg,#eef0f7 0%,#f7f8fc 40%,#eef0f7 80%);background-size:200% 100%;animation:ui-shimmer 1.4s linear infinite}
+
+/* Barre de progression de lecture (leçons) */
+.ui-progress{position:fixed;top:0;left:0;height:3px;width:100%;transform-origin:0 50%;transform:scaleX(0);background:linear-gradient(90deg,var(--ci-orange),#fbbf24,var(--ci-green));z-index:100;transition:transform .12s linear}
+
+/* ---------- Lecture des leçons ---------- */
+.lr-title,#readerTitle{font-family:'Fraunces',Georgia,serif !important;font-weight:700;letter-spacing:-.02em}
+#readerContent{font-size:17.5px;line-height:1.8;color:var(--ink-2)}
+#readerContent p,#readerContent li{max-width:70ch}
+#readerContent h2,#readerContent h3{font-family:'Space Grotesk',sans-serif;color:var(--ink)}
+#readerContent blockquote,#readerContent .lr-key,#readerContent .rt-key{font-family:'Fraunces',Georgia,serif;font-weight:500;font-size:1.06em;line-height:1.65}
+#readerContent blockquote *,#readerContent .lr-key *,#readerContent .rt-key *{font-weight:inherit}
+#readerContent strong{color:var(--ink)}
+.lr-choice{transition:transform .25s var(--ease),border-color .2s,background .2s,box-shadow .25s}
+.lr-choice:hover{transform:translateX(4px);box-shadow:var(--shadow-1)}
+.lr-choice.right{animation:ui-pop .45s var(--ease-spring)}
+.lr-choice.wrong{animation:ui-shake .4s}
+@keyframes ui-shake{20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
+
+/* ---------- Bandeau d'abonnement ---------- */
+.ui-sub-banner{display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:16px;margin:0 0 18px;background:linear-gradient(90deg,#fff7ed,#fffbeb);border:1px solid #fde4b8;color:#7a4a00;font-size:14px;animation:ui-fade-up .5s var(--ease) both}
+.ui-sub-banner b{color:#5a3500}
+.ui-sub-banner .btn{margin-left:auto;white-space:nowrap}
+.ui-sub-banner.expired{background:linear-gradient(90deg,#fff1f2,#fff7f7);border-color:#fecdd3;color:#8a1c2b}
+
+/* Mur d'abonnement (contenu verrouillé) */
+.ui-paywall{max-width:640px;margin:40px auto;text-align:center;padding:44px 36px;border-radius:28px;background:#fff;box-shadow:var(--shadow-2);animation:ui-fade-up .6s var(--ease) both}
+.ui-paywall .ui-lock{width:76px;height:76px;margin:0 auto 18px;border-radius:24px;display:grid;place-items:center;font-size:34px;background:var(--grad);box-shadow:0 18px 40px -14px rgba(91,61,245,.7);animation:ui-pop .6s var(--ease-spring)}
+.ui-paywall h2{font:700 28px/1.2 'Fraunces',Georgia,serif;margin:0 0 10px}
+.ui-paywall p{color:var(--muted);line-height:1.6;margin:0 auto 22px;max-width:46ch}
+
+@media (prefers-reduced-motion:reduce){
+  *,*:before,*:after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;scroll-behavior:auto !important}
+  .ui-reveal{opacity:1;transform:none}
+}
+@media(max-width:900px){.admin-door{padding-bottom:16px}}

@@ -17,4 +17,8 @@ public class ApiExceptionHandler {
     @ExceptionHandler(IllegalStateException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public Map<String,String> conflict(IllegalStateException e){ return Map.of("message", e.getMessage() == null ? "Opération impossible" : e.getMessage()); }
+
+    @ExceptionHandler(com.edufun.portal.billing.SubscriptionRequiredException.class)
+    @ResponseStatus(HttpStatus.PAYMENT_REQUIRED)
+    public Map<String,String> subscription(com.edufun.portal.billing.SubscriptionRequiredException e){ return Map.of("message", e.getMessage(), "code", "SUBSCRIPTION_REQUIRED"); }
 }
