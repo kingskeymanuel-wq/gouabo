@@ -1,1 +1,0 @@
-package com.edufun.portal.repository; import com.edufun.portal.model.StudentBadge; import org.springframework.data.jpa.repository.JpaRepository; import java.util.*; public interface StudentBadgeRepository extends JpaRepository<StudentBadge,Long>{ List<StudentBadge> findByStudentId(Long studentId); boolean existsByStudentIdAndBadgeId(Long studentId,Long badgeId); }
