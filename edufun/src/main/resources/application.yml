@@ -1,6 +1,15 @@
 server:
   port: 8082
 spring:
+  # Envoi des e-mails (notifications, bilans). Activé dès que le serveur SMTP est défini par variables d'environnement :
+  # SPRING_MAIL_HOST=smtp.exemple.com SPRING_MAIL_PORT=587 SPRING_MAIL_USERNAME=... SPRING_MAIL_PASSWORD=...
+  mail:
+    port: 587
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+      mail.smtp.connectiontimeout: 10000
+      mail.smtp.timeout: 10000
   application:
     name: edufun-portal
   datasource:
@@ -29,11 +38,21 @@ edufun:
       primaire: 5000
       college: 7000
       lycee: 10000
-    # Jours d'essai gratuit offerts à chaque nouvel élève
-    trial-days: 7
+    # Répétiteurs : visibilité dans l'annuaire, en F CFA par trimestre
+    tutor-quarter: 5000
+    # Essai gratuit sans paiement (0 = l'accès s'ouvre avec le premier paiement)
+    trial-days: 0
+    # Mois offerts au premier paiement validé
+    welcome-months: 1
+    # Accès provisoire (en jours) pendant la vérification du premier paiement
+    provisional-days: 3
     # Numéro Mobile Money sur lequel les familles envoient le paiement (à renseigner)
     merchant-number: ""
     merchant-name: EduFun
+  # Adresse publique du site (liens dans les e-mails) et expéditeur des e-mails
+  site-url: ${EDUFUN_SITE_URL:http://localhost:8082}
+  mail:
+    from: ${EDUFUN_MAIL_FROM:EduFun <no-reply@edufun.ci>}
   # Compte administrateur créé au premier démarrage (définir EDUFUN_ADMIN_EMAIL / EDUFUN_ADMIN_PASSWORD en production)
   admin:
     email: ${EDUFUN_ADMIN_EMAIL:admin@edufun.ci}

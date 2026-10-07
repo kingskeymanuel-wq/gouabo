@@ -20,12 +20,13 @@
       <a href="/profil">👤 Mon profil</a>
       <a href="/abonnement">💳 Mon abonnement</a>
       <a href="/programme">📚 Mon programme</a>
+      <a href="/bilans">📈 Mes bilans</a>
       <a href="/quiz">🧠 Quiz &amp; défis</a>
       <a href="/examens">🏆 Prépa Examen</a>
       <a href="/certificats">🎓 Certificats</a>
       <a href="/tech-lab">💻 Tech Lab</a>
       <small>Accompagnement</small>
-      <a href="/repetiteurs">👨‍🏫 Répétiteurs</a>
+      <a href="/repetiteurs">🔎 Trouver un répétiteur</a>
       <a href="/inscription">📝 Inscription</a>
       <a href="/login">🔐 Se connecter</a>
       <form th:action="@{/logout}" method="post" class="logout-form"><input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"><button class="nav-logout" type="submit">↪️ Se déconnecter</button></form>
@@ -66,6 +67,13 @@
             </select>
           </div>
           <p class="pf-note" data-pf-level-note hidden></p>
+          <div class="field"><label for="pfPhone">Mon téléphone</label><input id="pfPhone" name="phone" type="tel" autocomplete="tel"></div>
+          <fieldset class="ins-parent"><legend>👪 Parent ou tuteur</legend>
+            <div class="field"><label for="pfParentName">Nom du parent</label><input id="pfParentName" name="parentName"></div>
+            <div class="ins-two"><div class="field"><label for="pfParentEmail">E-mail du parent</label><input id="pfParentEmail" name="parentEmail" type="email"></div>
+            <div class="field"><label for="pfParentPhone">Téléphone du parent</label><input id="pfParentPhone" name="parentPhone" type="tel"></div></div>
+            <label class="pf-check"><input type="checkbox" name="parentNotifications"> Envoyer au parent le résumé de la semaine et le bilan tous les deux mois</label>
+          </fieldset>
           <button class="btn primary">Enregistrer</button>
         </form>
       </section>

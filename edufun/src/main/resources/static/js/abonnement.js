@@ -6,6 +6,8 @@
   const STATUS = {
     ACTIVE: { label: 'Abonnement actif', icon: '✅', cls: 'ok' },
     TRIAL: { label: 'Essai gratuit', icon: '🎁', cls: 'trial' },
+    PENDING: { label: 'Paiement en vérification', icon: '⏳', cls: 'trial' },
+    NEW: { label: 'Compte à activer', icon: '🚀', cls: 'new' },
     EXPIRED: { label: 'Accès suspendu', icon: '🔒', cls: 'off' }
   };
   const PAY = { PENDING: ['En vérification', 'wait'], VALIDATED: ['Validé', 'ok'], REJECTED: ['Refusé', 'off'] };
@@ -27,20 +29,25 @@
 
   function renderStatus() {
     const d = state.data, st = STATUS[d.status] || STATUS.EXPIRED;
-    const total = d.status === 'TRIAL' ? 7 : 30, left = Math.max(0, d.daysLeft || 0);
-    const pct = d.status === 'EXPIRED' ? 0 : Math.min(100, Math.round(left / Math.max(total, left) * 100));
+    const total = d.status === 'TRIAL' ? 7 : d.status === 'PENDING' ? 3 : 30, left = Math.max(0, d.daysLeft || 0);
+    const off = d.status === 'EXPIRED' || d.status === 'NEW';
+    const pct = off ? 0 : Math.min(100, Math.round(left / Math.max(total, left) * 100));
+    const welcome = d.welcomeOffer ? ` Ton premier paiement inclut <b>${d.welcomeMonths} mois offert</b>.` : '';
     const line = d.status === 'ACTIVE' ? `Ton accès est ouvert jusqu'au <b>${dateFr(d.accessUntil)}</b>.`
       : d.status === 'TRIAL' ? `Profite de tout EduFun gratuitement jusqu'au <b>${dateFr(d.accessUntil)}</b>.`
-      : `Renouvelle ton abonnement pour retrouver toutes tes leçons et ta progression.`;
+      : d.status === 'PENDING' ? `Nous vérifions ton paiement. En attendant, tu as accès à tous tes cours jusqu'au <b>${dateFr(d.accessUntil)}</b>.${welcome}`
+      : d.status === 'NEW' ? `Active ton compte en réglant ton premier mois : tu commences tout de suite et le mois suivant est offert.`
+      : `Renouvelle ton abonnement pour retrouver toutes tes leçons et ta progression.${welcome}`;
+    const title = { EXPIRED: 'Reprends ton apprentissage', TRIAL: 'Bienvenue sur EduFun', NEW: 'Bienvenue sur EduFun 🎉', PENDING: 'Merci, c\'est presque prêt', ACTIVE: 'Merci pour ta confiance' }[d.status];
     $a('[data-status]').innerHTML = `<div class="ab-hero ${st.cls}">
       <div class="ab-hero-copy">
         <span class="ab-pill">${st.icon} ${st.label}</span>
-        <h2>${d.status === 'EXPIRED' ? 'Reprends ton apprentissage' : d.status === 'TRIAL' ? 'Bienvenue sur EduFun' : 'Merci pour ta confiance'}</h2>
+        <h2>${title}</h2>
         <p>${line}</p>
         <div class="ab-hero-meta"><span>Classe : <b>${esc(d.level)}</b></span><span>Formule ${esc(d.cycle)} : <b>${F(d.monthlyPrice)} F CFA / mois</b></span></div>
-        ${d.status !== 'ACTIVE' ? '<a class="btn light" href="#payer">S\'abonner maintenant</a>' : '<a class="btn light" href="#payer">Prolonger mon abonnement</a>'}
+        ${d.status === 'ACTIVE' ? '<a class="btn light" href="#payer">Prolonger mon abonnement</a>' : d.status === 'PENDING' ? '<a class="btn light" href="/dashboard">Commencer mes cours →</a>' : '<a class="btn light" href="#payer">Payer mon premier mois</a>'.replace('Payer mon premier mois', d.welcomeOffer ? 'Payer mon premier mois' : 'Renouveler maintenant')}
       </div>
-      <div class="ab-ring" style="--p:${pct}"><div><b>${d.status === 'EXPIRED' ? '0' : left}</b><span>jour${left > 1 ? 's' : ''} restant${left > 1 ? 's' : ''}</span></div></div>
+      <div class="ab-ring" style="--p:${pct}"><div><b>${off ? '0' : left}</b><span>jour${left > 1 ? 's' : ''} restant${left > 1 ? 's' : ''}</span></div></div>
     </div>`;
   }
 
@@ -52,14 +59,14 @@
       <div class="ab-plan-icon">${icons[p.cycle] || '📚'}</div>
       <h3>${esc(p.cycle)}</h3><p class="ab-plan-classes">${esc(p.classes)}</p>
       <div class="ab-price"><b>${F(p.price)}</b><span>F CFA<br>par mois</span></div>
-      <ul><li>Toutes les leçons du programme officiel</li><li>Professeur virtuel pour chaque matière</li><li>Évaluations, quiz et badges</li><li>Prépa examens avec sujets corrigés</li></ul>
+      <ul><li>Toutes les leçons du programme officiel</li><li>Professeur virtuel pour chaque matière</li><li>Évaluations, quiz et badges</li><li>Prépa examens avec sujets corrigés</li><li>Bilan tous les 2 mois envoyé au parent</li><li><b>1 mois offert</b> au premier paiement</li></ul>
     </article>`).join('');
   }
 
   function renderDurations() {
     const d = state.data;
     $a('[data-durations]').innerHTML = d.durations.map(m => `<button type="button" class="ab-choice" aria-pressed="${m === state.months}" data-months="${m}">
-      <b>${DURATION[m] || m + ' mois'}</b><span>${F(m * d.monthlyPrice)} F CFA</span></button>`).join('');
+      <b>${DURATION[m] || m + ' mois'}</b><span>${F(m * d.monthlyPrice)} F CFA${d.welcomeOffer ? ` · <em>${m + d.welcomeMonths} mois d'accès</em>` : ''}</span></button>`).join('');
     $a('[data-durations]').onclick = e => { const b = e.target.closest('[data-months]'); if (!b) return; state.months = Number(b.dataset.months); renderDurations(); renderInstructions(); };
   }
 

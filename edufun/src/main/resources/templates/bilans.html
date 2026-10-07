@@ -5,8 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="stylesheet" href="/css/edufun.css">
 <link rel="stylesheet" href="/css/curriculum.css">
-<script defer src="/js/edufun.js"></script><script defer src="/js/ui.js"></script>
-<title>Mon programme — EduFun</title>
+<link rel="stylesheet" href="/css/bilans.css">
+<script defer src="/js/edufun.js"></script><script defer src="/js/ui.js"></script><script defer src="/js/bilans.js"></script>
+<title>Mes bilans — EduFun</title>
 <link rel="stylesheet" href="/css/ui.css">
 </head>
 <body>
@@ -32,27 +33,17 @@
     </nav>
   </aside>
 
-  <main class="main cu" id="curriculumPage">
+  <main class="main cu" id="reportsPage" aria-busy="true">
     <header class="cu-top">
       <button class="btn ghost mobile-menu" aria-label="Ouvrir le menu">☰</button>
       <div>
-        <span class="cu-kicker">Programme éducatif ivoirien · Approche par compétences</span>
-        <h1 class="cu-title">Mon programme</h1>
+        <span class="cu-kicker">Suivi tous les deux mois</span>
+        <h1 class="cu-title">Mes bilans</h1>
       </div>
     </header>
-
-    <section class="cu-panel cu-picker" aria-label="Choix de la classe">
-      <div class="cu-cycles" role="tablist" data-cycles></div>
-      <div class="cu-levels" data-levels></div>
-    </section>
-
-    <section class="cu-head" data-level-head></section>
-
-    <nav class="cu-subjects" aria-label="Disciplines" data-subjects></nav>
-
-    <section class="cu-chapters" data-chapters aria-live="polite">
-      <div class="cu-skel"></div><div class="cu-skel"></div>
-    </section>
+    <p class="bl-intro">Plutôt que d'attendre la fin du trimestre, EduFun fait le point tous les deux mois : leçons terminées, réussite aux évaluations par matière, points forts et notions à renforcer. Ton parent reçoit aussi ce bilan par e-mail.</p>
+    <nav class="bl-periods" data-periods aria-label="Périodes"></nav>
+    <section data-report><div class="cu-skel" style="height:260px;border-radius:24px"></div></section>
   </main>
 </div>
 <div id="toast" class="toast" role="status"></div>

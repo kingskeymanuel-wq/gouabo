@@ -6,7 +6,7 @@
 .cu-top{display:flex;align-items:center;gap:16px}
 .cu-top .mobile-menu{display:none}
 .cu-kicker{display:block;font:600 12px 'IBM Plex Mono',monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--brand)}
-.cu-title{margin:4px 0 0;font:700 30px/1.15 'Space Grotesk',sans-serif;letter-spacing:-.02em}
+.cu-title{margin:4px 0 0;font:700 30px/1.15 'Inter',sans-serif;letter-spacing:-.02em}
 .cu-panel{background:#fff;border:1px solid var(--line);border-radius:22px;padding:20px 22px}
 
 /* Choix de la classe */
@@ -23,11 +23,11 @@
 
 /* En-tête de classe */
 .cu-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
-.cu-head h2{margin:0;font:700 24px 'Space Grotesk',sans-serif}
+.cu-head h2{margin:0;font:700 24px 'Inter',sans-serif}
 .cu-head p{margin:4px 0 0;color:var(--muted);font-size:14px}
 .cu-stats{display:flex;gap:10px;flex-wrap:wrap}
 .cu-stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 14px;font-size:13px;color:var(--muted)}
-.cu-stat b{display:block;color:var(--ink);font:700 18px 'Space Grotesk',sans-serif}
+.cu-stat b{display:block;color:var(--ink);font:700 18px 'Inter',sans-serif}
 
 /* Disciplines */
 .cu-subjects{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
@@ -42,7 +42,7 @@
 .cu-chapters{display:grid;gap:16px}
 .cu-chapter{background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden}
 .cu-chapter-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px 22px;background:linear-gradient(180deg,#fbfaff,#fff);border-bottom:1px solid var(--line)}
-.cu-chapter-head h3{margin:0;font:700 17px 'Space Grotesk',sans-serif}
+.cu-chapter-head h3{margin:0;font:700 17px 'Inter',sans-serif}
 .cu-chapter-head span{font:500 12px 'IBM Plex Mono',monospace;color:var(--muted);white-space:nowrap}
 .cu-lessons{list-style:none;margin:0;padding:6px}
 .cu-lesson a{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:14px;align-items:center;padding:12px 16px;border-radius:14px}

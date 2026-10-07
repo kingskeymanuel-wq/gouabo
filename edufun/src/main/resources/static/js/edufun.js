@@ -239,8 +239,8 @@ async function registerStudent(f) {
     const x = await api('/auth/register', { method: 'POST', body: JSON.stringify(d) });
     localStorage.setItem('edufunStudentId', x.studentId);
     localStorage.setItem('edufunStudentName', x.name || d.name);
-    toast('Espace créé avec succès 🎉');
-    setTimeout(() => location.href = '/dashboard', 500);
+    toast('Espace créé 🎉 Active-le avec ton premier paiement.');
+    setTimeout(() => location.href = '/abonnement?bienvenue=1', 600);
   } catch (e) {
     let msg = e.message || '';
     try { const parsed = JSON.parse(msg); msg = parsed.message || msg; } catch (_) {}
@@ -355,6 +355,8 @@ async function loadProfile() {
   show(me);
   const f = $('#profileForm'), note = $('[data-pf-level-note]');
   f.name.value = me.name || ''; $('#pfEmail').value = me.email || ''; f.level.value = me.level || '';
+  f.phone.value = me.phone || ''; f.parentName.value = me.parentName || ''; f.parentEmail.value = me.parentEmail || ''; f.parentPhone.value = me.parentPhone || '';
+  f.parentNotifications.checked = me.parentNotifications !== false;
   let current = me.level;
   f.level.onchange = () => {
     note.hidden = f.level.value === current;
@@ -364,7 +366,7 @@ async function loadProfile() {
     e.preventDefault();
     const btn = f.querySelector('button'); btn.disabled = true;
     try {
-      const u = await api('/auth/profile', { method: 'PATCH', body: JSON.stringify({ name: f.name.value, level: f.level.value }) });
+      const u = await api('/auth/profile', { method: 'PATCH', body: JSON.stringify({ name: f.name.value, level: f.level.value, phone: f.phone.value, parentName: f.parentName.value, parentEmail: f.parentEmail.value, parentPhone: f.parentPhone.value, parentNotifications: f.parentNotifications.checked }) });
       const changed = u.level !== current; current = u.level; note.hidden = true;
       localStorage.setItem('edufunStudentName', u.name || '');
       show({ ...me, ...u });

@@ -72,7 +72,14 @@ public class SecurityConfig {
                     res.sendRedirect(switch (portal) { case "tutor" -> "/repetiteur/connexion?error"; case "admin" -> "/console?error"; default -> "/login?error"; });
                 })
                 .permitAll())
-            .exceptionHandling(e -> e.accessDeniedHandler((req, res, ex) -> {
+            .exceptionHandling(e -> e
+                // L'API répond 401 sans session ; les pages redirigent vers la connexion du bon portail.
+                .authenticationEntryPoint((req, res, ex) -> {
+                    String uri = req.getRequestURI();
+                    if (uri.startsWith("/api/")) { res.sendError(401); return; }
+                    res.sendRedirect(uri.startsWith("/repetiteur/") ? "/repetiteur/connexion" : uri.startsWith("/administration") ? "/console" : "/login");
+                })
+                .accessDeniedHandler((req, res, ex) -> {
                 // Un compte qui ouvre la page d'un autre portail est renvoyé vers le sien ; l'API répond 403.
                 if (req.getRequestURI().startsWith("/api/")) { res.sendError(403); return; }
                 var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();

@@ -59,12 +59,14 @@
     if (!sub || !main || location.pathname === '/abonnement' || document.querySelector('.ui-sub-banner')) return;
     const fmt = n => Number(n).toLocaleString('fr-FR');
     let html = '';
-    if (sub.status === 'EXPIRED') html = `<span>🔒</span><span><b>Ton accès est suspendu.</b> Renouvelle ton abonnement (${fmt(sub.monthlyPrice)} F CFA / mois) pour retrouver toutes tes leçons.</span>`;
+    if (sub.status === 'NEW') html = `<span>🚀</span><span><b>Active ton compte pour accéder à tes cours.</b> Paie ton premier mois (${fmt(sub.monthlyPrice)} F CFA) : le mois suivant est offert.</span>`;
+    else if (sub.status === 'PENDING') html = `<span>⏳</span><span><b>Paiement en cours de vérification.</b> Tes cours sont déjà ouverts ; ton abonnement sera confirmé très vite.</span>`;
+    else if (sub.status === 'EXPIRED') html = `<span>🔒</span><span><b>Ton accès est suspendu.</b> Renouvelle ton abonnement (${fmt(sub.monthlyPrice)} F CFA / mois) pour retrouver toutes tes leçons.</span>`;
     else if (sub.status === 'TRIAL') html = `<span>🎁</span><span><b>Essai gratuit : ${sub.daysLeft} jour${sub.daysLeft > 1 ? 's' : ''} restant${sub.daysLeft > 1 ? 's' : ''}.</b> Abonne-toi pour continuer sans interruption (${fmt(sub.monthlyPrice)} F CFA / mois).</span>`;
     else if (sub.status === 'ACTIVE' && sub.daysLeft <= 5) html = `<span>⏳</span><span><b>Ton abonnement se termine dans ${sub.daysLeft} jour${sub.daysLeft > 1 ? 's' : ''}.</b> Pense à le renouveler.</span>`;
     if (!html) return;
     const div = document.createElement('div');
-    div.className = 'ui-sub-banner' + (sub.status === 'EXPIRED' ? ' expired' : '');
+    div.className = 'ui-sub-banner' + (sub.status === 'EXPIRED' || sub.status === 'NEW' ? ' expired' : '');
     div.innerHTML = html + '<a class="btn primary" href="/abonnement">Mon abonnement</a>';
     const anchor = main.querySelector('header, .top, .cu-top, .sd-top');
     anchor ? anchor.after(div) : main.prepend(div);
