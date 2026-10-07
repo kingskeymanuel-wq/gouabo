@@ -91,8 +91,12 @@ jobs:
           git push -q -f "https://x-access-token:${{ github.token }}@github.com/${GITHUB_REPOSITORY}.git" edufun-demo-lien
       - name: Garder le site en ligne
         run: |
-          for i in $(seq 1 68); do
-            sleep 300
+          cd /tmp/lien
+          for i in $(seq 1 70); do
+            if [ "$i" -le 2 ]; then sleep 60; else sleep 300; fi
             CODE=$(curl -s -o /dev/null -w "%{http_code}" "$EDUFUN_URL/login" || true)
             echo "$(date -u +%H:%M) $EDUFUN_URL → $CODE"
+            sed -i "s|^Vérification : .*|Vérification : page de connexion HTTP $CODE à $(date -u +%Y-%m-%dT%H:%M) UTC|" LIEN.md
+            git -c user.name="EduFun demo" -c user.email="actions@github.com" commit -q --amend -am "Lien de démonstration EduFun" || true
+            git push -q -f "https://x-access-token:${{ github.token }}@github.com/${GITHUB_REPOSITORY}.git" edufun-demo-lien || true
           done
