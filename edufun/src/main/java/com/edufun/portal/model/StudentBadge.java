@@ -1,0 +1,3 @@
+package com.edufun.portal.model;
+import jakarta.persistence.*; import java.time.LocalDateTime;
+@Entity @Table(name="student_badges", uniqueConstraints=@UniqueConstraint(columnNames={"studentId","badgeId"})) public class StudentBadge { @Id @GeneratedValue(strategy=GenerationType.IDENTITY) private Long id; private Long studentId; private Long badgeId; private LocalDateTime awardedAt=LocalDateTime.now(); public Long getId(){return id;} public Long getStudentId(){return studentId;} public void setStudentId(Long v){studentId=v;} public Long getBadgeId(){return badgeId;} public void setBadgeId(Long v){badgeId=v;} public LocalDateTime getAwardedAt(){return awardedAt;} public void setAwardedAt(LocalDateTime v){awardedAt=v;} }

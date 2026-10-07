@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/css/edufun.css">
+<link rel="stylesheet" href="/css/curriculum.css">
+<link rel="stylesheet" href="/css/profil.css">
+<script defer src="/js/edufun.js"></script><script defer src="/js/ui.js"></script>
+<title>Mon profil — EduFun</title>
+<link rel="stylesheet" href="/css/ui.css">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand">🎓 Edu<span>Fun</span></div>
+    <nav class="nav">
+      <small>Mon espace</small>
+      <a href="/dashboard">🏠 Tableau de bord</a>
+      <a href="/profil">👤 Mon profil</a>
+      <a href="/abonnement">💳 Mon abonnement</a>
+      <a href="/programme">📚 Mon programme</a>
+      <a href="/bilans">📈 Mes bilans</a>
+      <a href="/quiz">🧠 Quiz &amp; défis</a>
+      <a href="/examens">🏆 Prépa Examen</a>
+      <a href="/certificats">🎓 Certificats</a>
+      <a href="/tech-lab">💻 Tech Lab</a>
+      <small>Accompagnement</small>
+      <a href="/repetiteurs">🔎 Trouver un répétiteur</a>
+      <a href="/inscription">📝 Inscription</a>
+      <a href="/login">🔐 Se connecter</a>
+      <form th:action="@{/logout}" method="post" class="logout-form"><input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"><button class="nav-logout" type="submit">↪️ Se déconnecter</button></form>
+    </nav>
+  </aside>
+
+  <main class="main cu" id="profilePage">
+    <header class="cu-top">
+      <button class="btn ghost mobile-menu" aria-label="Ouvrir le menu">☰</button>
+      <div>
+        <span class="cu-kicker">Mon espace élève</span>
+        <h1 class="cu-title">Mon profil</h1>
+      </div>
+    </header>
+
+    <section class="cu-panel pf-id" aria-label="Identité">
+      <div class="pf-avatar" data-pf-initials>?</div>
+      <div>
+        <h2 data-pf-name>…</h2>
+        <p data-pf-meta></p>
+      </div>
+      <div class="pf-stats">
+        <div class="cu-stat"><b data-pf-xp>0</b>XP</div>
+        <div class="cu-stat"><b data-pf-streak>0</b>jours de suite</div>
+      </div>
+    </section>
+
+    <div class="pf-grid">
+      <section class="cu-panel">
+        <h3 class="pf-h">Mes informations</h3>
+        <p class="pf-help">Change de classe quand tu passes en classe supérieure ou si tu changes de série. Tes leçons déjà terminées restent enregistrées.</p>
+        <form id="profileForm" class="form">
+          <div class="field"><label for="pfName">Nom complet</label><input id="pfName" name="name" required minlength="2" autocomplete="name"></div>
+          <div class="field"><label for="pfEmail">E-mail</label><input id="pfEmail" disabled></div>
+          <div class="field"><label for="pfLevel">Ma classe</label>
+            <select id="pfLevel" name="level" required>
+              <optgroup th:each="cycle : ${levelsByCycle}" th:label="${cycle.key}"><option th:each="lv : ${cycle.value}" th:value="${lv}" th:text="${lv}">CP1</option></optgroup>
+            </select>
+          </div>
+          <p class="pf-note" data-pf-level-note hidden></p>
+          <div class="field"><label for="pfPhone">Mon téléphone</label><input id="pfPhone" name="phone" type="tel" autocomplete="tel"></div>
+          <fieldset class="ins-parent"><legend>👪 Parent ou tuteur</legend>
+            <div class="field"><label for="pfParentName">Nom du parent</label><input id="pfParentName" name="parentName"></div>
+            <div class="ins-two"><div class="field"><label for="pfParentEmail">E-mail du parent</label><input id="pfParentEmail" name="parentEmail" type="email"></div>
+            <div class="field"><label for="pfParentPhone">Téléphone du parent</label><input id="pfParentPhone" name="parentPhone" type="tel"></div></div>
+            <label class="pf-check"><input type="checkbox" name="parentNotifications"> Envoyer au parent le résumé de la semaine et le bilan tous les deux mois</label>
+          </fieldset>
+          <button class="btn primary">Enregistrer</button>
+        </form>
+      </section>
+
+      <section class="cu-panel">
+        <h3 class="pf-h">Mot de passe</h3>
+        <p class="pf-help">Choisis un mot de passe d'au moins 8 caractères que tu es seul à connaître.</p>
+        <form id="passwordForm" class="form">
+          <div class="field"><label for="pfCur">Mot de passe actuel</label><input id="pfCur" name="currentPassword" type="password" required autocomplete="current-password"></div>
+          <div class="field"><label for="pfNew">Nouveau mot de passe</label><input id="pfNew" name="newPassword" type="password" required minlength="8" autocomplete="new-password"></div>
+          <div class="field"><label for="pfNew2">Confirmer le nouveau mot de passe</label><input id="pfNew2" name="confirm" type="password" required minlength="8" autocomplete="new-password"></div>
+          <button class="btn primary">Changer mon mot de passe</button>
+        </form>
+      </section>
+    </div>
+  </main>
+</div>
+<div id="toast" class="toast" role="status"></div>
+</body>
+</html>

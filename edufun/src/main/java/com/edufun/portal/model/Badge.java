@@ -1,0 +1,3 @@
+package com.edufun.portal.model;
+import jakarta.persistence.*;
+@Entity @Table(name="badges") public class Badge { @Id @GeneratedValue(strategy=GenerationType.IDENTITY) private Long id; private String code; private String name; private String description; private String icon; private Integer xpRequired=0; public Long getId(){return id;} public String getCode(){return code;} public void setCode(String v){code=v;} public String getName(){return name;} public void setName(String v){name=v;} public String getDescription(){return description;} public void setDescription(String v){description=v;} public String getIcon(){return icon;} public void setIcon(String v){icon=v;} public Integer getXpRequired(){return xpRequired;} public void setXpRequired(Integer v){xpRequired=v;} }

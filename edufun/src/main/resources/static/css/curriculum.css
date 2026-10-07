@@ -1,0 +1,96 @@
+/* ===========================================================
+   EduFun — Programme (classes, disciplines, chapitres) et lecteur de leçon
+=========================================================== */
+
+.cu{display:grid;gap:20px;align-content:start}
+.cu-top{display:flex;align-items:center;gap:16px}
+.cu-top .mobile-menu{display:none}
+.cu-kicker{display:block;font:600 12px 'IBM Plex Mono',monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--brand)}
+.cu-title{margin:4px 0 0;font:700 30px/1.15 'Inter',sans-serif;letter-spacing:-.02em}
+.cu-panel{background:#fff;border:1px solid var(--line);border-radius:22px;padding:20px 22px}
+
+/* Choix de la classe */
+.cu-cycles{display:inline-flex;gap:4px;padding:4px;border-radius:14px;background:#f1f2f8;margin-bottom:16px}
+.cu-cycles button{border:0;background:transparent;padding:9px 18px;border-radius:10px;font-weight:700;color:var(--muted);cursor:pointer}
+.cu-cycles button[aria-selected=true]{background:#fff;color:var(--ink);box-shadow:0 2px 8px rgba(23,32,51,.08)}
+.cu-levels{display:flex;flex-wrap:wrap;gap:8px}
+.cu-level-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;width:100%}
+.cu-level-year{width:84px;flex:none;font:600 11px 'IBM Plex Mono',monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.cu-level{position:relative;border:1px solid var(--line);background:#fff;border-radius:12px;padding:10px 16px;font-weight:700;cursor:pointer;color:var(--ink);transition:.15s}
+.cu-level:hover{border-color:#cfc6ff;background:#faf9ff}
+.cu-level[aria-pressed=true]{background:var(--brand);border-color:var(--brand);color:#fff}
+.cu-level .cu-mine{display:block;font:600 10px 'IBM Plex Mono',monospace;letter-spacing:.06em;text-transform:uppercase;opacity:.75;margin-top:2px}
+
+/* En-tête de classe */
+.cu-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+.cu-head h2{margin:0;font:700 24px 'Inter',sans-serif}
+.cu-head p{margin:4px 0 0;color:var(--muted);font-size:14px}
+.cu-stats{display:flex;gap:10px;flex-wrap:wrap}
+.cu-stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 14px;font-size:13px;color:var(--muted)}
+.cu-stat b{display:block;color:var(--ink);font:700 18px 'Inter',sans-serif}
+
+/* Disciplines */
+.cu-subjects{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
+.cu-subject{flex-shrink:0;display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 14px 8px 10px;font-weight:700;font-size:14px;cursor:pointer;color:var(--ink);transition:.15s}
+.cu-subject:hover{border-color:#cfc6ff}
+.cu-subject small{font:500 11px 'IBM Plex Mono',monospace;color:var(--muted)}
+.cu-subject[aria-pressed=true]{background:#1b2140;border-color:#1b2140;color:#fff}
+.cu-subject[aria-pressed=true] small{color:#b9c0dc}
+.cu-subject.empty{opacity:.55}
+
+/* Chapitres */
+.cu-chapters{display:grid;gap:16px}
+.cu-chapter{background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.cu-chapter-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px 22px;background:linear-gradient(180deg,#fbfaff,#fff);border-bottom:1px solid var(--line)}
+.cu-chapter-head h3{margin:0;font:700 17px 'Inter',sans-serif}
+.cu-chapter-head span{font:500 12px 'IBM Plex Mono',monospace;color:var(--muted);white-space:nowrap}
+.cu-lessons{list-style:none;margin:0;padding:6px}
+.cu-lesson a{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:14px;align-items:center;padding:12px 16px;border-radius:14px}
+.cu-lesson a:hover{background:#f8f7ff}
+.cu-num{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:#f1efff;color:#5e47d4;font:600 12px 'IBM Plex Mono',monospace}
+.cu-lesson.done .cu-num{background:#e7f7ef;color:var(--green)}
+.cu-lesson b{display:block;font-size:15px}
+.cu-lesson small{display:block;color:var(--muted);font-size:13px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cu-tag{font-size:12px;font-weight:700;padding:6px 10px;border-radius:999px;background:#f3f4f8;color:var(--muted);white-space:nowrap}
+.cu-lesson.done .cu-tag{background:#e7f7ef;color:var(--green)}
+.cu-empty{background:#fff;border:1px dashed #d8dcea;border-radius:22px;padding:36px;text-align:center;color:var(--muted)}
+.cu-empty b{display:block;color:var(--ink);font-size:16px;margin-bottom:6px}
+.cu-skel{height:120px;border-radius:22px;background:linear-gradient(90deg,#eef0f6 25%,#f6f7fb 50%,#eef0f6 75%);background-size:200% 100%;animation:cu-shimmer 1.4s infinite}
+@keyframes cu-shimmer{to{background-position:-200% 0}}
+
+/* ---------- Lecteur de leçon ---------- */
+.lr-figure{margin:0 0 14px;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:#f7f8fb}
+.lr-figure img{display:block;width:100%;max-height:380px;object-fit:cover}
+.lr-figure figcaption{padding:8px 12px;font-size:13px;color:var(--muted)}
+.lesson-section.lr-checks{background:linear-gradient(180deg,#f3fbf7,#fff)}
+.lr-check{border:1px solid var(--line);border-radius:16px;padding:16px;margin:0 0 12px;background:#fff}
+.lr-check.passed{border-color:#9fdcbf;background:#f6fcf9}
+.lr-check-q{font-weight:700;margin:0 0 12px}
+.lr-check-q span{display:inline-block;font:600 11px 'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.08em;color:var(--brand);background:#f1efff;border-radius:999px;padding:3px 8px;margin-right:8px}
+.lr-check-choices{display:grid;gap:8px}
+.lr-choice{display:flex;gap:10px;align-items:flex-start;text-align:left;border:1px solid var(--line);background:#fff;border-radius:12px;padding:10px 12px;cursor:pointer;font:inherit;color:var(--ink);transition:.15s}
+.lr-choice:hover:not(:disabled){border-color:#bfb3ff;background:#faf9ff}
+.lr-choice b{flex-shrink:0;width:24px;height:24px;border-radius:7px;display:grid;place-items:center;background:#f1f2f8;font-size:12px}
+.lr-choice.right{border-color:#18a66a;background:#e7f7ef}
+.lr-choice.right b{background:#18a66a;color:#fff}
+.lr-choice.wrong{border-color:#e45d6a;background:#fff0f2;opacity:.8}
+.lr-choice.wrong b{background:#e45d6a;color:#fff}
+.lr-choice:disabled{cursor:default}
+.lr-check-feedback{margin-top:10px;font-size:14px;line-height:1.5;padding:10px 12px;border-radius:10px;background:#f7f8fb}
+.lr-check.passed .lr-check-feedback{background:#e7f7ef}
+.check-progress{font-size:13px;color:var(--muted)}
+.lesson-richtext p{margin:0 0 12px}
+.lesson-richtext p:last-child{margin-bottom:0}
+.lesson-richtext ul,.lesson-richtext ol{margin:0 0 12px;padding-left:22px}
+.lesson-richtext li{margin:4px 0}
+.lesson-richtext .lr-key{background:#f6f4ff;border-left:4px solid var(--brand);padding:12px 16px;border-radius:0 12px 12px 0;margin:0 0 12px}
+.lesson-richtext .lr-example{font-family:'IBM Plex Mono',monospace;font-size:14px;background:#f7f8fb;border:1px solid var(--line);padding:10px 14px;border-radius:10px;margin:0 0 12px;white-space:pre-wrap}
+.lesson-section.lr-retiens{background:linear-gradient(180deg,#fbfaff,#fff)}
+.lr-correction summary{cursor:pointer;font-weight:800;color:var(--brand);list-style:none;display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:12px;background:#f1efff}
+.lr-correction summary::-webkit-details-marker{display:none}
+.lr-correction[open] summary{margin-bottom:14px}
+
+@media(max-width:760px){.cu-top .mobile-menu{display:inline-flex}.cu-title{font-size:24px}.cu-panel{padding:16px}
+  .cu-cycles{display:flex}.cu-cycles button{flex:1;padding:9px 8px}
+  .cu-lesson a{grid-template-columns:34px minmax(0,1fr);gap:10px;padding:10px}.cu-tag{display:none}}
+@media(prefers-reduced-motion:reduce){.cu *{transition:none!important;animation:none!important}}

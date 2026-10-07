@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Espace des répétiteurs EduFun : soyez visible auprès des parents de votre ville et trouvez de nouveaux élèves.">
+<link rel="stylesheet" href="/css/edufun.css">
+<link rel="stylesheet" href="/css/repetiteur.css">
+<script defer src="/js/edufun.js"></script><script defer src="/js/ui.js"></script><script defer src="/js/repetiteur.js"></script>
+<title>Connexion répétiteur — EduFun Répétiteurs</title>
+<link rel="stylesheet" href="/css/ui.css">
+</head>
+<body class="rp-body">
+<div class="rp-auth" id="rpLogin">
+  <section class="rp-auth-brand" aria-label="EduFun Répétiteurs">
+    <a class="rp-brand" href="/repetiteur/connexion">
+      <span class="rp-brand-mark" aria-hidden="true">🧑‍🏫</span>
+      <span class="rp-brand-name"><b>Edu<span>Fun</span> Répétiteurs</b><small>Espace des enseignants</small></span>
+    </a>
+
+    <div class="rp-auth-copy">
+      <span class="rp-mono">Cours particuliers · Côte d'Ivoire</span>
+      <h1>Trouvez de nouveaux élèves <em>près de chez vous</em></h1>
+      <p>EduFun met votre profil sous les yeux des familles qui cherchent un répétiteur dans leur quartier.</p>
+      <ul class="rp-args">
+        <li><i aria-hidden="true">📍</i><div><b>Visibilité locale</b><span>Votre fiche apparaît auprès des parents de votre ville et de votre commune.</span></div></li>
+        <li><i aria-hidden="true">🔔</i><div><b>Notifié à chaque visite</b><span>Vous savez qui consulte votre fiche, au moment où cela arrive.</span></div></li>
+        <li><i aria-hidden="true">💬</i><div><b>Messagerie directe</b><span>Échangez avec les familles intéressées, sans intermédiaire.</span></div></li>
+      </ul>
+    </div>
+
+    <div class="rp-price-tag">
+      <b>5 000 <small>F CFA</small></b>
+      <span>par trimestre, soit 3 mois de visibilité dans l'annuaire des parents.</span>
+    </div>
+    <span class="rp-flag" aria-hidden="true"></span>
+  </section>
+
+  <main class="rp-auth-main">
+    <section class="rp-auth-card" aria-labelledby="rpLoginTitle">
+      <span class="rp-flag" aria-hidden="true"></span>
+      <span class="rp-pill">🔐 Espace répétiteur</span>
+      <h2 id="rpLoginTitle">Bon retour parmi nous</h2>
+      <p class="rp-lead">Connectez-vous avec l'adresse e-mail de votre espace répétiteur.</p>
+
+      <div th:if="${param.error}" class="rp-alert error" role="alert">⚠️ <span>E-mail ou mot de passe incorrect.</span></div>
+      <div th:if="${param.logout}" class="rp-alert success" role="status">✅ <span>Vous avez été déconnecté. À bientôt !</span></div>
+
+      <form class="rp-form" th:action="@{/login}" method="post">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        <input type="hidden" name="portal" value="tutor">
+        <div class="rp-field">
+          <label for="rpUser">Adresse e-mail</label>
+          <input id="rpUser" name="username" type="email" autocomplete="email" required placeholder="vous@exemple.com" autofocus>
+        </div>
+        <div class="rp-field">
+          <label for="rpPass">Mot de passe</label>
+          <div class="rp-pass">
+            <input id="rpPass" name="password" type="password" autocomplete="current-password" required placeholder="••••••••">
+            <button type="button" data-toggle-pass="rpPass" aria-controls="rpPass" aria-pressed="false">Afficher</button>
+          </div>
+        </div>
+        <button class="btn primary rp-submit" type="submit">Accéder à mon espace</button>
+      </form>
+
+      <div class="rp-divider">Nouveau sur EduFun Répétiteurs ?</div>
+      <p class="rp-switch"><a href="/repetiteur/inscription">Créer mon espace répétiteur →</a></p>
+    </section>
+    <a class="rp-back" href="/login">← Retour à EduFun</a>
+  </main>
+</div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Profil d'un répétiteur EduFun : matières, classes, tarifs et coordonnées pour les familles.">
+<link rel="stylesheet" href="/css/edufun.css">
+<link rel="stylesheet" href="/css/annuaire.css">
+<script defer src="/js/edufun.js"></script><script defer src="/js/ui.js"></script><script defer src="/js/annuaire.js"></script><script defer src="/js/annuaire-fiche.js"></script>
+<title>Profil du répétiteur — EduFun</title>
+<link rel="stylesheet" href="/css/ui.css">
+</head>
+<body class="an-body">
+<a class="an-skip" href="#contenu">Aller au contenu</a>
+
+<header class="an-top" id="anTop">
+  <div class="an-top-inner">
+    <a class="an-brand" href="/repetiteurs" aria-label="EduFun Répétiteurs — accueil de l'annuaire"><span class="an-brand-mark" aria-hidden="true">E</span>EduFun <small>· <b>Répétiteurs</b></small></a>
+    <button class="an-menu-btn" type="button" aria-expanded="false" aria-controls="anMenu" aria-label="Ouvrir le menu"><span></span></button>
+    <div class="an-collapse" id="anMenu">
+      <nav class="an-nav" aria-label="Navigation principale">
+        <a href="/repetiteurs" data-nav="search">Trouver un répétiteur</a>
+        <a href="/repetiteurs/messages" data-nav="messages" data-when="parent student" hidden>Mes messages <span class="an-badge" data-unread hidden>0</span></a>
+      </nav>
+      <div class="an-account">
+        <a class="an-link" href="/login" data-when="guest" hidden>Se connecter</a>
+        <a class="btn primary" href="/parent/inscription" data-when="guest" hidden>Créer un compte parent</a>
+        <span class="an-user" data-when="parent" hidden><span class="an-user-av" data-user-initials aria-hidden="true"></span><span data-user-name></span></span>
+        <a class="btn ghost" href="/dashboard" data-when="student" hidden>← Retour à mes cours</a>
+        <a class="btn ghost" href="/repetiteur/espace" data-when="tutor" hidden>Mon espace répétiteur</a>
+        <a class="btn ghost" href="/console" data-when="admin" hidden>Console</a>
+        <form th:action="@{/logout}" method="post" data-when="parent tutor admin" hidden>
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+          <button type="submit" class="an-logout">Se déconnecter</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="an-main" id="contenu">
+  <div id="anFiche" aria-live="polite"></div>
+</main>
+<footer class="an-foot">
+  <div class="an-foot-inner">
+    <div>
+      <a class="an-brand" href="/repetiteurs"><span class="an-brand-mark" aria-hidden="true">E</span>EduFun <small>· <b>Répétiteurs</b></small></a>
+      <p>L'annuaire EduFun met en relation les familles avec des répétiteurs qualifiés, près de chez elles, partout en Côte d'Ivoire.</p>
+    </div>
+    <nav class="an-foot-links" aria-label="Liens du pied de page">
+      <a href="/repetiteurs">Trouver un répétiteur</a>
+      <a href="/parent/inscription">Créer un compte parent</a>
+      <a href="/login">Se connecter</a>
+    </nav>
+  </div>
+  <div class="an-copy"><span class="an-foot-flag" aria-hidden="true"><i></i><i></i><i></i></span>© EduFun · Fait en Côte d'Ivoire</div>
+  <p class="an-pro">Vous êtes répétiteur ? <a href="/repetiteur/connexion">Espace répétiteur</a></p>
+</footer>
+</body>
+</html>

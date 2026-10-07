@@ -1,0 +1,15 @@
+{
+  "name": "EduFun (plateforme éducative)",
+  "image": "mcr.microsoft.com/devcontainers/java:1-21-bookworm",
+  "features": { "ghcr.io/devcontainers/features/java:1": { "version": "none", "installMaven": "true" } },
+  "containerEnv": {
+    "EDUFUN_DEMO_DATA": "true",
+    "EDUFUN_DEMO_PASSWORD": "Demo@2026",
+    "EDUFUN_ADMIN_PASSWORD": "EduFun@Test2026"
+  },
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "postCreateCommand": "mvn -q -B -DskipTests package",
+  "postAttachCommand": { "edufun": "java -jar target/edufun-portal-1.0.0.jar" },
+  "forwardPorts": [8082],
+  "portsAttributes": { "8082": { "label": "EduFun", "onAutoForward": "openBrowser", "visibility": "public" } }
+}

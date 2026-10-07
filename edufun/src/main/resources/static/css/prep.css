@@ -1,0 +1,78 @@
+/* ===========================================================
+   EduFun — Prépa Examens (CEPE, BEPC, BAC)
+=========================================================== */
+.px-exams{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.px-exam{position:relative;text-align:left;border:1px solid var(--line);background:#fff;border-radius:22px;padding:22px;cursor:pointer;color:var(--ink);transition:.2s;overflow:hidden}
+.px-exam:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(23,32,51,.08)}
+.px-exam[aria-pressed=true]{border-color:transparent;color:#fff;background:linear-gradient(130deg,#141936,#2b2470 60%,#4f3bc4)}
+.px-exam[aria-pressed=true] .px-exam-full,.px-exam[aria-pressed=true] .px-exam-stats{color:#d7d3f5}
+.px-exam-name{display:block;font:700 30px 'Inter',sans-serif;letter-spacing:-.02em}
+.px-exam-full{display:block;margin-top:4px;color:var(--muted);font-size:13px}
+.px-exam-stats{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px;font:500 12px 'IBM Plex Mono',monospace;color:var(--muted)}
+.px-exam-badge{position:absolute;top:16px;right:16px;font-size:11px;font-weight:800;padding:5px 9px;border-radius:999px;background:#f1efff;color:var(--brand)}
+
+.px-panel{display:grid;gap:18px}
+.px-tabs{display:inline-flex;gap:4px;padding:4px;border-radius:14px;background:#f1f2f8;justify-self:start;flex-wrap:wrap}
+.px-tabs button{border:0;background:transparent;padding:9px 16px;border-radius:10px;font-weight:700;color:var(--muted);cursor:pointer}
+.px-tabs button[aria-selected=true]{background:#fff;color:var(--ink);box-shadow:0 2px 8px rgba(23,32,51,.08)}
+
+.px-intro{background:#fff;border:1px solid var(--line);border-radius:22px;padding:22px}
+.px-subjects{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.px-subject{display:flex;flex-direction:column;gap:10px;text-align:left;border:1px solid var(--line);background:#fff;border-radius:20px;padding:20px;cursor:pointer;color:var(--ink);transition:.2s}
+.px-subject:hover{border-color:#cfc6ff;box-shadow:0 10px 24px rgba(23,32,51,.06)}
+.px-subject-icon{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:#f1efff;font-size:22px}
+.px-subject b{font:700 17px 'Inter',sans-serif}
+.px-subject small{color:var(--muted);font-size:13px}
+.px-subject-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto}
+.px-chip{font:600 11px 'IBM Plex Mono',monospace;padding:4px 8px;border-radius:999px;background:#f3f4f8;color:var(--muted)}
+
+.px-detail{display:grid;gap:16px}
+.px-detail-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.px-detail-head h2{margin:0;font:700 24px 'Inter',sans-serif}
+.px-card{background:#fff;border:1px solid var(--line);border-radius:22px;padding:24px}
+.px-card h3{margin:0 0 12px;font:700 19px 'Inter',sans-serif}
+
+/* Sujets */
+.px-sujet{border:1px solid var(--line);border-radius:18px;margin-bottom:14px;overflow:hidden;background:#fff}
+.px-sujet-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 20px;background:linear-gradient(180deg,#fbfaff,#fff);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.px-sujet-head h3{margin:0;font:700 17px 'Inter',sans-serif}
+.px-sujet-body{padding:20px}
+.px-sujet-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.px-correction{margin-top:16px;padding:18px;border-radius:14px;background:#f6fcf9;border:1px solid #bfe8d4}
+.px-correction h4{margin:0 0 10px;color:#11734b}
+.px-timer{font:700 15px 'IBM Plex Mono',monospace;padding:8px 12px;border-radius:10px;background:#172033;color:#fff}
+.px-timer.late{background:#e45d6a}
+
+/* QCM */
+.px-quiz-top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px;font:600 13px 'IBM Plex Mono',monospace;color:var(--muted)}
+.px-quiz-bar{height:8px;border-radius:8px;background:#eceef5;overflow:hidden;margin-bottom:18px}
+.px-quiz-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--brand),var(--brand2));transition:width .4s}
+.px-q{font:700 19px/1.4 'Inter',sans-serif;margin:0 0 16px}
+.px-quiz .lr-choice{font-size:15px}
+.px-quiz-foot{display:flex;justify-content:flex-end;margin-top:14px}
+.px-result{text-align:center;padding:10px 0}
+.px-score{font:700 56px 'Inter',sans-serif;line-height:1}
+.px-score small{font-size:22px;color:var(--muted)}
+.px-mention{display:inline-block;margin:10px 0 18px;padding:6px 14px;border-radius:999px;font-weight:800}
+.px-mention.ok{background:#e7f7ef;color:#11734b}
+.px-mention.mid{background:#fff4e0;color:#9a5b00}
+.px-mention.ko{background:#ffe9ec;color:#b33e4c}
+.px-review{text-align:left;margin-top:18px;display:grid;gap:10px}
+.px-review div{border-left:4px solid #e45d6a;background:#fafbfd;border-radius:0 12px 12px 0;padding:12px 14px;font-size:14px;line-height:1.5}
+
+/* FAQ */
+.px-faq details{border:1px solid var(--line);border-radius:16px;background:#fff;margin-bottom:10px}
+.px-faq summary{cursor:pointer;padding:16px 20px;font-weight:700;list-style:none;display:flex;justify-content:space-between;gap:12px}
+.px-faq summary::after{content:'+';color:var(--brand);font-size:20px;line-height:1}
+.px-faq details[open] summary::after{content:'−'}
+.px-faq .lesson-richtext{padding:0 20px 18px}
+
+/* Résultats */
+.px-history{width:100%;border-collapse:collapse}
+.px-history th,.px-history td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);font-size:14px}
+.px-history th{color:var(--muted);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+
+@media(max-width:860px){.px-exams{grid-template-columns:1fr}}
+
+.px-group{margin:22px 0 10px;font:700 16px 'Inter',sans-serif}
+.px-group-other{color:var(--muted)}
