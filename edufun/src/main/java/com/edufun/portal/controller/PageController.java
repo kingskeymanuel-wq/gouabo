@@ -20,10 +20,21 @@ public class PageController {
     }
     @GetMapping("/programme") public String programme(){return "programme";}
     @GetMapping("/abonnement") public String subscription(){return "abonnement";}
+    @GetMapping("/bilans") public String reports(){return "bilans";}
+    // Portail répétiteurs et parents (annuaire)
+    @GetMapping("/repetiteurs") public String tutorDirectory(){return "annuaire";}
+    @GetMapping("/repetiteurs/fiche/{id}") public String tutorProfile(){return "annuaire-fiche";}
+    @GetMapping("/repetiteurs/messages") public String familyMessages(){return "annuaire-messages";}
+    @GetMapping("/parent/inscription") public String parentSignup(){return "parent-inscription";}
+    @GetMapping("/repetiteur") public String tutorHome(){return "redirect:/repetiteur/connexion";}
+    @GetMapping("/repetiteur/connexion") public String tutorLogin(){return "repetiteur-connexion";}
+    @GetMapping("/repetiteur/inscription") public String tutorSignup(){return "repetiteur-inscription";}
+    @GetMapping("/repetiteur/espace") public String tutorSpace(){return "repetiteur-espace";}
+    // Portail d'administration
+    @GetMapping("/console") public String adminLogin(){return "console-connexion";}
     @GetMapping("/lecon/{id}") public String lessonReader(){return "lecon";}
     @GetMapping("/examens") public String examens(){return "examens";}
     @GetMapping("/tech-lab") public String tech(){return "tech-lab";}
-    @GetMapping("/repetiteurs") public String tutors(){return "repetiteurs";}
     @GetMapping("/administration") public String admin(){return "administration";}
     @GetMapping("/quiz") public String quiz(){return "quiz";}
     @GetMapping("/certificats") public String certificates(){return "certificats";}

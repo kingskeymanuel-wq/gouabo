@@ -38,7 +38,7 @@ public class AuthController {
         this.authenticationManager = authenticationManager; this.securityContextRepository = securityContextRepository;
     }
 
-    public record RegisterRequest(String name, String email, String password, String level) {}
+    public record RegisterRequest(String name, String email, String password, String level, String phone, String parentName, String parentEmail, String parentPhone) {}
 
     @PostMapping("/register")
     @Transactional
@@ -58,6 +58,9 @@ public class AuthController {
 
         Student student = students.findByEmailIgnoreCase(email).orElseGet(Student::new);
         student.setName(name); student.setEmail(email); student.setLevel(level);
+        student.setPhone(clean(request.phone())); student.setParentName(clean(request.parentName()));
+        student.setParentEmail(clean(request.parentEmail()) == null ? null : request.parentEmail().trim().toLowerCase()); student.setParentPhone(clean(request.parentPhone()));
+        if (student.getParentEmail() != null && !student.getParentEmail().contains("@")) throw new IllegalArgumentException("L'e-mail du parent n'est pas valide.");
         if (student.getXp() < 0) student.setXp(0);
         if (student.getStreak() < 0) student.setStreak(0);
         student.setStatus("ACTIVE");
@@ -77,7 +80,9 @@ public class AuthController {
         return mePayload(student, account);
     }
 
-    public record ProfileRequest(String name, String level) {}
+    private static String clean(String v) { return v == null || v.isBlank() ? null : v.trim(); }
+
+    public record ProfileRequest(String name, String level, String phone, String parentName, String parentEmail, String parentPhone, Boolean parentNotifications) {}
     public record PasswordRequest(String currentPassword, String newPassword) {}
 
     // L'élève modifie son nom et sa classe (changement de série, passage en classe supérieure).
@@ -91,6 +96,15 @@ public class AuthController {
         if (name.length() < 2) throw new IllegalArgumentException("Ton nom doit contenir au moins 2 caractères.");
         if (!com.edufun.portal.curriculum.Levels.exists(level)) throw new IllegalArgumentException("Classe inconnue : choisis ta classe dans la liste.");
         student.setName(name); student.setLevel(level);
+        if (request.phone() != null) student.setPhone(clean(request.phone()));
+        if (request.parentName() != null) student.setParentName(clean(request.parentName()));
+        if (request.parentPhone() != null) student.setParentPhone(clean(request.parentPhone()));
+        if (request.parentEmail() != null) {
+            String pe = clean(request.parentEmail());
+            if (pe != null && !pe.contains("@")) throw new IllegalArgumentException("L'e-mail du parent n'est pas valide.");
+            student.setParentEmail(pe == null ? null : pe.toLowerCase());
+        }
+        if (request.parentNotifications() != null) student.setParentNotifications(request.parentNotifications());
         return mePayload(students.save(student), account);
     }
 
@@ -124,7 +138,11 @@ public class AuthController {
     private Map<String,Object> mePayload(Student student, UserAccount account) {
         Map<String,Object> out = new LinkedHashMap<>();
         out.put("authenticated", true); out.put("email", account.getEmail()); out.put("role", account.getRole()); out.put("studentId", account.getStudentId());
-        if (student != null) { out.put("name", student.getName()); out.put("level", student.getLevel()); out.put("xp", student.getXp()); out.put("streak", student.getStreak()); out.put("subscription", billing.summary(student)); }
+        out.put("tutorId", account.getTutorId()); out.put("fullName", account.getFullName());
+        if (student != null) { out.put("name", student.getName()); out.put("level", student.getLevel()); out.put("xp", student.getXp()); out.put("streak", student.getStreak()); out.put("subscription", billing.summary(student));
+            out.put("phone", student.getPhone()); out.put("parentName", student.getParentName()); out.put("parentEmail", student.getParentEmail());
+            out.put("parentPhone", student.getParentPhone()); out.put("parentNotifications", student.isParentNotifications()); }
+        else if (account.getFullName() != null) out.put("name", account.getFullName());
         return out;
     }
 }
