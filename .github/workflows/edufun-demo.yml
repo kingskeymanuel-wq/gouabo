@@ -1,0 +1,79 @@
+# EduFun — mise en ligne de démonstration (lien public temporaire, jusqu'à ~6 heures par exécution).
+# Démarre l'application avec les comptes de test et l'expose via un tunnel Cloudflare.
+# Le lien public est affiché dans le résumé de l'exécution (onglet Actions) et dans les journaux.
+name: EduFun - demo en ligne
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [claude/gracious-thompson-6i1pt8]
+    paths: ['.github/workflows/edufun-demo.yml']
+
+concurrency:
+  group: edufun-demo
+  cancel-in-progress: true
+
+jobs:
+  demo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: Construire EduFun
+        working-directory: edufun
+        run: mvn -q -B -DskipTests package
+      - name: Démarrer EduFun
+        working-directory: edufun
+        env:
+          EDUFUN_DEMO_DATA: 'true'
+          EDUFUN_DEMO_PASSWORD: 'Demo@2026'
+          EDUFUN_ADMIN_PASSWORD: 'EduFun@Test2026'
+        run: |
+          nohup java -Xmx1g -jar target/edufun-portal-1.0.0.jar > ../app.log 2>&1 &
+          for i in $(seq 1 90); do
+            if grep -q "Comptes de démonstration prêts" ../app.log && curl -s -o /dev/null http://localhost:8082/login; then break; fi
+            sleep 2
+          done
+          sleep 15
+          curl -s -o /dev/null -w "Page de connexion : HTTP %{http_code}\n" http://localhost:8082/login
+      - name: Ouvrir le tunnel public
+        run: |
+          curl -sSL -o cloudflared https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
+          chmod +x cloudflared
+          nohup ./cloudflared tunnel --no-autoupdate --url http://localhost:8082 > tunnel.log 2>&1 &
+          for i in $(seq 1 60); do
+            URL=$(grep -oE 'https://[a-z0-9-]+\.trycloudflare\.com' tunnel.log | head -1)
+            [ -n "$URL" ] && break
+            sleep 2
+          done
+          echo "EDUFUN_URL=$URL" >> $GITHUB_ENV
+          echo "=================================================="
+          echo "  LIEN EDUFUN : $URL"
+          echo "=================================================="
+          {
+            echo "## 🎓 EduFun est en ligne"
+            echo ""
+            echo "**Lien : $URL**"
+            echo ""
+            echo "| Portail | Page | Identifiant | Mot de passe |"
+            echo "|---|---|---|---|"
+            echo "| Administration | $URL/console | admin@edufun.ci | EduFun@Test2026 |"
+            echo "| Élève abonné | $URL/login | eleve.college@demo.edufun.ci | Demo@2026 |"
+            echo "| Élève à activer | $URL/login | eleve.nouveau@demo.edufun.ci | Demo@2026 |"
+            echo "| Parent | $URL/login | parent.demo@demo.edufun.ci | Demo@2026 |"
+            echo "| Répétiteur | $URL/repetiteur/connexion | repetiteur.demo@demo.edufun.ci | Demo@2026 |"
+            echo ""
+            echo "Le lien reste actif environ 6 heures."
+          } >> $GITHUB_STEP_SUMMARY
+      - name: Garder le site en ligne
+        run: |
+          for i in $(seq 1 68); do
+            sleep 300
+            CODE=$(curl -s -o /dev/null -w "%{http_code}" "$EDUFUN_URL/login" || true)
+            echo "$(date -u +%H:%M) $EDUFUN_URL → $CODE"
+          done
