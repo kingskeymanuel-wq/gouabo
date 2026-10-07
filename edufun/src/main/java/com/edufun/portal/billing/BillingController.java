@@ -115,12 +115,12 @@ public class BillingController {
         return billing.reject(id, auth.getName(), body == null ? null : body.get("note"));
     }
 
-    public record RecordRequest(Long studentId, int months, String method, String reference) {}
+    public record RecordRequest(Long studentId, Long tutorId, int months, String method, String reference) {}
 
     @PostMapping("/admin/payments")
     @ResponseStatus(HttpStatus.CREATED)
     public Payment record(@RequestBody RecordRequest r, Authentication auth) {
-        return billing.record(r.studentId(), r.months(), r.method(), r.reference(), auth.getName());
+        return billing.record(r.studentId(), r.tutorId(), r.months(), r.method(), r.reference(), auth.getName());
     }
 
     private Student currentStudent(Authentication auth) {

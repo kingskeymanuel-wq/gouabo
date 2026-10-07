@@ -21,6 +21,23 @@ public class UserAccount {
 
     private boolean enabled = true;
 
+    /** Nom affiché (parents et répétiteurs ; les élèves utilisent leur fiche Student). */
+    private String fullName;
+    private String phone;
+    private String city;
+    private String district;
+    private Long tutorId;
+    private java.time.LocalDateTime createdAt = java.time.LocalDateTime.now();
+    private java.time.LocalDateTime lastLoginAt;
+
+    public String getFullName() { return fullName; } public void setFullName(String v) { fullName = v; }
+    public String getPhone() { return phone; } public void setPhone(String v) { phone = v; }
+    public String getCity() { return city; } public void setCity(String v) { city = v; }
+    public String getDistrict() { return district; } public void setDistrict(String v) { district = v; }
+    public Long getTutorId() { return tutorId; } public void setTutorId(Long v) { tutorId = v; }
+    public java.time.LocalDateTime getCreatedAt() { return createdAt; } public void setCreatedAt(java.time.LocalDateTime v) { createdAt = v; }
+    public java.time.LocalDateTime getLastLoginAt() { return lastLoginAt; } public void setLastLoginAt(java.time.LocalDateTime v) { lastLoginAt = v; }
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getEmail() { return email; }

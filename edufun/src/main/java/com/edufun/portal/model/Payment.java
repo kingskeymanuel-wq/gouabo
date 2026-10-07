@@ -10,6 +10,11 @@ import java.time.LocalDateTime;
 public class Payment {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) private Long id;
     private Long studentId;
+    private Long tutorId;
+    /** STUDENT (abonnement aux cours) ou TUTOR (visibilité dans l'annuaire des répétiteurs) */
+    private String kind = "STUDENT";
+    /** Mois offerts ajoutés à la validation (mois de bienvenue). */
+    @Column(columnDefinition = "integer default 0") private int bonusMonths;
     private String level;
     private int months;
     private int amount;
@@ -27,6 +32,9 @@ public class Payment {
     private String processedBy;
 
     public Long getId() { return id; }
+    public Long getTutorId() { return tutorId; } public void setTutorId(Long v) { tutorId = v; }
+    public String getKind() { return kind == null ? "STUDENT" : kind; } public void setKind(String v) { kind = v; }
+    public int getBonusMonths() { return bonusMonths; } public void setBonusMonths(int v) { bonusMonths = v; }
     public Long getStudentId() { return studentId; } public void setStudentId(Long v) { studentId = v; }
     public String getLevel() { return level; } public void setLevel(String v) { level = v; }
     public int getMonths() { return months; } public void setMonths(int v) { months = v; }
