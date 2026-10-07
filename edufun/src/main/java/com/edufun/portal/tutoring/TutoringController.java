@@ -84,11 +84,11 @@ public class TutoringController {
     @Transactional
     @ResponseStatus(HttpStatus.CREATED)
     public Map<String, Object> registerParent(@RequestBody ParentForm f, HttpServletRequest req, HttpServletResponse res) {
-        String name = required(f.fullName(), "Ton nom est requis.");
-        String email = required(f.email(), "Ton e-mail est requis.").toLowerCase();
-        if (!email.contains("@")) throw new IllegalArgumentException("Ton e-mail n'est pas valide.");
-        if (f.password() == null || f.password().length() < 8) throw new IllegalArgumentException("Choisis un mot de passe d'au moins 8 caractères.");
-        if (accounts.existsByEmailIgnoreCase(email)) throw new IllegalStateException("Un compte existe déjà avec cet e-mail. Connecte-toi.");
+        String name = required(f.fullName(), "Votre nom est requis.");
+        String email = required(f.email(), "Votre e-mail est requis.").toLowerCase();
+        if (!email.contains("@")) throw new IllegalArgumentException("Votre e-mail n'est pas valide.");
+        if (f.password() == null || f.password().length() < 8) throw new IllegalArgumentException("Choisissez un mot de passe d'au moins 8 caractères.");
+        if (accounts.existsByEmailIgnoreCase(email)) throw new IllegalStateException("Un compte existe déjà avec cet e-mail. Connectez-vous.");
         UserAccount a = new UserAccount();
         a.setEmail(email); a.setPasswordHash(encoder.encode(f.password())); a.setRole("PARENT"); a.setEnabled(true);
         a.setFullName(name); a.setPhone(trim(f.phone())); a.setCity(trim(f.city())); a.setDistrict(trim(f.district()));

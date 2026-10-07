@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/css/edufun.css">
+<link rel="stylesheet" href="/css/repetiteur.css">
+<script defer src="/js/edufun.js"></script><script defer src="/js/ui.js"></script><script defer src="/js/repetiteur.js"></script>
+<title>Mon espace répétiteur — EduFun Répétiteurs</title>
+<link rel="stylesheet" href="/css/ui.css">
+</head>
+<body class="rp-body">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><linearGradient id="rpRingGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5b3df5"/><stop offset="1" stop-color="#a78bfa"/></linearGradient></defs></svg>
+<a class="rp-sr" href="#rpContent">Aller au contenu</a>
+<div class="rp-app" id="rpSpace">
+  <aside class="rp-side" id="rpSide" aria-label="Navigation de l'espace répétiteur">
+    <a class="rp-brand" href="#tableau">
+      <span class="rp-brand-mark" aria-hidden="true">🧑‍🏫</span>
+      <span class="rp-brand-name"><b>Edu<span>Fun</span> Répétiteurs</b><small>Mon espace</small></span>
+    </a>
+    <nav class="rp-nav" aria-label="Sections">
+      <small>Pilotage</small>
+      <a href="#tableau" data-nav="tableau"><i aria-hidden="true">📊</i>Tableau de bord</a>
+      <a href="#profil" data-nav="profil"><i aria-hidden="true">👤</i>Mon profil</a>
+      <a href="#visibilite" data-nav="visibilite"><i aria-hidden="true">🚀</i>Visibilité</a>
+      <small>Familles</small>
+      <a href="#visiteurs" data-nav="visiteurs"><i aria-hidden="true">👀</i>Visiteurs</a>
+      <a href="#messages" data-nav="messages"><i aria-hidden="true">💬</i>Messages<span class="rp-count" data-count="messages" hidden></span></a>
+      <a href="#notifications" data-nav="notifications"><i aria-hidden="true">🔔</i>Notifications<span class="rp-count" data-count="notifications" hidden></span></a>
+    </nav>
+    <div class="rp-side-foot">
+      <div class="rp-usercard">
+        <span class="rp-avatar" data-user-initials aria-hidden="true">·</span>
+        <div><b data-user-name>Répétiteur</b><small data-user-email></small></div>
+      </div>
+      <form class="rp-logout" th:action="@{/logout}" method="post">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        <button type="submit"><span aria-hidden="true">↪️</span> Se déconnecter</button>
+      </form>
+    </div>
+  </aside>
+  <div class="rp-scrim" data-scrim aria-hidden="true"></div>
+
+  <main class="rp-main" id="rpContent" tabindex="-1" aria-busy="true">
+    <header class="rp-top">
+      <button class="rp-menu-btn" type="button" data-menu aria-controls="rpSide" aria-expanded="false" aria-label="Ouvrir le menu">☰</button>
+      <div>
+        <span class="rp-mono" data-kicker>Espace répétiteur</span>
+        <h1 data-title tabindex="-1">Tableau de bord</h1>
+      </div>
+      <div class="rp-top-actions">
+        <a class="rp-bell" href="#notifications" aria-label="Notifications"><span aria-hidden="true">🔔</span><span class="rp-count" data-count="notifications" hidden></span></a>
+      </div>
+    </header>
+
+    <!-- Tableau de bord -->
+    <section class="rp-tab" data-tab="tableau" aria-labelledby="rpTitleTableau">
+      <h2 class="rp-sr" id="rpTitleTableau">Tableau de bord</h2>
+      <div data-status><div class="rp-skel" style="height:190px;border-radius:26px"></div></div>
+      <div class="rp-kpis" data-kpis>
+        <div class="rp-skel" style="height:118px;border-radius:20px"></div><div class="rp-skel" style="height:118px;border-radius:20px"></div><div class="rp-skel" style="height:118px;border-radius:20px"></div><div class="rp-skel" style="height:118px;border-radius:20px"></div><div class="rp-skel" style="height:118px;border-radius:20px"></div>
+      </div>
+      <div class="rp-row-2">
+        <article class="rp-card">
+          <div class="rp-card-head">
+            <div><h2>Vues de ma fiche</h2><p>Les 14 derniers jours</p></div>
+            <div class="rp-chart-sum" data-chart-sum></div>
+          </div>
+          <div data-chart><div class="rp-skel" style="height:180px"></div></div>
+        </article>
+        <article class="rp-card">
+          <div class="rp-card-head"><div><h2>Complétude du profil</h2><p>Un profil complet inspire confiance.</p></div></div>
+          <div data-complete><div class="rp-skel" style="height:112px"></div></div>
+        </article>
+      </div>
+      <article class="rp-card">
+        <div class="rp-card-head">
+          <div><h2>Derniers visiteurs</h2><p>Les familles qui ont consulté ta fiche</p></div>
+          <a class="rp-link" href="#visiteurs">Tout voir →</a>
+        </div>
+        <div data-recent-visitors><div class="rp-skel" style="height:72px"></div></div>
+      </article>
+    </section>
+
+    <!-- Mon profil -->
+    <section class="rp-tab" data-tab="profil" aria-labelledby="rpTitleProfil" hidden>
+      <h2 class="rp-sr" id="rpTitleProfil">Mon profil</h2>
+      <div class="rp-profile">
+        <article class="rp-card">
+          <form id="rpProfileForm" novalidate>
+            <h3 class="rp-section-title">Identité et contacts</h3>
+            <div class="rp-field">
+              <label for="pfName">Nom complet</label>
+              <input id="pfName" name="name" autocomplete="name" required>
+            </div>
+            <div class="rp-grid-2">
+              <div class="rp-field">
+                <label for="pfPhone">Téléphone</label>
+                <input id="pfPhone" name="phone" type="tel" inputmode="tel" autocomplete="tel" required>
+              </div>
+              <div class="rp-field">
+                <label for="pfWhatsapp">WhatsApp <small>(facultatif)</small></label>
+                <input id="pfWhatsapp" name="whatsapp" type="tel" inputmode="tel">
+              </div>
+            </div>
+            <div class="rp-grid-2">
+              <div class="rp-field">
+                <label for="pfCity">Ville</label>
+                <select id="pfCity" name="city" data-city required><option value="">Chargement…</option></select>
+              </div>
+              <div class="rp-field" data-district-field>
+                <label for="pfDistrictSel" data-district-label>Commune</label>
+                <select id="pfDistrictSel" name="districtSelect" data-district-select><option value="">Choisis ta commune</option></select>
+                <input id="pfDistrictTxt" name="districtText" data-district-text placeholder="Ex. Commerce, Air France…" hidden>
+              </div>
+            </div>
+
+            <h3 class="rp-section-title">Profil pédagogique</h3>
+            <div class="rp-field">
+              <span class="rp-label" id="pfSubjectsLabel">Matières enseignées</span>
+              <div class="rp-chips" data-chips="specialties" role="group" aria-labelledby="pfSubjectsLabel"></div>
+              <input name="otherSubjects" aria-label="Autres matières" placeholder="Autre matière ? Ex. Latin, Arabe (séparées par des virgules)">
+            </div>
+            <div class="rp-field">
+              <span class="rp-label" id="pfLevelsLabel">Classes accompagnées</span>
+              <div class="rp-chips" data-chips="levels" role="group" aria-labelledby="pfLevelsLabel"></div>
+            </div>
+            <div class="rp-grid-3">
+              <div class="rp-field">
+                <label for="pfEdu">Niveau d'études / diplôme</label>
+                <select id="pfEdu" name="educationLevel" data-options="diplomas" required></select>
+              </div>
+              <div class="rp-field">
+                <label for="pfExp">Années d'expérience</label>
+                <input id="pfExp" name="experienceYears" type="number" min="0" max="50" step="1" inputmode="numeric">
+              </div>
+              <div class="rp-field">
+                <label for="pfMode">Mode de cours</label>
+                <select id="pfMode" name="teachingMode" data-options="modes"></select>
+              </div>
+            </div>
+            <div class="rp-field">
+              <label for="pfRate">Tarif indicatif par séance <small>(facultatif, en F CFA)</small></label>
+              <input id="pfRate" name="hourlyRate" type="number" min="0" step="500" inputmode="numeric" placeholder="Ex. 5000">
+            </div>
+            <div class="rp-field">
+              <label for="pfBio">Présentation</label>
+              <textarea id="pfBio" name="bio" maxlength="1500" aria-describedby="pfBioCount" placeholder="Ton parcours, ta méthode, tes résultats avec tes élèves…"></textarea>
+              <span class="rp-counter" id="pfBioCount" data-counter aria-live="polite">0 / 1 500</span>
+            </div>
+            <div class="rp-form-actions">
+              <button type="button" class="btn ghost" data-profile-reset>Annuler les modifications</button>
+              <button type="submit" class="btn primary">Enregistrer mon profil</button>
+            </div>
+          </form>
+        </article>
+        <aside class="rp-preview-wrap" aria-label="Aperçu de ta fiche">
+          <span class="rp-mono">Aperçu · ce que voient les parents</span>
+          <div data-preview></div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- Visibilité -->
+    <section class="rp-tab" data-tab="visibilite" aria-labelledby="rpTitleVis" hidden>
+      <h2 class="rp-sr" id="rpTitleVis">Visibilité</h2>
+      <div class="rp-offer">
+        <article class="rp-card">
+          <div class="rp-card-head"><div><h2>Sois visible dans l'annuaire des parents</h2><p>Une formule simple, sans engagement.</p></div></div>
+          <ul class="rp-benefits">
+            <li>Ta fiche apparaît dans les recherches des parents de ta ville et de ta commune pendant 3 mois.</li>
+            <li>Après chaque paiement, ton profil est mis en avant en tête de l'annuaire.</li>
+            <li>Tu es notifié à chaque visite et tu peux écrire aux familles intéressées.</li>
+            <li>Ton paiement est vérifié par l'équipe EduFun, puis ta visibilité est activée automatiquement.</li>
+          </ul>
+        </article>
+        <div class="rp-offer-price">
+          <span class="rp-mono">Formule trimestrielle</span>
+          <b data-price>5 000 <small>F CFA</small></b>
+          <span data-price-sub>pour 3 mois de visibilité</span>
+          <div style="margin-top:18px" data-vis-state></div>
+        </div>
+      </div>
+
+      <article class="rp-card" id="rpPay">
+        <div class="rp-card-head"><div><h2>Payer par Mobile Money</h2><p>Envoie le montant, puis déclare ton paiement ci-dessous.</p></div></div>
+        <form id="rpPayForm" novalidate>
+          <div class="rp-pay-step"><span class="rp-pay-n" aria-hidden="true">1</span><div class="rp-pay-body">
+            <h3 id="rpMethodsLabel">Choisis ton opérateur</h3>
+            <div class="rp-methods" data-methods role="group" aria-labelledby="rpMethodsLabel"></div>
+            <div class="rp-instructions" data-instructions></div>
+          </div></div>
+          <div class="rp-pay-step"><span class="rp-pay-n" aria-hidden="true">2</span><div class="rp-pay-body">
+            <h3>Déclare ton paiement</h3>
+            <div class="rp-pay-fields">
+              <div class="rp-field"><label for="rpPayPhone">Numéro qui a payé</label><input id="rpPayPhone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="Ex. 07 08 09 10 11" required></div>
+              <div class="rp-field"><label for="rpPayRef">Référence de la transaction <small>(SMS de confirmation)</small></label><input id="rpPayRef" name="reference" required placeholder="Ex. MP241006.1234.A56789"></div>
+            </div>
+            <button class="btn primary" type="submit" data-pay-submit>Envoyer pour vérification</button>
+          </div></div>
+        </form>
+      </article>
+
+      <article class="rp-card">
+        <div class="rp-card-head"><div><h2>Historique de mes paiements</h2></div></div>
+        <div data-history></div>
+      </article>
+    </section>
+
+    <!-- Visiteurs -->
+    <section class="rp-tab" data-tab="visiteurs" aria-labelledby="rpTitleVisitors" hidden>
+      <h2 class="rp-sr" id="rpTitleVisitors">Visiteurs</h2>
+      <article class="rp-card">
+        <div class="rp-card-head"><div><h2>Qui a consulté ma fiche ?</h2><p>Tu peux écrire à chaque famille qui a vu ton profil.</p></div><span class="rp-tag brand" data-visitors-total></span></div>
+        <div data-visitors><div class="rp-skel" style="height:72px"></div></div>
+      </article>
+    </section>
+
+    <!-- Messages -->
+    <section class="rp-tab" data-tab="messages" aria-labelledby="rpTitleMessages" hidden>
+      <h2 class="rp-sr" id="rpTitleMessages">Messages</h2>
+      <div class="rp-card rp-inbox" data-inbox>
+        <div class="rp-threads">
+          <div class="rp-threads-head"><h2>Conversations</h2></div>
+          <div class="rp-threads-list" data-threads><div class="rp-skel" style="height:60px;margin:6px"></div></div>
+        </div>
+        <div class="rp-convo" data-convo>
+          <div class="rp-convo-empty"><div class="rp-empty"><i aria-hidden="true">💬</i><b>Choisis une conversation</b><p>Tes échanges avec les familles s'affichent ici.</p></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Notifications -->
+    <section class="rp-tab" data-tab="notifications" aria-labelledby="rpTitleNotifs" hidden>
+      <h2 class="rp-sr" id="rpTitleNotifs">Notifications</h2>
+      <article class="rp-card">
+        <div class="rp-card-head">
+          <div><h2>Mes notifications</h2><p data-notifs-sub>Visites, messages et paiements</p></div>
+          <button type="button" class="btn ghost" data-read-all>Tout marquer comme lu</button>
+        </div>
+        <div class="rp-list" data-notifs><div class="rp-skel" style="height:72px"></div></div>
+      </article>
+    </section>
+  </main>
+</div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

@@ -224,7 +224,11 @@ public class AdminCrmController {
     public Map<String, Object> tutorDetail(@PathVariable Long id) {
         Tutor t = tutors.findById(id).orElseThrow(() -> new NoSuchElementException("Répétiteur introuvable"));
         Map<String, Object> m = new LinkedHashMap<>();
-        m.put("tutor", t);
+        // Fiche complète : ligne de la liste (audience, totaux) complétée des champs détaillés.
+        Map<String, Object> full = new LinkedHashMap<>(tutorList().stream().filter(r -> id.equals(r.get("id"))).findFirst().orElse(Map.of()));
+        full.put("whatsapp", t.getWhatsapp()); full.put("bio", t.getBio()); full.put("hourlyRate", t.getHourlyRate());
+        full.put("teachingMode", t.getTeachingMode()); full.put("status", t.getStatus());
+        m.put("tutor", full);
         m.put("listing", billing.tutorSummary(t));
         m.put("payments", payments.findAllByOrderByCreatedAtDesc().stream().filter(p -> id.equals(p.getTutorId())).toList());
         m.put("visits", visits.findByTutorIdOrderByVisitedAtDesc(id).stream().limit(50).map(v -> {

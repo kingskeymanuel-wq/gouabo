@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Créez votre espace répétiteur EduFun et soyez visible auprès des parents de votre ville.">
+<link rel="stylesheet" href="/css/edufun.css">
+<link rel="stylesheet" href="/css/repetiteur.css">
+<script defer src="/js/edufun.js"></script><script defer src="/js/ui.js"></script><script defer src="/js/repetiteur.js"></script>
+<title>Créer mon espace répétiteur — EduFun Répétiteurs</title>
+<link rel="stylesheet" href="/css/ui.css">
+</head>
+<body class="rp-body">
+<div class="rp-auth wide" id="rpRegister">
+  <section class="rp-auth-brand" aria-label="EduFun Répétiteurs">
+    <a class="rp-brand" href="/repetiteur/connexion">
+      <span class="rp-brand-mark" aria-hidden="true">🧑‍🏫</span>
+      <span class="rp-brand-name"><b>Edu<span>Fun</span> Répétiteurs</b><small>Espace des enseignants</small></span>
+    </a>
+    <div class="rp-auth-copy">
+      <span class="rp-mono">Inscription en 3 étapes</span>
+      <h1>Votre profil, <em>vu par les familles</em> de votre quartier</h1>
+      <p>Présentez vos matières, vos classes et votre méthode : les parents vous trouvent dans l'annuaire EduFun et vous contactent directement.</p>
+      <ul class="rp-args">
+        <li><i aria-hidden="true">📍</i><div><b>Recherche par commune</b><span>Les parents filtrent par ville, commune, matière et classe.</span></div></li>
+        <li><i aria-hidden="true">🔔</i><div><b>Alertes de visite</b><span>Une notification dès qu'une famille consulte votre fiche.</span></div></li>
+        <li><i aria-hidden="true">💬</i><div><b>Messagerie intégrée</b><span>Répondez aux familles depuis votre espace.</span></div></li>
+      </ul>
+    </div>
+    <div class="rp-price-tag">
+      <b>5 000 <small>F CFA</small></b>
+      <span>par trimestre · votre profil est mis en avant après chaque paiement.</span>
+    </div>
+    <span class="rp-flag" aria-hidden="true"></span>
+  </section>
+
+  <main class="rp-auth-main">
+    <section class="rp-auth-card" aria-labelledby="rpRegTitle">
+      <span class="rp-flag" aria-hidden="true"></span>
+      <span class="rp-pill">✨ Nouveau répétiteur</span>
+      <h2 id="rpRegTitle">Créer mon espace répétiteur</h2>
+      <p class="rp-lead">Quelques minutes suffisent. Vous pourrez compléter votre profil à tout moment.</p>
+
+      <div class="rp-reminder"><i aria-hidden="true">💡</i><span><b>Votre profil devient visible par les parents après paiement de 5 000 F CFA par trimestre.</b> Vous pourrez payer par Mobile Money depuis votre espace.</span></div>
+
+      <ol class="rp-steps" aria-label="Progression de l'inscription">
+        <li data-step-dot="1" class="current" aria-current="step"><span>Identité et accès</span></li>
+        <li data-step-dot="2"><span>Localisation et contacts</span></li>
+        <li data-step-dot="3"><span>Profil pédagogique</span></li>
+      </ol>
+      <p class="rp-sr" aria-live="polite" data-step-live></p>
+
+      <form id="rpRegisterForm" novalidate>
+        <!-- Étape 1 -->
+        <fieldset class="rp-step" data-step="1">
+          <legend>Identité et accès</legend>
+          <p>Ces informations vous servent à vous connecter.</p>
+          <div class="rp-field">
+            <label for="rgName">Nom complet</label>
+            <input id="rgName" name="name" autocomplete="name" required placeholder="Ex. Konan Aya Marie">
+          </div>
+          <div class="rp-field">
+            <label for="rgEmail">Adresse e-mail</label>
+            <input id="rgEmail" name="email" type="email" autocomplete="email" required placeholder="vous@exemple.com">
+          </div>
+          <div class="rp-grid-2">
+            <div class="rp-field">
+              <label for="rgPass">Mot de passe <small>(8 caractères minimum)</small></label>
+              <div class="rp-pass">
+                <input id="rgPass" name="password" type="password" autocomplete="new-password" minlength="8" required>
+                <button type="button" data-toggle-pass="rgPass" aria-controls="rgPass" aria-pressed="false">Afficher</button>
+              </div>
+            </div>
+            <div class="rp-field">
+              <label for="rgPass2">Confirmation du mot de passe</label>
+              <input id="rgPass2" name="confirm" type="password" autocomplete="new-password" required>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Étape 2 -->
+        <fieldset class="rp-step" data-step="2" hidden>
+          <legend>Localisation et contacts</legend>
+          <p>Les parents recherchent d'abord un répétiteur près de chez eux.</p>
+          <div class="rp-grid-2">
+            <div class="rp-field">
+              <label for="rgPhone">Téléphone</label>
+              <input id="rgPhone" name="phone" type="tel" inputmode="tel" autocomplete="tel" required placeholder="Ex. 07 08 09 10 11">
+            </div>
+            <div class="rp-field">
+              <label for="rgWhatsapp">WhatsApp <small>(facultatif)</small></label>
+              <input id="rgWhatsapp" name="whatsapp" type="tel" inputmode="tel" placeholder="Si différent du téléphone">
+            </div>
+          </div>
+          <div class="rp-grid-2">
+            <div class="rp-field">
+              <label for="rgCity">Ville</label>
+              <select id="rgCity" name="city" data-city required><option value="">Chargement des villes…</option></select>
+            </div>
+            <div class="rp-field" data-district-field>
+              <label for="rgDistrictSel" data-district-label>Commune</label>
+              <select id="rgDistrictSel" name="districtSelect" data-district-select><option value="">Choisissez votre commune</option></select>
+              <input id="rgDistrictTxt" name="districtText" data-district-text placeholder="Ex. Commerce, Air France…" hidden>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Étape 3 -->
+        <fieldset class="rp-step" data-step="3" hidden>
+          <legend>Profil pédagogique</legend>
+          <p>C'est ce que les parents liront en premier sur votre fiche.</p>
+          <div class="rp-field">
+            <span class="rp-label" id="rgSubjectsLabel">Matières enseignées</span>
+            <div class="rp-chips" data-chips="specialties" role="group" aria-labelledby="rgSubjectsLabel"></div>
+            <input name="otherSubjects" aria-label="Autres matières" placeholder="Autre matière ? Ex. Latin, Arabe (séparées par des virgules)">
+          </div>
+          <div class="rp-field">
+            <span class="rp-label" id="rgLevelsLabel">Classes accompagnées</span>
+            <div class="rp-chips" data-chips="levels" role="group" aria-labelledby="rgLevelsLabel"></div>
+          </div>
+          <div class="rp-grid-3">
+            <div class="rp-field">
+              <label for="rgEdu">Niveau d'études / diplôme</label>
+              <select id="rgEdu" name="educationLevel" data-options="diplomas" required></select>
+            </div>
+            <div class="rp-field">
+              <label for="rgExp">Années d'expérience</label>
+              <input id="rgExp" name="experienceYears" type="number" min="0" max="50" step="1" inputmode="numeric" placeholder="Ex. 3">
+            </div>
+            <div class="rp-field">
+              <label for="rgMode">Mode de cours</label>
+              <select id="rgMode" name="teachingMode" data-options="modes"></select>
+            </div>
+          </div>
+          <div class="rp-field">
+            <label for="rgRate">Tarif indicatif par séance <small>(facultatif, en F CFA)</small></label>
+            <input id="rgRate" name="hourlyRate" type="number" min="0" step="500" inputmode="numeric" placeholder="Ex. 5000">
+          </div>
+          <div class="rp-field">
+            <label for="rgBio">Présentation</label>
+            <textarea id="rgBio" name="bio" maxlength="1500" aria-describedby="rgBioCount" placeholder="Votre parcours, votre méthode, vos résultats avec vos élèves…"></textarea>
+            <span class="rp-counter" id="rgBioCount" data-counter aria-live="polite">0 / 1 500</span>
+          </div>
+        </fieldset>
+
+        <div class="rp-step-actions">
+          <button type="button" class="btn ghost rp-prev" hidden>← Retour</button>
+          <button type="button" class="btn primary rp-next">Continuer →</button>
+          <button type="submit" class="btn primary rp-finish" hidden>Créer mon espace</button>
+        </div>
+      </form>
+
+      <p class="rp-switch" style="margin-top:20px">Déjà inscrit ? <a href="/repetiteur/connexion">Me connecter</a></p>
+    </section>
+    <a class="rp-back" href="/login">← Retour à EduFun</a>
+  </main>
+</div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
