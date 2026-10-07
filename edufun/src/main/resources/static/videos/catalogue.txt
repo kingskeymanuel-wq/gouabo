@@ -1,0 +1,3 @@
+# Vidéos EduFun livrées avec l'application (attachées automatiquement à la leçon au démarrage).
+# code leçon | fichier | type (KIDS ou PRESENTER) | présentée par | points de vérification | titre
+CM1-HG-02 | CM1-HG-02.mp4 | KIDS | EduFun | 0:27, 0:47 | La conquête et la colonisation en images

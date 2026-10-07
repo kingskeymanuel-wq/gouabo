@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>CM1-HG-02 — La conquête et la colonisation</title>
+<!-- Motion illustration EduFun. Chaque image est calculée par render(t) (t en secondes),
+     puis capturée image par image par render.js. Ouvrir ce fichier dans un navigateur avec
+     ?play pour la prévisualiser. -->
+<style>
+  *{box-sizing:border-box;margin:0}
+  html,body{width:1280px;height:720px;overflow:hidden;background:#000}
+  body{font-family:Inter,'DejaVu Sans',sans-serif}
+  #stage{position:relative;width:1280px;height:720px;overflow:hidden;background:#fff6e4}
+  .scene{position:absolute;inset:0;opacity:0}
+  .abs{position:absolute}
+  .center{left:0;right:0;text-align:center}
+  h1,h2{font-weight:900;letter-spacing:-.01em}
+  /* bandeau des sous-titres (texte de la voix off) */
+  #cap{position:absolute;left:120px;right:120px;bottom:28px;min-height:76px;display:flex;align-items:center;justify-content:center;text-align:center;
+    background:rgba(43,29,107,.92);color:#fff;border-radius:22px;padding:12px 26px;font-size:27px;font-weight:700;line-height:1.25;border:4px solid #ffd23f}
+  #brand{position:absolute;left:28px;top:22px;font:900 24px Inter,sans-serif;color:#2b1d6b;z-index:5}
+  #brand span{color:#ff8a3d}
+  #chip{position:absolute;right:28px;top:22px;font:800 15px Inter,sans-serif;color:#2b1d6b;background:#ffd23f;padding:7px 14px;border-radius:999px;z-index:5}
+</style>
+</head>
+<body>
+<div id="stage">
+  <!-- Fond : ciel, soleil, nuages qui bougent doucement -->
+  <svg id="bg" class="abs" width="1280" height="720" viewBox="0 0 1280 720">
+    <defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bfe8ff"/><stop offset="1" stop-color="#fff6e4"/></linearGradient></defs>
+    <rect width="1280" height="720" fill="url(#sky)"/>
+    <circle id="sun" cx="1080" cy="140" r="62" fill="#ffd23f"/>
+    <g id="clouds" fill="#fff" opacity=".9">
+      <g id="c1"><ellipse cx="200" cy="130" rx="70" ry="26"/><ellipse cx="245" cy="112" rx="44" ry="30"/></g>
+      <g id="c2"><ellipse cx="760" cy="90" rx="60" ry="22"/><ellipse cx="800" cy="76" rx="38" ry="24"/></g>
+    </g>
+  </svg>
+  <div id="brand">Edu<span>Fun</span></div>
+  <div id="chip">CM1 · Histoire</div>
+
+  <!-- 1. Titre -->
+  <div class="scene" id="s1">
+    <div class="abs center" id="s1kicker" style="top:190px;font:800 26px Inter;color:#ff8a3d;letter-spacing:.12em">LEÇON D'HISTOIRE</div>
+    <h1 class="abs center" id="s1title" style="top:240px;font-size:76px;color:#2b1d6b;line-height:1.05">La conquête<br>et la colonisation</h1>
+    <svg class="abs" id="s1book" style="left:560px;top:450px" width="160" height="110" viewBox="0 0 160 110">
+      <path d="M80 20 C55 6 25 6 6 14 V98 C25 90 55 90 80 104 Z" fill="#ff8a3d"/><path d="M80 20 C105 6 135 6 154 14 V98 C135 90 105 90 80 104 Z" fill="#3ec1d3"/>
+      <path d="M80 20 V104" stroke="#2b1d6b" stroke-width="4"/>
+    </svg>
+  </div>
+
+  <!-- 2. Bateau qui arrive sur la côte -->
+  <div class="scene" id="s2">
+    <svg class="abs" width="1280" height="720" viewBox="0 0 1280 720">
+      <path d="M0 470 H1280 V720 H0Z" fill="#3ec1d3"/>
+      <g id="waves" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".7">
+        <path d="M-40 520 q40 -18 80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0"/>
+        <path d="M-80 580 q40 -18 80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0"/>
+      </g>
+      <!-- côte et palmiers -->
+      <path d="M880 470 C960 430 1080 420 1280 400 V480 H880Z" fill="#f2c26b"/>
+      <g id="palms">
+        <path d="M1060 440 C1064 380 1070 340 1062 300" stroke="#8a5a2b" stroke-width="12" fill="none" stroke-linecap="round"/>
+        <g fill="#2fa36b"><path d="M1062 300 C1010 280 990 300 975 320 C1010 300 1040 302 1062 300Z"/><path d="M1062 300 C1110 270 1140 290 1155 312 C1120 296 1090 298 1062 300Z"/><path d="M1062 300 C1050 250 1020 245 1000 252 C1030 262 1048 278 1062 300Z"/><path d="M1062 300 C1080 250 1110 246 1130 256 C1100 264 1078 280 1062 300Z"/></g>
+        <path d="M1180 432 C1182 386 1186 356 1180 326" stroke="#8a5a2b" stroke-width="10" fill="none" stroke-linecap="round"/>
+        <g fill="#2fa36b"><path d="M1180 326 C1140 312 1124 326 1112 342 C1140 326 1162 328 1180 326Z"/><path d="M1180 326 C1218 302 1240 316 1252 334 C1224 322 1200 324 1180 326Z"/><path d="M1180 326 C1172 288 1150 284 1134 290 C1158 298 1170 310 1180 326Z"/></g>
+      </g>
+      <!-- bateau à voiles -->
+      <g id="ship">
+        <path d="M0 0 H240 L210 54 H30 Z" fill="#8a4b22"/>
+        <path d="M18 14 H222" stroke="#5e3214" stroke-width="5"/>
+        <rect x="116" y="-170" width="8" height="172" fill="#5e3214"/>
+        <rect x="58" y="-120" width="7" height="122" fill="#5e3214"/>
+        <path d="M124 -160 C176 -140 182 -60 124 -30 Z" fill="#fffaf0" stroke="#d9cdb0" stroke-width="3"/>
+        <path d="M65 -112 C104 -96 108 -40 65 -22 Z" fill="#fffaf0" stroke="#d9cdb0" stroke-width="3"/>
+        <path d="M120 -170 l30 8 -30 8 z" fill="#ff5d8f"/>
+      </g>
+    </svg>
+    <div class="abs" id="s2label" style="left:70px;top:110px;font:900 44px Inter;color:#2b1d6b">Il y a plus de 130 ans…</div>
+  </div>
+
+  <!-- 3. La date : 10 mars 1893 -->
+  <div class="scene" id="s3">
+    <svg class="abs" id="cal" style="left:420px;top:120px" width="440" height="330" viewBox="0 0 440 330">
+      <rect x="10" y="20" width="420" height="300" rx="34" fill="#fff" stroke="#2b1d6b" stroke-width="8"/>
+      <path d="M10 54 a34 34 0 0 1 34 -34 H396 a34 34 0 0 1 34 34 V100 H10Z" fill="#ff5d8f" stroke="#2b1d6b" stroke-width="8"/>
+      <rect x="90" y="0" width="22" height="50" rx="11" fill="#2b1d6b"/><rect x="328" y="0" width="22" height="50" rx="11" fill="#2b1d6b"/>
+      <text x="220" y="80" text-anchor="middle" font-family="Inter" font-weight="900" font-size="38" fill="#fff">MARS</text>
+      <text id="calday" x="220" y="250" text-anchor="middle" font-family="Inter" font-weight="900" font-size="150" fill="#2b1d6b">10</text>
+    </svg>
+    <div class="abs center" id="year" style="top:452px;font:900 92px Inter;color:#ff8a3d">1893</div>
+    <div class="abs center" id="s3def" style="top:120px;font:800 30px Inter;color:#2b1d6b"></div>
+  </div>
+
+  <!-- 4. Les trois capitales (schéma, pas à l'échelle) -->
+  <div class="scene" id="s4">
+    <svg class="abs" width="1280" height="720" viewBox="0 0 1280 720">
+      <rect width="1280" height="720" fill="#c9f0a8"/>
+      <path d="M0 470 C200 455 420 480 640 466 C860 452 1080 474 1280 462 V720 H0Z" fill="#3ec1d3"/>
+      <!-- lagune -->
+      <path d="M90 392 C260 360 420 410 600 384 C760 362 900 404 1110 380 L1110 412 C900 436 760 396 600 418 C420 442 260 394 90 424 Z" fill="#7fd6e3"/>
+      <text x="640" y="660" text-anchor="middle" font-family="Inter" font-weight="800" font-size="24" fill="#fff" opacity=".9">Océan Atlantique</text>
+      <text x="1170" y="300" text-anchor="end" font-family="Inter" font-weight="700" font-size="18" fill="#2b1d6b" opacity=".6">Schéma — pas à l'échelle</text>
+      <!-- trajet entre les capitales -->
+      <path id="route" d="M920 446 C860 330 760 300 700 320 C640 340 560 390 470 400" fill="none" stroke="#2b1d6b" stroke-width="6" stroke-dasharray="14 12" stroke-linecap="round"/>
+      <g id="pin1" transform="translate(920 446)"><path d="M0 0 C-26 -34 -30 -48 -30 -60 a30 30 0 0 1 60 0 c0 12 -4 26 -30 60z" fill="#ff5d8f" stroke="#2b1d6b" stroke-width="5"/><circle cy="-60" r="11" fill="#fff"/></g>
+      <g id="pin2" transform="translate(700 320)"><path d="M0 0 C-26 -34 -30 -48 -30 -60 a30 30 0 0 1 60 0 c0 12 -4 26 -30 60z" fill="#ff8a3d" stroke="#2b1d6b" stroke-width="5"/><circle cy="-60" r="11" fill="#fff"/></g>
+      <g id="pin3" transform="translate(470 400)"><path d="M0 0 C-26 -34 -30 -48 -30 -60 a30 30 0 0 1 60 0 c0 12 -4 26 -30 60z" fill="#8f6cff" stroke="#2b1d6b" stroke-width="5"/><circle cy="-60" r="11" fill="#fff"/></g>
+    </svg>
+    <div class="abs" id="lab1" style="left:960px;top:330px;font:900 30px Inter;color:#2b1d6b">Grand-Bassam<br><span style="color:#ff5d8f">1893</span></div>
+    <div class="abs" id="lab2" style="left:740px;top:200px;font:900 30px Inter;color:#2b1d6b">Bingerville<br><span style="color:#ff8a3d">1900</span></div>
+    <div class="abs" id="lab3" style="left:290px;top:270px;font:900 30px Inter;color:#2b1d6b;text-align:right">Abidjan<br><span style="color:#8f6cff">1934</span></div>
+    <div class="abs center" id="s4title" style="top:92px;font:900 46px Inter;color:#2b1d6b">Les 3 capitales de la colonie</div>
+  </div>
+
+  <!-- 5. Les peuples qui ont résisté -->
+  <div class="scene" id="s5">
+    <div class="abs center" id="s5title" style="top:84px;font:900 50px Inter;color:#2b1d6b">Ils ont résisté avec courage</div>
+    <div id="people"></div>
+  </div>
+
+  <!-- 6. Je retiens -->
+  <div class="scene" id="s6">
+    <div class="abs" style="left:170px;right:170px;top:96px;bottom:150px;background:#fff;border:6px solid #2b1d6b;border-radius:34px"></div>
+    <div class="abs" id="s6title" style="left:220px;top:126px;font:900 50px Inter;color:#ff8a3d">⭐ Je retiens</div>
+    <div class="abs" id="r1" style="left:230px;top:220px;font:800 34px Inter;color:#2b1d6b">1893 : la Côte d'Ivoire devient colonie française.</div>
+    <div class="abs" id="r2" style="left:230px;top:300px;font:800 34px Inter;color:#2b1d6b">3 capitales : Grand-Bassam, Bingerville, Abidjan.</div>
+    <div class="abs" id="r3" style="left:230px;top:380px;font:800 34px Inter;color:#2b1d6b">Des peuples ont résisté longtemps.</div>
+  </div>
+
+  <!-- 7. Fin -->
+  <div class="scene" id="s7">
+    <div class="abs center" id="bravo" style="top:200px;font:900 110px Inter;color:#ff8a3d">Bravo !</div>
+    <div class="abs center" id="s7sub" style="top:350px;font:900 44px Inter;color:#2b1d6b">Maintenant, à toi de jouer 🎉</div>
+    <div id="confetti"></div>
+  </div>
+
+  <div id="cap"></div>
+</div>
+
+<script>
+  // ---------- outils d'animation ----------
+  const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+  const p = (t, a, b) => clamp((t - a) / (b - a));                 // progression 0→1 entre a et b
+  const outBack = x => { const c = 1.70158; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
+  const outCubic = x => 1 - Math.pow(1 - x, 3);
+  const inOut = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+  const $ = id => document.getElementById(id);
+  function pop(el, t, a, d = .5) { const k = p(t, a, a + d); el.style.opacity = k; el.style.transform = `scale(${.4 + .6 * outBack(k)})`; }
+  function rise(el, t, a, d = .6, dy = 40) { const k = outCubic(p(t, a, a + d)); el.style.opacity = k; el.style.transform = `translateY(${(1 - k) * dy}px)`; }
+
+  // ---------- scènes (secondes) ----------
+  // Les points de vérification EduFun sont à 27 s et 47 s : 2 s de plan fixe juste avant.
+  const SCENES = [['s1', 0, 6], ['s2', 6, 15], ['s3', 15, 27], ['s4', 27, 47], ['s5', 47, 60], ['s6', 60, 71], ['s7', 71, 76]];
+  const DURATION = 76;
+
+  // Texte de la voix off (affiché en sous-titre) : [début, fin, texte]
+  const CAPTIONS = [
+    [0.4, 5.8, 'Bonjour les enfants ! Aujourd\'hui, on voyage dans le passé de la Côte d\'Ivoire.'],
+    [6.2, 10.4, 'Il y a très longtemps, des bateaux venus d\'Europe arrivent sur nos côtes.'],
+    [10.4, 14.8, 'Les Français veulent diriger le pays.'],
+    [15.2, 20.0, 'Le 10 mars 1893, la Côte d\'Ivoire devient une colonie française.'],
+    [20.0, 25.0, 'Une colonie, c\'est un pays dirigé par un autre pays.'],
+    [27.2, 31.5, 'La colonie a besoin d\'une capitale. D\'abord : Grand-Bassam, en 1893.'],
+    [31.5, 37.5, 'Puis la capitale part à Bingerville, en 1900.'],
+    [37.5, 43.5, 'Et enfin Abidjan, en 1934.'],
+    [43.5, 45.4, 'Grand-Bassam, Bingerville, Abidjan !'],
+    [47.2, 52.5, 'Mais beaucoup de peuples ont résisté longtemps :'],
+    [52.5, 59.8, 'les Baoulé, les Abbey, les Gouro, les Dan… Ils ont défendu leur terre avec courage.'],
+    [60.2, 64.0, 'Je retiens : en 1893, la Côte d\'Ivoire devient colonie française.'],
+    [64.0, 67.6, 'Trois capitales : Grand-Bassam, Bingerville, Abidjan.'],
+    [67.6, 70.8, 'Et des peuples ont résisté longtemps.'],
+    [71.2, 75.6, 'Bravo ! Maintenant, à toi de jouer !']
+  ];
+
+  // Peuples (silhouettes illustrées)
+  const PEOPLE = [['Baoulé', '#ff8a3d', '#7a4a2b'], ['Abbey', '#3ec1d3', '#5e3a22'], ['Gouro', '#8f6cff', '#6b4226'], ['Dan', '#2fa36b', '#4b2e1c']];
+  $('people').innerHTML = PEOPLE.map(([name, cloth, skin], i) => `
+    <div class="abs" id="pp${i}" style="left:${170 + i * 245}px;top:190px;width:200px;text-align:center">
+      <svg width="200" height="250" viewBox="0 0 200 250">
+        <ellipse cx="100" cy="242" rx="70" ry="8" fill="rgba(0,0,0,.12)"/>
+        <path d="M40 240 C40 170 64 140 100 140 C136 140 160 170 160 240Z" fill="${cloth}"/>
+        <path d="M58 182 L142 206" stroke="rgba(255,255,255,.45)" stroke-width="10"/>
+        <rect x="88" y="118" width="24" height="28" rx="10" fill="${skin}"/>
+        <circle cx="100" cy="88" r="44" fill="${skin}"/>
+        <path d="M58 76 C62 44 84 36 100 36 C120 36 140 46 142 76 C128 62 112 58 100 58 C86 58 70 62 58 76Z" fill="#161616"/>
+        <ellipse cx="84" cy="90" rx="5" ry="6" fill="#161616"/><ellipse cx="116" cy="90" rx="5" ry="6" fill="#161616"/>
+        <path d="M84 108 q16 12 32 0" stroke="#161616" stroke-width="4" fill="none" stroke-linecap="round"/>
+      </svg>
+      <div style="font:900 34px Inter;color:#2b1d6b;margin-top:-4px">${name}</div>
+    </div>`).join('');
+  $('confetti').innerHTML = Array.from({ length: 60 }, (_, i) => `<i class="abs" data-i="${i}" style="width:14px;height:20px;border-radius:4px;background:${['#ff8a3d', '#ffd23f', '#3ec1d3', '#7bd389', '#ff5d8f', '#8f6cff'][i % 6]}"></i>`).join('');
+
+  function render(t) {
+    // fond vivant
+    $('c1').setAttribute('transform', `translate(${(t * 12) % 1500 - 200} 0)`);
+    $('c2').setAttribute('transform', `translate(${(t * 7) % 1500 - 300} 0)`);
+    $('sun').setAttribute('r', 62 + Math.sin(t * 2) * 3);
+
+    // fondu enchaîné des scènes
+    for (const [id, a, b] of SCENES) {
+      const vis = Math.min(p(t, a, a + .45), 1 - p(t, b - .3, b));
+      $(id).style.opacity = id === 's7' ? p(t, a, a + .45) : vis;
+    }
+
+    // 1. titre
+    rise($('s1kicker'), t, .2); pop($('s1title'), t, .5, .7); pop($('s1book'), t, 1.2, .6);
+    $('s1book').style.transform += ` rotate(${Math.sin(t * 3) * 4}deg)`;
+
+    // 2. bateau
+    const sx = -280 + 900 * inOut(p(t, 6.3, 13.5));
+    $('ship').setAttribute('transform', `translate(${sx} ${404 + Math.sin(t * 2.4) * 6}) rotate(${Math.sin(t * 2.4) * 2})`);
+    $('waves').setAttribute('transform', `translate(${-(t * 40) % 160} 0)`);
+    rise($('s2label'), t, 6.5);
+
+    // 3. date
+    pop($('cal'), t, 15.3, .6);
+    const day = Math.round(1 + 9 * outCubic(p(t, 15.8, 17.6)));
+    $('calday').textContent = day;
+    pop($('year'), t, 17.4, .6);
+    const def = 'Colonie = pays dirigé par un autre pays';
+    $('s3def').textContent = def.slice(0, Math.round(def.length * p(t, 20.2, 22.4)));
+    $('s3def').style.top = '64px';
+
+    // 4. capitales : les épingles tombent, le trajet se dessine
+    const route = $('route'), L = 800;
+    route.style.strokeDasharray = `${L * p(t, 31, 42)} ${L}`;
+    route.style.strokeDashoffset = 0;
+    const drop = (id, a) => { const k = p(t, a, a + .7); const y = (1 - outBack(k)) * -160; const g = $(id); const base = g.dataset.base || g.getAttribute('transform'); g.dataset.base = base; g.setAttribute('transform', `${base} translate(0 ${y})`); g.style.opacity = k > 0 ? 1 : 0; };
+    drop('pin1', 28.2); drop('pin2', 32.2); drop('pin3', 38.2);
+    rise($('lab1'), t, 28.8); rise($('lab2'), t, 32.8); rise($('lab3'), t, 38.8);
+    rise($('s4title'), t, 27.3);
+    // clignotement de la capitale nommée
+    const glow = (el, a, b) => { el.style.filter = t > a && t < b && Math.floor(t * 4) % 2 ? 'drop-shadow(0 0 10px #ffd23f)' : 'none'; };
+    glow($('lab1'), 43.5, 44.2); glow($('lab2'), 44.2, 44.8); glow($('lab3'), 44.8, 45.4);
+
+    // 5. peuples
+    rise($('s5title'), t, 47.3);
+    PEOPLE.forEach((_, i) => { const el = $('pp' + i); pop(el, t, 52.6 + i * 1.3, .55); if (t > 52.6 + i * 1.3 + .6) el.style.transform = `translateY(${Math.sin(t * 3 + i) * 4}px)`; });
+
+    // 6. je retiens
+    pop($('s6title'), t, 60.3); rise($('r1'), t, 60.6); rise($('r2'), t, 64.1); rise($('r3'), t, 67.7);
+
+    // 7. fin + confettis
+    pop($('bravo'), t, 71.3, .6); rise($('s7sub'), t, 72);
+    document.querySelectorAll('#confetti i').forEach(el => {
+      const i = +el.dataset.i, k = p(t, 71.4 + (i % 10) * .06, 74.6 + (i % 7) * .15);
+      el.style.left = (((i * 97) % 1260)) + 'px'; el.style.top = (-30 + k * 820) + 'px';
+      el.style.opacity = k > 0 && k < 1 ? 1 : 0; el.style.transform = `rotate(${k * 720 + i * 40}deg)`;
+    });
+
+    // sous-titre courant (avec petite apparition)
+    const c = CAPTIONS.find(([a, b]) => t >= a && t < b);
+    const cap = $('cap');
+    cap.textContent = c ? c[2] : '';
+    cap.style.opacity = c ? Math.min(1, p(t, c[0], c[0] + .25)) : 0;
+  }
+
+  window.render = render; window.DURATION = DURATION; window.CAPTIONS = CAPTIONS;
+  render(0);
+  if (location.search.includes('play')) { const t0 = performance.now(); (function loop() { render(((performance.now() - t0) / 1000) % DURATION); requestAnimationFrame(loop); })(); }
+</script>
+</body>
+</html>

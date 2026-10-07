@@ -1,6 +1,7 @@
 package com.edufun.portal.curriculum;
 
 import com.edufun.portal.model.Lesson;
+import com.edufun.portal.model.VideoResource;
 import com.edufun.portal.model.Student;
 import com.edufun.portal.repository.*;
 import org.slf4j.Logger;
@@ -89,6 +90,27 @@ public class CurriculumLoader {
             archived++;
         }
         log.info("Curriculum synchronisé : {} fichiers, {} leçons créées, {} mises à jour, {} retirées", files.length, created, updated, archived);
+        attachBundledVideos();
+    }
+
+    /** Vidéos livrées avec l'application (static/videos/catalogue.txt) : ajoutées à leur leçon si elles n'y sont pas déjà. */
+    private void attachBundledVideos() throws IOException {
+        Resource cat = new PathMatchingResourcePatternResolver().getResource("classpath:static/videos/catalogue.txt");
+        if (!cat.exists()) return;
+        int added = 0;
+        for (String line : new String(cat.getInputStream().readAllBytes(), StandardCharsets.UTF_8).split("\\R")) {
+            if (line.isBlank() || line.startsWith("#")) continue;
+            String[] f = line.split("\\|", -1);
+            if (f.length < 6) continue;
+            Lesson l = lessons.findByCode(f[0].trim()).orElse(null);
+            String url = "/videos/" + f[1].trim();
+            if (l == null || videos.findByLessonId(l.getId()).stream().anyMatch(v -> url.equals(v.getUrl()))) continue;
+            VideoResource v = new VideoResource();
+            v.setLessonId(l.getId()); v.setUrl(url); v.setType("VIDEO"); v.setStyle(f[2].trim()); v.setPresenter(f[3].trim());
+            v.setCheckpoints(com.edufun.portal.controller.EduFunApiController.normalizeCheckpoints(f[4])); v.setTitle(f[5].trim());
+            videos.save(v); added++;
+        }
+        if (added > 0) log.info("{} vidéo(s) EduFun ajoutée(s) aux leçons", added);
     }
 
     private void migrateStudentLevels() {
