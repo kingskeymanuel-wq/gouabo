@@ -243,12 +243,18 @@
         <div class="ad-catalog" data-catalog data-fill="list"></div>
       </article>
       <article class="ad-panel">
-        <div class="ad-panel-head"><div><h2>Ajouter une vidéo à une leçon</h2><p>La vidéo est publiée immédiatement.</p></div></div>
-        <form class="ad-form-row" data-video>
+        <div class="ad-panel-head"><div><h2>Ajouter une vidéo à une leçon</h2><p>Vraie vidéo tournée avec le professeur (sa propre voix) ou vidéo ludique pour le primaire. Elle remplace le tableau animé de la leçon et s'arrête aux points de vérification pour poser les questions « Je vérifie ».</p></div></div>
+        <form class="ad-form-row ad-video-form" data-video>
           <div class="field"><label for="ad-v-l">N° de la leçon</label><input id="ad-v-l" name="lessonId" type="number" min="1" required></div>
           <div class="field"><label for="ad-v-t">Titre</label><input id="ad-v-t" name="title" required></div>
-          <div class="field"><label for="ad-v-u">Lien de la vidéo</label><input id="ad-v-u" name="url" type="url" required placeholder="https://"></div>
+          <div class="field"><label for="ad-v-u">Lien de la vidéo</label><input id="ad-v-u" name="url" type="url" required placeholder="YouTube (non répertoriée) ou fichier .mp4"></div>
+          <div class="field"><label for="ad-v-s">Type de vidéo</label><select id="ad-v-s" name="style"><option value="PRESENTER">Professeur filmé + motion design</option><option value="KIDS">Primaire : vidéo ludique</option></select></div>
+          <div class="field"><label for="ad-v-p">Présentée par</label><input id="ad-v-p" name="presenter" placeholder="M. Kouakou N'Guessan"></div>
+          <div class="field"><label for="ad-v-c">Points de vérification</label><input id="ad-v-c" name="checkpoints" placeholder="1:35, 3:20, 5:10" title="Instants où la vidéo s'arrête pour poser la question suivante, dans l'ordre des questions « Je vérifie ». Les questions restantes sont posées à la fin."></div>
+          <button class="btn ghost" type="button" data-video-script>Scénario de tournage</button>
           <button class="btn primary" type="submit">Ajouter</button>
+        </form>
+        <div data-video-list></div>
         </form>
       </article>
     </section>

@@ -56,7 +56,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.PATCH, "/api/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/**").hasRole("ADMIN")
                 // Lectures réservées à l'administration
-                .requestMatchers("/administration", "/api/admin/**", "/api/dashboard", "/api/students", "/api/students/*", "/api/tutor-assignments/**", "/api/lessons", "/api/videos", "/api/exam-sessions/**", "/api/curriculum-versions", "/api/badges", "/api/program/summary").hasRole("ADMIN")
+                .requestMatchers("/administration", "/administration/**", "/api/admin/**", "/api/dashboard", "/api/students", "/api/students/*", "/api/tutor-assignments/**", "/api/lessons", "/api/videos", "/api/exam-sessions/**", "/api/curriculum-versions", "/api/badges", "/api/program/summary").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET, "/api/exams", "/api/tutors").hasRole("ADMIN")
                 .anyRequest().authenticated()
             )

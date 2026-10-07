@@ -1,0 +1,40 @@
+/* EduFun — Scénario de tournage (écran et impression) */
+:root{--ink:#14172e;--muted:#5b6078;--line:#e3e6f2;--accent:#2f7de1;--check:#ff8a3d;--bg:#f6f7fb}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 'Inter',system-ui,sans-serif}
+.sc-bar{position:sticky;top:0;z-index:2;display:flex;justify-content:space-between;align-items:center;padding:10px 16px;background:#fff;border-bottom:1px solid var(--line)}
+.sc-bar a{color:var(--accent);text-decoration:none;font-weight:600}
+.sc-bar button{border:0;border-radius:10px;padding:9px 14px;background:var(--accent);color:#fff;font:700 14px inherit;cursor:pointer}
+.sc{max-width:900px;margin:0 auto;padding:24px 16px 60px}
+.sc-eyebrow{margin:0;font:700 12px 'IBM Plex Mono',monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.sc h1{margin:6px 0 14px;font-size:clamp(24px,4vw,34px);line-height:1.15}
+.sc h2{margin:28px 0 10px;font-size:18px}
+.sc-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:0}
+.sc-meta div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.sc-meta dt{font-size:12px;color:var(--muted)}
+.sc-meta dd{margin:2px 0 0;font-weight:700}
+.sc-obj{margin:14px 0 0}
+.sc-box{background:#fff;border:1px solid var(--line);border-radius:14px;padding:4px 18px 14px;margin-top:20px}
+.sc-box h2{margin-top:14px}
+.sc-box ul{margin:0;padding-left:20px}
+.sc-box li{margin:4px 0}
+.sc-cp{border-color:var(--check)}
+.sc-cp code{display:inline-block;margin-top:4px;padding:8px 12px;border-radius:8px;background:#fff4ec;font:700 16px 'IBM Plex Mono',monospace;user-select:all}
+.sc-plans{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.sc-plan{display:grid;grid-template-columns:76px 1fr;gap:14px;background:#fff;border:1px solid var(--line);border-left:5px solid var(--accent);border-radius:12px;padding:12px 14px;break-inside:avoid}
+.sc-open{border-left-color:#9aa1bd}
+.sc-check{border-left-color:var(--check);background:#fffaf5}
+.sc-time{font:700 16px 'IBM Plex Mono',monospace}
+.sc-time small{display:block;font-size:12px;font-weight:400;color:var(--muted)}
+.sc-body h3{margin:0 0 6px;font-size:15px}
+.sc-say{margin:0 0 8px}
+.sc-say span{display:block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.sc-q{background:#fff;border:1px dashed var(--check);border-radius:10px;padding:8px 12px;margin-bottom:8px}
+.sc-q ul{margin:6px 0;padding-left:18px}
+.sc-q li.ok{font-weight:700;color:#0f6b45}
+.sc-q small{color:var(--muted)}
+.sc-vis{margin:0;padding-left:18px;color:var(--muted);font-size:14px}
+.sc-vis li::marker{content:'🎬 '}
+.sc-loading,.sc-error{color:var(--muted)}
+@media(max-width:560px){.sc-plan{grid-template-columns:1fr;gap:4px}}
+@media print{.sc-bar{display:none}body{background:#fff}.sc{padding:0}.sc-plan,.sc-box,.sc-meta div{border-color:#bbb}}

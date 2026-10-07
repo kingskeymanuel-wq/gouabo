@@ -414,7 +414,7 @@ async function loadLessonReader(){
     $('#readerDuration').textContent=l.duration||'30 min';
     const parts=(l.content||'').split(/\n\n+/).filter(Boolean);
     $('#readerContent').innerHTML=parts.map((part,i)=>renderLessonSection(part,i)).join('');
-    if(window.EduTeacher) EduTeacher.mount($('#teacherStage'), l);
+    mountLessonVideo(l);
     $('#readerPrev').disabled=!prev; $('#readerNext').disabled=!next;
     $('#readerPrev').onclick=()=>{if(prev)location.href='/lecon/'+prev.id};
     $('#readerNext').onclick=()=>{if(next)location.href='/lecon/'+next.id};
@@ -425,6 +425,18 @@ async function loadLessonReader(){
   }catch(e){if(!e.paywall)root.innerHTML='<div class="card empty">Impossible de charger cette leçon.</div>';}
 }
 window.addEventListener('DOMContentLoaded',loadLessonReader);
+
+// Vraie vidéo de la leçon (professeur filmé ou vidéo ludique du primaire) si elle existe,
+// sinon le tableau animé de la leçon.
+const PRIMARY_LEVELS=['CP1','CP2','CE1','CE2','CM1','CM2'];
+async function mountLessonVideo(l){
+  const stage=$('#teacherStage'); if(!stage)return;
+  let vids=[]; try{vids=(await api('/lessons/'+l.id+'/videos')).filter(v=>v.published!==false&&v.url);}catch(_){}
+  const kids=PRIMARY_LEVELS.includes(l.level);
+  const v=vids.find(x=>(x.style==='KIDS')===kids)||vids[0];
+  if(v&&window.EduVideo) EduVideo.mount(stage,l,v);
+  else if(window.EduTeacher) EduTeacher.mount(stage,l);
+}
 
 
 // ---- Rendu d'une section de leçon ----

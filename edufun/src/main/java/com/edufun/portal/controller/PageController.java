@@ -39,6 +39,7 @@ public class PageController {
     @GetMapping("/examens") public String examens(){return "examens";}
     @GetMapping("/tech-lab") public String tech(){return "tech-lab";}
     @GetMapping("/administration") public String admin(){return "administration";}
+    @GetMapping("/administration/scenario/{id}") public String videoScript(){return "scenario";}
     @GetMapping("/quiz") public String quiz(){return "quiz";}
     @GetMapping("/certificats") public String certificates(){return "certificats";}
 }

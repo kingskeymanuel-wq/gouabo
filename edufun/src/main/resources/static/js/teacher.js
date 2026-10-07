@@ -1,8 +1,10 @@
 /* ===========================================================
    EduFun — Professeur virtuel
-   Transforme une leçon en « vidéo » animée : un professeur présente
-   chaque section au tableau, avec voix française (synthèse vocale du
-   navigateur), sous-titres et apparition progressive des points.
+   Transforme une leçon en présentation animée : un professeur présente
+   chaque section au tableau, avec sous-titres et apparition progressive
+   des points. Aucune voix de synthèse : la voix des professeurs est celle
+   de leurs vraies vidéos (voir video-lesson.js). Ce lecteur sert tant que
+   la vidéo de la leçon n'a pas été tournée.
 =========================================================== */
 (function () {
   const PRIMAIRE = ['CP1', 'CP2', 'CE1', 'CE2', 'CM1', 'CM2'];
@@ -51,15 +53,6 @@
   const esc = x => String(x ?? '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m]));
   const fmt = t => esc(t).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
   const plain = t => String(t).replace(/\*\*/g, '').replace(/^[-•>=]\s*/, '').replace(/^\d+[.)]\s+/, '').trim();
-
-  /** Texte prononcé : on lit les symboles mathématiques en toutes lettres. */
-  function spoken(t) {
-    return plain(t)
-      .replace(/\s—\s/g, ', ').replace(/→/g, ' donne ').replace(/×/g, ' fois ').replace(/÷/g, ' divisé par ').replace(/≠/g, ' différent de ').replace(/≈/g, ' environ ').replace(/≤/g, ' inférieur ou égal à ').replace(/≥/g, ' supérieur ou égal à ').replace(/²/g, ' au carré').replace(/³/g, ' au cube').replace(/√/g, ' racine de ').replace(/π/g, ' pi ').replace(/(\d)\s?%/g, '$1 pour cent')
-      .replace(/\s−\s/g, ' moins ').replace(/\s\+\s/g, ' plus ').replace(/\s=\s/g, ' égale ')
-      .replace(/\s<\s/g, ' est plus petit que ').replace(/\s>\s/g, ' est plus grand que ')
-      .replace(/\[(\w+)\]/g, ' le son $1 ').replace(/…/g, ' ... ').replace(/\s+/g, ' ');
-  }
 
   function cycleOf(level) { return PRIMAIRE.includes(level) ? 'primaire' : COLLEGE.includes(level) ? 'college' : 'lycee'; }
 
@@ -128,7 +121,7 @@
       const items = body.length ? body : [heading];
       scenes.push({
         kind: correction ? 'correction' : /retiens/i.test(heading) ? 'key' : 'section', title: heading, items,
-        say: items.map(spoken), intro: correction ? 'Voici le corrigé. Compare avec tes réponses.' : spoken(heading) + '.'
+        say: items.map(plain), intro: correction ? 'Voici le corrigé. Compare avec tes réponses.' : plain(heading) + '.'
       });
     });
     scenes.push({ kind: 'outro', title: 'Bravo !', items: ['Tu as terminé la leçon.', 'Clique sur « Terminer » pour gagner tes 20 XP.'],
@@ -136,21 +129,12 @@
     return scenes;
   }
 
-  function pickVoice(lang = 'fr-FR') {
-    if (!('speechSynthesis' in window)) return null;
-    const base = lang.slice(0, 2);
-    const voices = speechSynthesis.getVoices().filter(v => v.lang.toLowerCase().startsWith(base));
-    return voices.find(v => v.lang === lang && /google|natural|neural|amelie|thomas|audrey|denise|henri|sonia|ryan|elvira|alvaro/i.test(v.name))
-      || voices.find(v => v.lang === lang) || voices[0] || null;
-  }
-  const FOREIGN = { 'Anglais': 'en-GB', 'Espagnol': 'es-ES', 'Allemand': 'de-DE' };
 
   function mount(root, lesson) {
     if (!root) return;
     const teacher = teacherFor(lesson);
     const scenes = buildScenes(lesson);
-    const hasVoice = 'speechSynthesis' in window;
-    const state = { scene: 0, item: -1, q: 0, waiting: false, playing: false, rate: 1, subtitles: true, muted: !hasVoice, token: 0, timer: null };
+    const state = { scene: 0, item: -1, q: 0, waiting: false, playing: false, rate: 1, subtitles: true, token: 0, timer: null };
 
     root.innerHTML = `
       <div class="tv" data-cycle="${cycleOf(lesson.level)}" style="--tv-accent:${teacher.color || teacher.top}">
@@ -168,7 +152,6 @@
           <div class="tv-progress" role="tablist">${scenes.map((s, i) => `<button class="tv-seg" data-scene="${i}" title="${esc(s.title)}" aria-label="${esc(s.title)}"><i></i></button>`).join('')}</div>
           <button class="tv-btn tv-rate" data-act="rate" title="Vitesse">1×</button>
           <button class="tv-btn" data-act="cc" title="Sous-titres" aria-pressed="true">CC</button>
-          <button class="tv-btn" data-act="mute" title="Son">${hasVoice ? '🔊' : '🔇'}</button>
           <button class="tv-btn" data-act="full" title="Plein écran">⛶</button>
         </div>
       </div>`;
@@ -205,9 +188,9 @@
 
     function askQuestion() {
       const q = scenes[state.scene].questions[state.q];
-      const letters = q.choices.map((c, k) => `${'ABCD'[k] || k + 1} : ${spoken(c.t)}`).join('. ');
+      const letters = q.choices.map((c, k) => `${'ABCD'[k] || k + 1} : ${plain(c.t)}`).join('. ');
       state.waiting = true;
-      say(`${spoken(q.text)} ${letters}.`, () => { if (state.waiting) { sub.textContent = 'À toi de répondre : clique sur la bonne réponse.'; } });
+      say(`${plain(q.text)} ${letters}.`, () => { if (state.waiting) { sub.textContent = 'À toi de répondre : clique sur la bonne réponse.'; } });
     }
 
     function answer(k, btn) {
@@ -218,7 +201,7 @@
         document.dispatchEvent(new CustomEvent('edufun:check', { detail: { qid: q.id, correct: true } }));
         state.waiting = false;
         const next = () => { if (state.q < s.questions.length - 1) { state.q++; renderQuestion(); if (state.playing) askQuestion(); } else if (state.playing) { state.item = 1; step(); } };
-        if (state.playing) { stopSpeech(); state.playing = true; say(`Bravo ! ${spoken(q.why || '')}`, next); } else setTimeout(next, 1200);
+        if (state.playing) { stopSpeech(); state.playing = true; say(`Bravo ! ${plain(q.why || '')}`, next); } else setTimeout(next, 1200);
       } else {
         btn.classList.add('wrong'); btn.disabled = true;
         document.dispatchEvent(new CustomEvent('edufun:check', { detail: { qid: q.id, correct: false } }));
@@ -234,21 +217,13 @@
       tv.classList.remove('tv-point'); void tv.offsetWidth; tv.classList.add('tv-point');
     }
 
-    function say(text, done, lang = 'fr-FR') {
+    /** Affiche le texte en sous-titre et laisse le temps de le lire. */
+    function say(text, done) {
       const token = state.token;
       if (state.subtitles) sub.textContent = text; sub.classList.toggle('on', state.subtitles && !!text);
       const finish = () => { tv.classList.remove('tv-talking'); if (token === state.token) done(); };
       tv.classList.add('tv-talking');
-      if (state.muted || !hasVoice) { clearTimeout(state.timer); state.timer = setTimeout(finish, Math.max(1600, text.length * 62) / state.rate); return; }
-      const u = new SpeechSynthesisUtterance(text);
-      u.lang = lang; u.rate = 0.95 * state.rate; u.pitch = teacher.pitch;
-      const v = pickVoice(lang); if (v) u.voice = v;
-      // Si la voix échoue ou s'arrête anormalement vite (aucune voix installée),
-      // on laisse le temps de lire le sous-titre avant de continuer.
-      const started = Date.now(), minTime = Math.max(1200, text.length * 45) / state.rate;
-      const end = () => { const left = minTime - (Date.now() - started); if (left > 0 && Date.now() - started < 400) { clearTimeout(state.timer); state.timer = setTimeout(finish, left); } else finish(); };
-      u.onend = end; u.onerror = end;
-      speechSynthesis.speak(u);
+      clearTimeout(state.timer); state.timer = setTimeout(finish, Math.max(1600, text.length * 62) / state.rate);
     }
 
     function step() {
@@ -274,15 +249,14 @@
         const i = state.item++; reveal(i);
         const imgLine = s.items[i].trim().match(/^!\[(.*?)\]/);
         if (imgLine) { say(imgLine[1] ? `Observe l'image : ${imgLine[1]}.` : 'Observe bien l\'image.', step); return; }
-        const foreign = FOREIGN[lesson.subject] && /^=/.test(s.items[i].trim()) ? FOREIGN[lesson.subject] : 'fr-FR';
-        say(foreign === 'fr-FR' ? (s.say[i] || plain(s.items[i])) : plain(s.items[i]), step, foreign);
+        say(s.say[i] || plain(s.items[i]), step);
         return;
       }
       if (state.scene < scenes.length - 1) { state.scene++; renderScene(); setTimeout(step, 450); }
       else stop(true);
     }
 
-    function stopSpeech() { state.token++; clearTimeout(state.timer); if (hasVoice) speechSynthesis.cancel(); tv.classList.remove('tv-talking'); }
+    function stopSpeech() { state.token++; clearTimeout(state.timer); tv.classList.remove('tv-talking'); }
     function play() {
       if (state.playing) return;
       state.playing = true; tv.classList.add('tv-playing'); $('.tv-play').textContent = '⏸';
@@ -312,13 +286,11 @@
         case 'next': tv.classList.add('tv-started'); go(state.scene + 1); break;
         case 'rate': { const r = [1, 1.25, 0.8]; state.rate = r[(r.indexOf(state.rate) + 1) % r.length]; b.textContent = state.rate + '×'; break; }
         case 'cc': state.subtitles = !state.subtitles; b.setAttribute('aria-pressed', state.subtitles); if (!state.subtitles) sub.classList.remove('on'); break;
-        case 'mute': if (!hasVoice) return; state.muted = !state.muted; b.textContent = state.muted ? '🔇' : '🔊'; if (state.playing) { stop(false); play(); } break;
         case 'full': if (document.fullscreenElement) document.exitFullscreen(); else tv.requestFullscreen?.(); break;
       }
     });
     document.addEventListener('visibilitychange', () => { if (document.hidden && state.playing) stop(false); });
     window.addEventListener('pagehide', stopSpeech);
-    if (hasVoice) speechSynthesis.getVoices();
     // Photo réelle du professeur si elle a été déposée dans /vendor/teachers (liste dans manifest.json).
     if (teacher.id) fetch('/vendor/teachers/manifest.json').then(r => r.ok ? r.json() : []).then(list => {
       if (!Array.isArray(list) || !list.includes(teacher.id)) return;
@@ -330,5 +302,5 @@
     board.querySelectorAll('.tv-item').forEach(x => x.classList.add('shown'));
   }
 
-  window.EduTeacher = { mount };
+  window.EduTeacher = { mount, teacherFor };
 })();

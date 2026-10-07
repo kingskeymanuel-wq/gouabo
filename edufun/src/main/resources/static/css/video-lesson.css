@@ -1,0 +1,81 @@
+/* ===========================================================
+   EduFun — Vidéo de cours avec questions de rétention
+   PRESENTER : professeur filmé (collège, lycée, Histoire-Géographie…)
+   KIDS      : vidéo ludique pour le primaire
+=========================================================== */
+.vl{--vl-accent:#2f7de1;--vl-bg:#0f1330;--vl-card:#ffffff;--vl-ink:#14172e;border-radius:24px;overflow:hidden;background:var(--vl-bg);box-shadow:0 20px 50px rgba(15,19,48,.25);margin-bottom:20px;color:#fff}
+.vl-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:12px 16px}
+.vl-badge{font:700 11px 'IBM Plex Mono',monospace;letter-spacing:.08em;text-transform:uppercase;background:var(--vl-accent);color:#fff;padding:5px 10px;border-radius:999px}
+.vl-title{flex:1;min-width:180px;font-size:15px}
+.vl-presenter{font-size:13px;color:#c8cbe6}
+.vl-presenter b{color:#fff}
+.vl-stage{position:relative;aspect-ratio:16/9;background:#000}
+.vl-media,.vl-media iframe,.vl-video,.vl-yt{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;background:#000}
+.vl-error{position:absolute;inset:0;display:grid;place-items:center;padding:20px;text-align:center;color:#e3e6ff}
+.vl-error a{color:#fff}
+.vl-foot{display:flex;align-items:center;gap:12px;padding:10px 16px}
+.vl-track{position:relative;flex:1;height:6px;border-radius:4px;background:rgba(255,255,255,.18)}
+.vl-fill{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:4px;background:var(--vl-accent);transition:width .25s linear}
+.vl-mark{position:absolute;top:50%;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:#ffd23f;border:2px solid var(--vl-bg)}
+.vl-info{font-size:12px;color:#c8cbe6;white-space:nowrap}
+
+/* Question par-dessus la vidéo (la vidéo est en pause) */
+.vl-overlay{position:absolute;inset:0;z-index:3;display:grid;place-items:center;padding:14px;background:rgba(8,10,28,.72);backdrop-filter:blur(3px);overflow:auto}
+.vl-overlay[hidden]{display:none}
+.vl-card{width:min(620px,100%);background:var(--vl-card);color:var(--vl-ink);border-radius:18px;padding:18px 20px;box-shadow:0 18px 40px rgba(0,0,0,.35);animation:vl-in .35s cubic-bezier(.2,.8,.2,1)}
+@keyframes vl-in{from{opacity:0;transform:translateY(14px) scale(.98)}}
+.vl-step{display:inline-block;font:700 11px 'IBM Plex Mono',monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--vl-accent)}
+.vl-q{margin:6px 0 12px;font-weight:800;font-size:clamp(15px,1.8vw,20px);line-height:1.3}
+.vl-big{margin:4px 0;font-size:34px;font-weight:900}
+.vl-choices{display:grid;gap:8px}
+.vl-choice{display:flex;gap:10px;align-items:center;width:100%;text-align:left;border:2px solid #e3e6f2;background:#f7f8fc;color:inherit;border-radius:12px;padding:9px 12px;font:inherit;font-size:15px;cursor:pointer;transition:.15s}
+.vl-choice:hover:not(:disabled){border-color:var(--vl-accent)}
+.vl-choice b{flex-shrink:0;width:26px;height:26px;border-radius:8px;display:grid;place-items:center;background:#e8ebf7;font-size:12px}
+.vl-choice.right{background:#e3f8ee;border-color:#18a66a}
+.vl-choice.wrong{background:#fdecee;border-color:#e45d6a;opacity:.7}
+.vl-choice:disabled{cursor:default}
+.vl-feedback{margin-top:10px;font-size:14px;line-height:1.4}
+.vl-feedback.ok{color:#0f6b45}
+.vl-feedback.ko{color:#a3263a}
+.vl-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
+.vl-actions:empty{display:none}
+.vl-actions button{border:0;border-radius:12px;padding:10px 16px;font:700 14px 'Inter',sans-serif;cursor:pointer}
+.vl-go,.vl-close{background:var(--vl-accent);color:#fff}
+.vl-rewatch{background:#eef0f8;color:var(--vl-ink)}
+
+/* ---------- Primaire : vidéo ludique ---------- */
+.vl[data-style=KIDS]{--vl-accent:#ff8a3d;--vl-bg:#2b1d6b;--vl-card:#fffaf0;--vl-ink:#2b1d6b;border:6px solid #ffd23f;border-radius:28px;
+  background:radial-gradient(circle at 10% 0%,#5b3fd1 0,transparent 45%),radial-gradient(circle at 100% 100%,#ff5d8f 0,transparent 40%),#2b1d6b}
+.vl[data-style=KIDS] .vl-badge{background:#ffd23f;color:#2b1d6b;font-size:12px}
+.vl[data-style=KIDS] .vl-title{font-size:17px}
+.vl-stars{font-weight:900;font-size:18px;background:rgba(255,255,255,.14);padding:4px 12px;border-radius:999px}
+.vl[data-style=KIDS] .vl-stage{margin:0 12px;border-radius:18px;overflow:hidden}
+.vl[data-style=KIDS] .vl-mark{background:#ffd23f;width:16px;height:16px;margin:-8px 0 0 -8px}
+.vl[data-style=KIDS] .vl-card{border:4px solid #ffd23f;border-radius:24px;text-align:center;padding:14px 18px}
+.vl[data-style=KIDS] .vl-q{margin:4px 0 10px}
+.vl[data-style=KIDS] .vl-q{font-size:clamp(18px,2.2vw,24px)}
+.vl[data-style=KIDS] .vl-choices{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.vl[data-style=KIDS] .vl-choice{flex-direction:column;justify-content:center;gap:4px;text-align:center;font-size:17px;font-weight:700;padding:8px 10px;border-width:3px;border-radius:18px;background:#fff}
+.vl[data-style=KIDS] .vl-choice:hover:not(:disabled){transform:translateY(-2px) rotate(-1deg)}
+.vl[data-style=KIDS] .vl-choice b{background:#ffd23f;color:#2b1d6b;width:32px;height:32px;border-radius:50%;font-size:15px}
+.vl[data-style=KIDS] .vl-choice.right{animation:vl-bounce .5s}
+.vl[data-style=KIDS] .vl-choice.wrong{animation:vl-shake .4s}
+.vl[data-style=KIDS] .vl-feedback{font-size:16px}
+.vl[data-style=KIDS] .vl-actions{justify-content:center}
+.vl[data-style=KIDS] .vl-actions button{border-radius:999px;padding:12px 22px;font-size:16px}
+@keyframes vl-bounce{40%{transform:scale(1.08)}70%{transform:scale(.97)}}
+@keyframes vl-shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.vl-confetti{position:absolute;inset:0;z-index:4;pointer-events:none;overflow:hidden}
+.vl-confetti i{position:absolute;top:-12px;width:10px;height:14px;border-radius:3px;opacity:0}
+.vl-confetti.go i{animation:vl-fall 1.4s ease-in forwards}
+@keyframes vl-fall{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(420px) rotate(540deg)}}
+
+/* Petits écrans : la question peut dépasser la hauteur de la vidéo, la zone s'agrandit. */
+@media(max-width:700px){
+  .vl-stage:has(.vl-overlay:not([hidden])){aspect-ratio:auto;min-height:56vw}
+  .vl-stage:has(.vl-overlay:not([hidden])) .vl-overlay{position:relative}
+  .vl-stage:has(.vl-overlay:not([hidden])) .vl-media{display:none}
+  .vl-card{padding:14px}
+  .vl-info{display:none}
+}
+@media(prefers-reduced-motion:reduce){.vl *{animation:none!important;transition:none!important}}

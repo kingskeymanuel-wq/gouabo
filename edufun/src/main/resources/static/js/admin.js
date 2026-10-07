@@ -566,6 +566,21 @@
       : empty('Catalogue vide', 'Aucune leçon chargée.', 'book');
   }
 
+  /** Vidéos déjà liées à la leçon saisie dans le formulaire. */
+  async function renderLessonVideos(lessonId) {
+    const box = q('[data-video-list]');
+    if (!lessonId) { box.innerHTML = ''; return; }
+    try {
+      const [lesson, vids] = await Promise.all([api(`/lessons/${lessonId}`), api(`/lessons/${lessonId}/videos`)]);
+      const secs = c => String(c || '').split(',').filter(Boolean).map(n => `${Math.floor(n / 60)}:${String(n % 60).padStart(2, '0')}`).join(', ');
+      box.innerHTML = `<p class="ad-note">Leçon <b>${esc(lesson.code || lessonId)}</b> · ${esc(lesson.level)} · ${esc(lesson.subject)} · ${esc(lesson.title)}</p>` + (vids.length
+        ? `<div class="ad-table-wrap"><table class="ad-table"><thead><tr><th>Vidéo</th><th>Type</th><th>Présentée par</th><th>Points de vérification</th><th></th></tr></thead><tbody>${vids.map(v =>
+          `<tr><td><a href="${esc(v.url)}" target="_blank" rel="noopener">${esc(v.title || v.url)}</a></td><td>${v.style === 'KIDS' ? 'Primaire ludique' : 'Professeur filmé'}</td><td>${esc(v.presenter || '—')}</td><td>${esc(secs(v.checkpoints) || 'Questions à la fin')}</td>
+           <td class="ad-row-act"><button class="btn ghost" type="button" data-del-video="${esc(v.id)}" data-lesson="${esc(lessonId)}">Supprimer</button></td></tr>`).join('')}</tbody></table></div>`
+        : '<p class="ad-note">Aucune vidéo pour cette leçon : les élèves voient le tableau animé.</p>');
+    } catch (_) { box.innerHTML = '<p class="ad-note">Leçon introuvable.</p>'; }
+  }
+
   function renderExams() {
     const rows = (S.data.exams || []).filter(x => x.status === 'PENDING_REVIEW');
     q('[data-exams]').innerHTML = rows.length ? `<div class="ad-table-wrap"><table class="ad-table"><thead><tr><th>N°</th><th>Examen</th><th>Classe</th><th>Matière</th><th class="num">Barème</th><th></th></tr></thead><tbody>${rows.map(x =>
@@ -845,9 +860,23 @@
     q('[data-video]').addEventListener('submit', async e => {
       e.preventDefault(); const f = e.target;
       try {
-        await api('/videos', { method: 'POST', body: JSON.stringify({ lessonId: Number(f.lessonId.value), title: f.title.value.trim(), url: f.url.value.trim(), type: 'VIDEO', published: true }) });
-        f.reset(); toast('Vidéo ajoutée'); drop('dash'); renderContent();
+        const lessonId = Number(f.lessonId.value);
+        await api('/videos', { method: 'POST', body: JSON.stringify({ lessonId, title: f.title.value.trim(), url: f.url.value.trim(), type: 'VIDEO', published: true,
+          style: f.style.value, presenter: f.presenter.value.trim() || null, checkpoints: f.checkpoints.value.trim() || null }) });
+        f.reset(); f.lessonId.value = lessonId; toast('Vidéo ajoutée'); drop('dash'); renderContent(); renderLessonVideos(lessonId);
       } catch (x) { toast(apiErrorMessage(x, 'Ajout impossible')); }
+    });
+    q('[data-video] [name=lessonId]').addEventListener('change', e => renderLessonVideos(Number(e.target.value)));
+    q('[data-video-script]').addEventListener('click', () => {
+      const id = Number(q('[data-video] [name=lessonId]').value);
+      if (!id) { toast('Indiquez d\'abord le n° de la leçon.'); return; }
+      window.open(`/administration/scenario/${id}`, '_blank', 'noopener');
+    });
+    q('[data-video-list]').addEventListener('click', async e => {
+      const b = e.target.closest('[data-del-video]'); if (!b) return;
+      if (!confirm('Supprimer cette vidéo ? La leçon reviendra au tableau animé.')) return;
+      try { await api(`/videos/${b.dataset.delVideo}`, { method: 'DELETE' }); toast('Vidéo supprimée'); drop('dash'); renderLessonVideos(Number(b.dataset.lesson)); }
+      catch (x) { toast(apiErrorMessage(x, 'Suppression impossible')); }
     });
     q('[data-password]').addEventListener('submit', async e => {
       e.preventDefault(); const f = e.target;
