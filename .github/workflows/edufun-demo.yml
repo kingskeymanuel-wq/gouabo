@@ -13,6 +13,9 @@ concurrency:
   group: edufun-demo
   cancel-in-progress: true
 
+permissions:
+  contents: write
+
 jobs:
   demo:
     runs-on: ubuntu-latest
@@ -70,6 +73,22 @@ jobs:
             echo ""
             echo "Le lien reste actif environ 6 heures."
           } >> $GITHUB_STEP_SUMMARY
+      - name: Publier le lien (branche edufun-demo-lien)
+        run: |
+          mkdir -p /tmp/lien && cd /tmp/lien
+          git init -q && git checkout -q -b edufun-demo-lien
+          CODE=$(curl -s -o /dev/null -w "%{http_code}" "$EDUFUN_URL/login" || true)
+          {
+            echo "# Lien EduFun"
+            echo ""
+            echo "$EDUFUN_URL"
+            echo ""
+            echo "Vérification : page de connexion HTTP $CODE à $(date -u +%Y-%m-%dT%H:%M) UTC"
+            echo "Exécution : $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          } > LIEN.md
+          git add LIEN.md
+          git -c user.name="EduFun demo" -c user.email="actions@github.com" commit -q -m "Lien de démonstration EduFun"
+          git push -q -f "https://x-access-token:${{ github.token }}@github.com/${GITHUB_REPOSITORY}.git" edufun-demo-lien
       - name: Garder le site en ligne
         run: |
           for i in $(seq 1 68); do
