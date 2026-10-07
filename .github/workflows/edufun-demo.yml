@@ -14,7 +14,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   demo:
@@ -84,6 +84,14 @@ jobs:
             echo ""
             echo "Le lien reste actif environ 6 heures."
           } >> $GITHUB_STEP_SUMMARY
+      - name: Publier le lien (EDUFUN-LIEN.md sur la branche)
+        working-directory: .
+        run: |
+          printf '# Lien EduFun\n\n%s\n\nOuvert le %s UTC, actif environ 6 heures.\nExécution : %s\n' "$EDUFUN_URL" "$(date -u +%Y-%m-%dT%H:%M)" "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" > EDUFUN-LIEN.md
+          git add EDUFUN-LIEN.md
+          git -c user.name="EduFun demo" -c user.email="actions@github.com" commit -q -m "Lien de démonstration EduFun"
+          git pull -q --rebase origin "$GITHUB_REF_NAME" || true
+          git push -q origin "HEAD:$GITHUB_REF_NAME"
       - name: Garder le site en ligne
         run: |
           for i in $(seq 1 70); do
