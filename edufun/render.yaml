@@ -1,0 +1,24 @@
+# Déploiement EduFun sur Render : New + → Blueprint → dépôt kingskeymanuel-wq/gouabo,
+# puis « Blueprint Path » = edufun/render.yaml (le render.yaml de la racine sert au projet GOUABO).
+services:
+  - type: web
+    name: edufun
+    runtime: docker
+    plan: free
+    region: frankfurt
+    rootDir: edufun
+    dockerfilePath: ./Dockerfile
+    branch: claude/gracious-thompson-6i1pt8
+    healthCheckPath: /login
+    autoDeploy: true
+    envVars:
+      - key: EDUFUN_DEMO_DATA
+        value: "true"
+      - key: EDUFUN_DEMO_PASSWORD
+        value: Demo@2026
+      - key: EDUFUN_ADMIN_EMAIL
+        value: admin@edufun.ci
+      - key: EDUFUN_ADMIN_PASSWORD
+        value: EduFun@Test2026
+      - key: EDUFUN_SITE_URL
+        value: https://edufun.onrender.com
