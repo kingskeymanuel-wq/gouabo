@@ -65,6 +65,7 @@ jobs:
             sleep 2
           done
           echo "EDUFUN_URL=$URL" >> $GITHUB_ENV
+          echo "::notice title=Lien EduFun::$URL"
           echo "=================================================="
           echo "  LIEN EDUFUN : $URL"
           echo "=================================================="
