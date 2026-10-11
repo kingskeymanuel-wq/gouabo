@@ -148,10 +148,11 @@ function BandeauInfo() {
   const { config } = useBoutique();
   const l = config.livraison;
   const msg = config.plateforme ? "Les produits de toutes nos boutiques · paiement à la livraison ou par Mobile Money"
+    : config.demonstration ? "Boutique de démonstration : articles présentés à titre d'exemple, sans commande possible."
     : !config.ouverte ? "Cette boutique ne prend pas de commandes pour le moment."
     : l.gratuite_des > 0 ? `Livraison offerte dès ${fmt(l.gratuite_des)} d'achat${l.zone ? " · " + l.zone : ""}`
     : l.zone ? `Livraison : ${l.zone}` : "Paiement à la livraison ou par Mobile Money";
-  return <div className={cx("annonce", !config.ouverte && "fermee")}>{msg}</div>;
+  return <div className={cx("annonce", !config.ouverte && !config.demonstration && "fermee")}>{msg}</div>;
 }
 
 /* « Mon espace » : accès au tableau de bord de l'administrateur ou du vendeur */
@@ -429,8 +430,10 @@ function CarteProduit({ p, i }) {
         {p.pieces_par_lot > 1 && <span className="v-lot">Lot de {p.pieces_par_lot} articles</span>}
         <div className="v-carte-bas">
           <span className="v-prix">{fmt(p.prix)}{p.remise > 0 && <s className="v-prix-barre">{fmt(p.prix_normal)}</s>}</span>
-          <Btn size="sm" variant={dansPanier ? "secondary" : "primary"} icon={dansPanier ? Check : Plus} disabled={!p.disponible || dansPanier >= p.stock}
-            onClick={() => ajouter(p, 1)}>{dansPanier ? `${dansPanier} au panier` : "Ajouter"}</Btn>
+          {p.demonstration ? <Badge tone="info">Démonstration</Badge> : (
+            <Btn size="sm" variant={dansPanier ? "secondary" : "primary"} icon={dansPanier ? Check : Plus} disabled={!p.disponible || dansPanier >= p.stock}
+              onClick={() => ajouter(p, 1)}>{dansPanier ? `${dansPanier} au panier` : "Ajouter"}</Btn>
+          )}
         </div>
       </div>
     </article>
@@ -586,7 +589,8 @@ function PageProduit({ id }) {
               <ul>{p.contenu.map((x, k) => <li key={k}><Check size={15} />{x}</li>)}</ul>
             </div>
           )}
-          {p.disponible && config.ouverte && (
+          {p.demonstration && <div className="v-demo"><Info size={16} />Article de démonstration : il montre à quoi ressemble une boutique GOUABO et ne peut pas être commandé.</div>}
+          {p.disponible && config.ouverte && !p.demonstration && (
             <div className="stack-sm" style={{ marginTop: 8 }}>
               <div className="row" style={{ gap: 12 }}>
                 <Stepper value={Math.min(qte, Math.max(1, restant))} onChange={setQte} max={Math.max(1, restant)} />
@@ -1275,6 +1279,7 @@ function App() {
   }, [route.page, route.vendeur, boutiqueVue]);
 
   const ajouter = (p, q, silencieux) => {
+    if (p.demonstration) return; // boutique de démonstration : rien à commander
     // Une commande = une boutique : changer de boutique remplace le panier
     const autre = lignes[0] && lignes[0].p.boutique_id !== p.boutique_id ? lignes[0].p.boutique_nom : null;
     if (autre && !window.confirm(`Votre panier contient des articles de « ${autre} ».\n\nUne commande ne concerne qu'une seule boutique : vider le panier et ajouter cet article de « ${p.boutique_nom} » ?`)) return;

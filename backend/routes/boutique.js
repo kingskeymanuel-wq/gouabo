@@ -31,6 +31,7 @@ const { ticketEmail } = require("../lib/ticketEmail");
 const { mouvement } = require("../lib/stock");
 const { genererTicket, journaliser } = require("../lib/tickets");
 const abo = require("../lib/abonnements");
+const { estVitrine } = require("../db/donnees-test");
 const agents = require("../lib/agents");
 // Un espace dont l'essai ou l'abonnement est terminé n'apparaît plus et ne reçoit plus de commandes
 const espacesOuverts = (fn) => db.pourChaqueEspace((b) => (abo.etat(b.id).acces ? fn(b) : null)).filter(Boolean);
@@ -68,12 +69,15 @@ function configPublique() {
   const espace = db.espaceCourant();
   const frais = Math.max(0, Math.round(Number(b.frais_livraison) || 0));
   const gratuite = Math.max(0, Math.round(Number(b.livraison_gratuite_des) || 0));
+  const demonstration = estVitrine(espace.id);
   return {
     id: espace.id, slug: espace.slug,
     // Formule Premium : le client peut écrire à la boutique, un agent prépare la réponse
-    contact: abo.etat(espace.id).agents,
+    contact: !demonstration && abo.etat(espace.id).agents,
+    // Boutique de démonstration (vitrine) : produits présentés à titre d'exemple, aucune commande
+    demonstration,
     boutique: { nom: b.nom, slogan: b.slogan, adresse: b.adresse, telephone: b.telephone, whatsapp: b.whatsapp, message: b.message },
-    ouverte: b.boutique_ouverte !== "0",
+    ouverte: !demonstration && b.boutique_ouverte !== "0",
     livraison: { frais, gratuite_des: gratuite, zone: b.zone_livraison },
     paiements: {
       livraison: true,
@@ -93,9 +97,10 @@ function produitsPublics() {
   ).all().map((r) => [r.pack_id, r.n]));
   const espace = db.espaceCourant();
   const nomBoutique = lireBoutique().nom;
+  const demonstration = estVitrine(espace.id);
   return db.prepare("SELECT * FROM packs WHERE supprime = 0 AND actif = 1 ORDER BY cree_le DESC").all().map((p) => ({
     // cle : identifiant unique sur toute la plateforme (deux boutiques peuvent avoir le même id de produit)
-    cle: espace.id + "." + p.id, boutique_id: espace.id, boutique_slug: espace.slug, boutique_nom: nomBoutique,
+    cle: espace.id + "." + p.id, boutique_id: espace.id, boutique_slug: espace.slug, boutique_nom: nomBoutique, demonstration,
     id: p.id, nom: p.nom, description: p.description || "", image: p.image, emoji: p.emoji, teinte: p.teinte,
     // Prix appliqué (promotion comprise) et prix normal barré pendant une promotion
     prix: prixEffectif(p), prix_normal: promoActive(p) ? p.prix : null, remise: remisePourcent(p), promo_fin: promoActive(p) ? p.promo_fin : null,

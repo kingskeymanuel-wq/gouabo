@@ -21,6 +21,7 @@ const bcrypt = require("bcryptjs");
 const db = require("../db");
 const { SECRET } = require("../middleware/auth");
 const abo = require("../lib/abonnements");
+const { estVitrine } = require("../db/donnees-test");
 const { lireBoutique } = require("./parametres");
 const ia = require("../lib/ia");
 const { smsConfigure, emailConfigure } = require("../lib/marketing");
@@ -63,7 +64,7 @@ function ficheEspace(b) {
       "SELECT COUNT(DISTINCT v.commande_id) AS n, COALESCE(SUM(v.quantite * v.prix_unitaire), 0) AS ca FROM ventes v LEFT JOIN commandes c ON c.id = v.commande_id WHERE COALESCE(c.statut, '') <> 'annulee'"
     ).get();
     return {
-      id: b.id, slug: b.slug, cree_le: b.cree_le, nom: lireBoutique().nom,
+      id: b.id, slug: b.slug, cree_le: b.cree_le, nom: lireBoutique().nom + (estVitrine(b.id) ? " (démonstration)" : ""), demonstration: estVitrine(b.id),
       administrateur: admin || null,
       vendeurs: db.prepare("SELECT COUNT(*) AS n FROM utilisateurs WHERE role = 'vendeur'").get().n,
       produits: db.prepare("SELECT COUNT(*) AS n FROM packs WHERE supprime = 0").get().n,
@@ -100,7 +101,8 @@ router.get("/tableau", (req, res) => {
   const espaces = db.listerBoutiques().map((b) => { try { return ficheEspace(b); } catch { return null; } }).filter(Boolean);
   const noms = new Map(espaces.map((e) => [e.id, e.nom]));
   const paiements = abo.tousLesPaiements().map((p) => ({ ...p, boutique: noms.get(p.boutique_id) || "Espace supprimé" }));
-  const compte = (f) => espaces.filter(f).length;
+  // Les boutiques de démonstration ne comptent pas parmi les abonnés
+  const compte = (f) => espaces.filter((e) => !e.demonstration && f(e)).length;
   res.json({
     reglages: abo.reglages(),
     formules: abo.formules(),
@@ -110,7 +112,7 @@ router.get("/tableau", (req, res) => {
     espaces,
     paiements,
     stats: {
-      espaces: espaces.length,
+      espaces: compte(() => true),
       essai: compte((e) => e.abonnement.statut === "essai"),
       actifs: compte((e) => e.abonnement.statut === "actif"),
       premium: compte((e) => e.abonnement.statut === "actif" && e.abonnement.formule === "premium"),

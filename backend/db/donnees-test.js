@@ -12,6 +12,11 @@
  *
  * ⚠️ Ces comptes sont publics (identifiants ci-dessous). Avant une utilisation
  * réelle, désactivez-les avec DONNEES_TEST=0 (ou changez MOT_DE_PASSE_TEST).
+ *
+ * DONNEES_TEST=vitrine (site réel) : seuls les produits sont créés, pour remplir la page
+ * d'accueil. Ces boutiques portent la mention « démonstration », ne prennent aucune commande,
+ * et leurs comptes ne sont pas proposés sur l'écran de connexion (mot de passe :
+ * MOT_DE_PASSE_TEST, sinon tiré au hasard et connu de personne).
  */
 const { nanoid } = require("nanoid");
 const db = require("./index");
@@ -22,7 +27,8 @@ const abo = require("../lib/abonnements");
 const { nanoid: idCourt } = require("nanoid");
 
 const ACTIF = process.env.DONNEES_TEST !== "0";
-const MOT_DE_PASSE = process.env.MOT_DE_PASSE_TEST || "test-2026";
+const VITRINE = process.env.DONNEES_TEST === "vitrine";
+const MOT_DE_PASSE = process.env.MOT_DE_PASSE_TEST || (VITRINE ? require("crypto").randomBytes(18).toString("base64url") : "test-2026");
 const jours = (n, heure = 10) => { const d = new Date(Date.now() - n * 864e5); d.setUTCHours(heure, 15, 0, 0); return d.toISOString(); };
 const photo = (id) => `https://images.unsplash.com/photo-${id}?w=800&h=800&fit=crop&q=75&auto=format`;
 
@@ -172,7 +178,7 @@ const ESPACES = [
 const LIVREURS = [{ nom: "Moussa Traoré (moto)", zone: "Cocody, Riviera, Bingerville" }, { nom: "Serge Kouakou (moto)", zone: "Yopougon, Adjamé, Abobo" }];
 
 function remplir(e, utilisateurs, rang) {
-  const livreurs = LIVREURS.map((l, i) => {
+  const livreurs = (e.ventes.length ? LIVREURS : []).map((l, i) => {
     const id = nanoid();
     db.prepare("INSERT INTO livreurs (id, nom, telephone, zone, actif, supprime, cree_le) VALUES (?, ?, ?, ?, 1, 0, ?)").run(id, l.nom, `05000009${rang}${i + 1}`, l.zone, jours(20));
     return id;
@@ -249,6 +255,7 @@ Petit Chic Abidjan`, jours(0, 8));
 /** Crée les espaces de test si la plateforme est vide. */
 function installer({ creerEspace, creerUtilisateur, ecrireBoutique }) {
   if (!ACTIF || db.listerBoutiques().length > 0) return;
+  if (VITRINE) return installerVitrine({ creerEspace, ecrireBoutique });
   for (const e of ESPACES) {
     const { boutique, utilisateur } = creerEspace({ ...e.admin, mot_de_passe: MOT_DE_PASSE, boutique: e.boutique });
     db.dansEspace(boutique.id, () => {
@@ -270,12 +277,31 @@ function installer({ creerEspace, creerUtilisateur, ecrireBoutique }) {
   console.log(`   Données de test installées : ${ESPACES.length} boutiques de test (désactiver : DONNEES_TEST=0)`);
 }
 
+/** Vitrine du site réel : les produits seulement, sans clients, ventes ni vendeurs ; abonnement sans échéance proche. */
+function installerVitrine({ creerEspace, ecrireBoutique }) {
+  const ids = [];
+  for (const e of ESPACES) {
+    const { boutique, utilisateur } = creerEspace({ ...e.admin, mot_de_passe: MOT_DE_PASSE, boutique: e.boutique });
+    db.dansEspace(boutique.id, () => {
+      ecrireBoutique(e.reglages);
+      db.transaction(() => remplir({ ...e, clients: [], ventes: [] }, [utilisateur], ESPACES.indexOf(e) + 1))();
+    });
+    abo.modifier(boutique.id, { formule: "essentiel", statut: "actif", echeance: new Date(Date.now() + 36500 * 864e5).toISOString() });
+    ids.push(boutique.id);
+  }
+  db.reglages.ecrire("vitrine_boutiques", ids.join(","));
+  console.log(`   Vitrine installée : ${ids.length} boutiques de démonstration (produits visibles, commandes fermées)`);
+}
+
+/** Boutique de démonstration de la vitrine : affichée, mais sans commande possible. */
+const estVitrine = (boutiqueId) => String(db.reglages.lire("vitrine_boutiques") || "").split(",").includes(boutiqueId);
+
 /** Comptes de test encore présents — proposés sur l'écran de connexion. */
 function comptesTest() {
-  if (!ACTIF || db.reglages.lire("donnees_test") !== "1") return [];
+  if (!ACTIF || VITRINE || db.reglages.lire("donnees_test") !== "1") return [];
   return ESPACES.flatMap((e) => [{ ...e.admin, role: "admin" }, ...e.vendeurs.map((v) => ({ ...v, role: "vendeur" }))].map((c) => ({ ...c, boutique: e.boutique })))
     .filter((c) => db.comptes.boutiqueDe(c.telephone))
     .map((c) => ({ ...c, mot_de_passe: MOT_DE_PASSE }));
 }
 
-module.exports = { installer, comptesTest };
+module.exports = { installer, comptesTest, estVitrine };

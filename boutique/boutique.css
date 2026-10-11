@@ -411,3 +411,7 @@ body.vitrine { background: var(--surface); scroll-behavior: smooth; }
 .g-demos { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 28px; }
 .vitrine a.g-demo-puce { display: inline-flex; align-items: center; gap: 8px; padding: 9px 14px; border-radius: 99px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.18); color: #fff; font-size: 13.5px; font-weight: 600; text-decoration: none; transition: transform .25s var(--spring), background .15s; }
 .vitrine a.g-demo-puce:hover { background: rgba(255,255,255,.16); transform: translateY(-2px); }
+
+/* Article d'une boutique de démonstration : explication à la place des boutons d'achat */
+.v-demo { display: flex; gap: 8px; align-items: flex-start; margin-top: 8px; padding: 10px 12px; border-radius: 10px; background: var(--surface-2, rgba(127,127,127,.12)); color: var(--text-2, inherit); font-size: 13.5px; line-height: 1.45; }
+.v-demo svg { flex: none; margin-top: 2px; }
