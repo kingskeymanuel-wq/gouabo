@@ -14,6 +14,10 @@ cp .env.example .env      # puis remplacez JWT_SECRET par une longue chaîne al�
 npm start                 # http://localhost:4000
 ```
 
+`npm install` prépare aussi les interfaces pour le navigateur (`construire.js` : le JSX de la boutique et
+de l'administration est traduit une fois, React et icônes compris). Après une modification de
+`boutique/boutique.jsx` ou `admin/app.jsx` : `npm run construire`, ou `npm run dev` qui le fait à chaque enregistrement.
+
 La base SQLite (`db/moncommerce.db`) est créée au premier démarrage ; les
 bases des versions précédentes sont **migrées automatiquement** (colonnes et
 tables ajoutées, données conservées). `better-sqlite3` v12 fournit des
@@ -164,7 +168,7 @@ Seuls les clients ayant donné leur accord (`consentement_marketing`) sont conta
 - **Cloisonnement des espaces** : une base SQLite par administrateur ; le jeton de session désigne l'espace, et toute requête s'exécute dans celui-ci (`db/index.js`, `AsyncLocalStorage`). Une requête hors espace échoue au lieu de lire d'autres données.
 - Un vendeur n'accède qu'à ses ventes et aux commandes qui lui sont attribuées (403 sinon) ; comptes vendeurs créés, désactivés et réinitialisés par leur administrateur
 - Inscription d'un nouvel espace ouverte, ou réservée par `CODE_INVITATION`
-- Helmet (CSP adaptée aux CDN utilisés), CORS configurable
+- Helmet (CSP sans `unsafe-eval` : interfaces préparées à l'avance par `construire.js`), CORS configurable
 - Limitation de débit : 600 req / 15 min / IP, 30 pour connexion/inscription, 20 commandes publiques / 15 min
 - Transactions SQL pour vente + stock + commande ; décrément de stock conditionnel contre les ventes simultanées
 - Prix et totaux recalculés côté serveur pour les commandes en ligne

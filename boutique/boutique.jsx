@@ -366,7 +366,7 @@ function PacksVendeur() {
           </div>
         )}
         <div className="g-etapes">
-          {[[UserPlus, "Créez votre espace", "Votre nom, votre boutique, votre numéro : c'est ouvert en 2 minutes."], [Package, "Publiez vos produits", "Photos, prix, stocks. Ils apparaissent sur la page d'accueil."], [Smartphone, "Payez par Mobile Money", "À la fin de l'essai, réglez votre pack : GOUABO l'active pour un mois."]].map(([I, t, d], i) => (
+          {[[UserPlus, "Créez votre espace", "Votre nom, votre boutique, votre numéro : c'est ouvert en 2 minutes."], [Package, "Publiez vos produits", "Photos, prix, stocks. Ils apparaissent sur la page d'accueil."], [Smartphone, "Payez par Mobile Money", "À la fin de l'essai, réglez votre pack : GOUABO l'active pour 2 ou 3 mois, selon le pack."]].map(([I, t, d], i) => (
             <div key={t}><span>{i + 1}</span><div><b><I size={15} />{t}</b><small>{d}</small></div></div>
           ))}
         </div>

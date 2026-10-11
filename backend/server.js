@@ -1,4 +1,5 @@
 require("dotenv").config();
+const fs = require("fs");
 const path = require("path");
 const express = require("express");
 const cors = require("cors");
@@ -27,6 +28,7 @@ const proprietaireRoutes = require("./routes/proprietaire");
 const agentsRoutes = require("./routes/agents");
 const { abonnementRequis, premiumRequis } = require("./lib/abonnements");
 const { DOSSIER_UPLOADS } = require("./lib/images");
+const { urlPublique } = require("./lib/outils");
 
 const app = express();
 // Derrière le proxy de l'hébergeur (Render…) : vraie IP du client (limites de débit) et protocole https
@@ -43,17 +45,16 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        // L'interface compile son JSX dans le navigateur (Babel) et charge
-        // React / les icônes depuis des CDN : d'où 'unsafe-eval' et ces origines.
+        // Les interfaces sont préparées à l'avance (construire.js), React et icônes compris.
         // cdnjs : génération du PDF (jsPDF) et du QR code des tickets de caisse
-        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://esm.sh", "https://unpkg.com", "https://cdnjs.cloudflare.com"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
         styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
         fontSrc: ["'self'", "https://fonts.gstatic.com"],
         // images.unsplash.com : photos d'illustration des produits de test
         imgSrc: ["'self'", "data:", "blob:", "https://images.unsplash.com"],
         // Aperçu du ticket PDF généré dans le navigateur (blob:)
         frameSrc: ["'self'", "blob:"],
-        connectSrc: ["'self'", "https://esm.sh", "https://unpkg.com", "https://cdnjs.cloudflare.com"],
+        connectSrc: ["'self'", "https://cdnjs.cloudflare.com"],
         // Désactivé : casserait l'accès en http depuis un téléphone du réseau local
         upgradeInsecureRequests: null,
       },
@@ -129,6 +130,15 @@ app.get("/.well-known/assetlinks.json", (req, res) => {
   if (!process.env.ANDROID_PACKAGE || !empreintes.length) return res.json([]);
   res.json([{ relation: ["delegate_permission/common.handle_all_urls"], target: { namespace: "android_app", package_name: process.env.ANDROID_PACKAGE, sha256_cert_fingerprints: empreintes } }]);
 });
+// Référencement : la boutique est ouverte aux moteurs de recherche, pas les espaces privés
+app.get("/robots.txt", (req, res) => res.type("text/plain").send(["User-agent: *", "Disallow: /admin/", "Disallow: /proprietaire/", "Disallow: /api/", "", `Sitemap: ${urlPublique(req)}/sitemap.xml`, ""].join("\n")));
+app.get("/sitemap.xml", (req, res) => {
+  const pages = ["/", "/confidentialite.html"].map((p) => `<url><loc>${urlPublique(req)}${p}</loc></url>`).join("");
+  res.type("application/xml").send(`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${pages}</urlset>`);
+});
+// Page d'accueil : l'aperçu du lien partagé (WhatsApp, Facebook) exige des adresses complètes
+const ACCUEIL = fs.readFileSync(path.join(BOUTIQUE_DIR, "index.html"), "utf8");
+app.get(["/", "/index.html"], (req, res) => res.set("Cache-Control", "no-cache").type("html").send(ACCUEIL.replaceAll("__ORIGINE__", urlPublique(req))));
 app.use("/", statique(BOUTIQUE_DIR));
 
 app.use((req, res) => res.status(404).json({ erreur: "Route introuvable" }));
