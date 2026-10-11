@@ -18,6 +18,9 @@ npm start                 # http://localhost:4000
 de l'administration est traduit une fois, React et icônes compris). Après une modification de
 `boutique/boutique.jsx` ou `admin/app.jsx` : `npm run construire`, ou `npm run dev` qui le fait à chaque enregistrement.
 
+`npm test` vérifie les règles des abonnements et des paiements de packs (essai, pack payé pendant l'essai,
+renouvellement, annulation, paiement en ligne) sur une base temporaire : à lancer avant d'envoyer une modification de `lib/abonnements.js`.
+
 La base SQLite (`db/moncommerce.db`) est créée au premier démarrage ; les
 bases des versions précédentes sont **migrées automatiquement** (colonnes et
 tables ajoutées, données conservées). `better-sqlite3` v12 fournit des

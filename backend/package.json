@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "construire": "node construire.js",
+    "test": "node --test test/*.test.js",
     "postinstall": "node construire.js",
     "dev": "node construire.js --surveiller"
   },
