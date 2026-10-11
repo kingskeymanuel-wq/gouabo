@@ -48,9 +48,9 @@ app.use(
         // Les interfaces sont préparées à l'avance (construire.js), React et icônes compris.
         // cdnjs : génération du PDF (jsPDF) et du QR code des tickets de caisse
         scriptSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
-        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-        fontSrc: ["'self'", "https://fonts.gstatic.com"],
-        // images.unsplash.com : photos d'illustration des produits de test
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        fontSrc: ["'self'"],
+        // images.unsplash.com : photos des produits de démonstration (celles des interfaces sont dans /partage/photos)
         imgSrc: ["'self'", "data:", "blob:", "https://images.unsplash.com"],
         // Aperçu du ticket PDF généré dans le navigateur (blob:)
         frameSrc: ["'self'", "blob:"],
@@ -120,6 +120,8 @@ const statique = (dossier) => express.static(dossier, { setHeaders: (res) => res
 // « /admin » → « /admin/ » (sinon les chemins relatifs de l'interface seraient faux)
 app.use((req, res, next) => (req.path === "/admin" && !req.originalUrl.startsWith("/admin/") ? res.redirect(301, "/admin/") : next()));
 app.use("/admin", statique(ADMIN_DIR));
+// Polices et photos d'illustration : fichiers qui ne changent pas, gardés longtemps par le navigateur
+for (const d of ["polices", "photos"]) app.use("/partage/" + d, express.static(path.join(PARTAGE_DIR, d), { maxAge: "30d", fallthrough: false }));
 app.use("/partage", statique(PARTAGE_DIR));
 app.use((req, res, next) => (req.path === "/proprietaire" && !req.originalUrl.startsWith("/proprietaire/") ? res.redirect(301, "/proprietaire/") : next()));
 app.use("/proprietaire", statique(PROPRIETAIRE_DIR));

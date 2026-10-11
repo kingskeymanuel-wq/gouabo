@@ -250,7 +250,8 @@ function PiedDePage() {
 /* =====================================================================
    Accueil GOUABO : vendeuses, commerciaux et packs vendeur
    ===================================================================== */
-const photo = (id, l = 640, h = 760) => `https://images.unsplash.com/photo-${id}?w=${l}&h=${h}&fit=crop&crop=faces&q=75&auto=format`;
+// Photos d'illustration servies par le site (backend/outils/rapatrier-polices-et-photos.js)
+const photo = (id, l = 640, h = 760) => `/partage/photos/${id}-${l}x${h}.jpg`;
 const PHOTOS = {
   comptoir: "1687422808311-a776f467a468", marche: "1773858441067-de99ed159a95", boutique: "1687422808384-c896d0efd4ab", etal: "1687422809654-579d81c29d32",
   commercial: "1758519291037-db9ec86cda69", costume: "1676119451563-0c4a1a37e019", equipe: "1739303987830-ca19742b19bc", terrain: "1763739530599-44d1f6369a32",

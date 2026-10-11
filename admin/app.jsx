@@ -5905,8 +5905,8 @@ function AuthScreen({ onSuccess, mode }) {
         {/* Une vendeuse à son comptoir, entourée de ce que GOUABO fait pour elle */}
         <div className="auth-scene" aria-hidden="true">
           <span className="auth-halo" />
-          <img className="auth-photo" src="https://images.unsplash.com/photo-1687422808311-a776f467a468?w=640&h=760&fit=crop&crop=faces&q=75&auto=format" alt="" />
-          <img className="auth-photo petite" src="https://images.unsplash.com/photo-1687422808384-c896d0efd4ab?w=420&h=420&fit=crop&crop=faces&q=75&auto=format" alt="" />
+          <img className="auth-photo" src="/partage/photos/1687422808311-a776f467a468-640x760.jpg" alt="" />
+          <img className="auth-photo petite" src="/partage/photos/1687422808384-c896d0efd4ab-420x420.jpg" alt="" />
           <div className="auth-bulle b1"><span className="vert"><Receipt size={14} /></span><div><b>Nouvelle vente</b><small>Ticket T-000128 · 15 000 FCFA</small></div></div>
           <div className="auth-bulle b2"><span className="or"><Bot size={14} /></span><div><b>Cliente relancée</b><small>Promotion envoyée par SMS</small></div></div>
           <div className="auth-bulle b3"><span className="bleu"><Truck size={14} /></span><div><b>Colis livré</b><small>Payé par Wave</small></div></div>
