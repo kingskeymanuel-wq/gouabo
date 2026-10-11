@@ -109,6 +109,12 @@
             </div>`).join("")}
         </section>
 
+        ${t.vitrine && t.vitrine.boutiques ? `<section class="carte">
+          <div class="carte-tete"><div><h2>Vitrine de démonstration</h2><p>${t.vitrine.masquee
+            ? `Les ${t.vitrine.boutiques} boutiques de démonstration sont masquées : la page d'accueil ne montre que les vrais vendeurs.`
+            : `${t.vitrine.boutiques} boutiques de démonstration remplissent la page d'accueil, sans commande possible. Masquez-les quand vos vrais vendeurs ont publié leurs produits.`}</p></div>
+            <button class="btn ${t.vitrine.masquee ? "btn-or" : ""}" id="vitrine" data-masquee="${t.vitrine.masquee ? "0" : "1"}">${t.vitrine.masquee ? "Réafficher la vitrine" : "Masquer la vitrine"}</button></div>
+        </section>` : ""}
         <section class="carte">
           <div class="carte-tete"><div><h2>Derniers paiements reçus</h2><p>Chaque paiement est pris en compte automatiquement : le pack démarre à la fin de l'essai gratuit, ou à la suite de l'abonnement en cours. Si un paiement n'est pas arrivé sur votre compte, annulez-le.</p></div></div>
           ${aValider.length === 0 ? `<div class="vide">Aucun paiement pour l'instant.</div>` : aValider.map((p) => `
@@ -204,6 +210,12 @@
     if (b.id === "retirer-cle") {
       if (!confirm("Retirer la clé IA ? Les agents reviendront aux messages types.")) return;
       try { await api("PUT", "/ia", { cle: "" }); toast("Clé retirée"); await charger(); } catch (x) { toast(x.message, true); }
+      return;
+    }
+    if (b.id === "vitrine") {
+      const masquer = b.dataset.masquee === "1";
+      if (masquer && !confirm("Masquer les boutiques de démonstration ? Elles disparaissent de la page d'accueil ; vous pourrez les réafficher ici.")) return;
+      try { await api("PUT", "/vitrine", { masquee: masquer }); toast(masquer ? "Vitrine masquée" : "Vitrine réaffichée"); await charger(); } catch (x) { toast(x.message, true); }
       return;
     }
     if (b.dataset.filtre) { filtre = b.dataset.filtre; return afficher(); }

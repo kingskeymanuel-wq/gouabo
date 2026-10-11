@@ -21,7 +21,7 @@ const bcrypt = require("bcryptjs");
 const db = require("../db");
 const { SECRET } = require("../middleware/auth");
 const abo = require("../lib/abonnements");
-const { estVitrine } = require("../db/donnees-test");
+const { estVitrine, boutiquesVitrine, vitrineMasquee, masquerVitrine } = require("../db/donnees-test");
 const { lireBoutique } = require("./parametres");
 const ia = require("../lib/ia");
 const { smsConfigure, emailConfigure } = require("../lib/marketing");
@@ -106,6 +106,8 @@ router.get("/tableau", (req, res) => {
   res.json({
     reglages: abo.reglages(),
     formules: abo.formules(),
+    // Boutiques de démonstration de la page d'accueil : le propriétaire les affiche ou les masque
+    vitrine: { boutiques: boutiquesVitrine().length, masquee: vitrineMasquee() },
     service: { ia: ia.etat(), sms: smsConfigure(), email: emailConfigure(), detourage: Boolean(process.env.REMOVE_BG_API_KEY || db.reglages.lire("detourage_cle")) },
     mot_de_passe_cree: Boolean(db.reglages.lire(CLE_MDP)),
     alertes: alertes(espaces),
@@ -141,6 +143,12 @@ router.post("/paiements/:id/annuler", (req, res) => {
   if (!p) return res.status(404).json({ erreur: "Paiement introuvable" });
   if (p.statut !== "valide") return res.status(409).json({ erreur: "Ce paiement est déjà annulé" });
   res.json({ paiement: abo.annulerPaiement(p.id, req.body.note), abonnement: abo.etat(p.boutique_id) });
+});
+
+// Vitrine de démonstration : affichée ou masquée sur le site (rien n'est effacé)
+router.put("/vitrine", (req, res) => {
+  masquerVitrine(req.body?.masquee === true);
+  res.json({ boutiques: boutiquesVitrine().length, masquee: vitrineMasquee() });
 });
 
 // Autorisations données à la main : changement de formule (mise à niveau), prolongation, suspension, réactivation

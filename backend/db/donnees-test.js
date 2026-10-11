@@ -304,4 +304,9 @@ function comptesTest() {
     .map((c) => ({ ...c, mot_de_passe: MOT_DE_PASSE }));
 }
 
-module.exports = { installer, comptesTest, estVitrine };
+const boutiquesVitrine = () => String(db.reglages.lire("vitrine_boutiques") || "").split(",").filter((id) => db.boutiqueParRef(id));
+/** Vitrine masquée par le propriétaire (portail) : ses boutiques ne sont plus affichées, rien n'est effacé. */
+const vitrineMasquee = () => db.reglages.lire("vitrine_masquee") === "1";
+const masquerVitrine = (masquee) => db.reglages.ecrire("vitrine_masquee", masquee ? "1" : "0");
+
+module.exports = { installer, comptesTest, estVitrine, boutiquesVitrine, vitrineMasquee, masquerVitrine };

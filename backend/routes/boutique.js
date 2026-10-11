@@ -31,10 +31,12 @@ const { ticketEmail } = require("../lib/ticketEmail");
 const { mouvement } = require("../lib/stock");
 const { genererTicket, journaliser } = require("../lib/tickets");
 const abo = require("../lib/abonnements");
-const { estVitrine } = require("../db/donnees-test");
+const { estVitrine, vitrineMasquee } = require("../db/donnees-test");
 const agents = require("../lib/agents");
 // Un espace dont l'essai ou l'abonnement est terminé n'apparaît plus et ne reçoit plus de commandes
-const espacesOuverts = (fn) => db.pourChaqueEspace((b) => (abo.etat(b.id).acces ? fn(b) : null)).filter(Boolean);
+// Les boutiques de démonstration disparaissent aussi quand le propriétaire masque la vitrine
+const visible = (b) => abo.etat(b.id).acces && !(estVitrine(b.id) && vitrineMasquee());
+const espacesOuverts = (fn) => db.pourChaqueEspace((b) => (visible(b) ? fn(b) : null)).filter(Boolean);
 const { prixEffectif, promoActive, remisePourcent } = require("../lib/prix");
 const router = express.Router();
 
@@ -54,7 +56,7 @@ function espacePublic(req, res, next) {
   const ref = req.query.boutique || req.body?.boutique;
   const toutes = db.listerBoutiques();
   const b = ref ? db.boutiqueParRef(ref) : toutes.length === 1 ? toutes[0] : null;
-  if (!b || !abo.etat(b.id).acces) return res.status(ref ? 404 : 400).json({ erreur: ref ? "Boutique introuvable" : "Précisez la boutique" });
+  if (!b || !visible(b)) return res.status(ref ? 404 : 400).json({ erreur: ref ? "Boutique introuvable" : "Précisez la boutique" });
   db.dansEspace(b.id, next);
 }
 /* Espace auquel appartient un jeton public (commande, désinscription, transaction) */
