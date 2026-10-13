@@ -18,6 +18,7 @@ const DEFAUTS = {
   tarif_essentiel: "10000", tarif_premium: "15000", essai_jours: "30",
   duree_essentiel: "60", duree_premium: "90", // jours ouverts par un paiement
   momo_orange: "", momo_mtn: "", momo_moov: "", momo_wave: "", momo_titulaire: "GOUABO", contact_whatsapp: "",
+  lien_wave: "", // lien de paiement Wave du propriétaire : affiché en QR code aux vendeurs qui règlent leur pack
 };
 const CLES = Object.keys(DEFAUTS);
 
@@ -27,7 +28,7 @@ function reglages() {
   return r;
 }
 function ecrireReglages(v) {
-  for (const k of CLES) if (v[k] !== undefined) db.reglages.ecrire("abo_" + k, String(v[k] ?? "").trim().slice(0, 120));
+  for (const k of CLES) if (v[k] !== undefined) db.reglages.ecrire("abo_" + k, String(v[k] ?? "").trim().slice(0, k.startsWith("lien_") ? 300 : 120));
   return reglages();
 }
 

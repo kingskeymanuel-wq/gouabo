@@ -199,6 +199,8 @@ router.put("/reglages", (req, res) => {
   for (const k of ["tarif_essentiel", "tarif_premium", "essai_jours"]) {
     if (req.body[k] !== undefined && !(Number(req.body[k]) >= 0)) return res.status(400).json({ erreur: "Montant ou durée invalide" });
   }
+  const lien = String(req.body.lien_wave ?? "").trim();
+  if (lien && !/^https:\/\/\S+\.\S+$/.test(lien)) return res.status(400).json({ erreur: "Le lien de paiement Wave doit commencer par https://" });
   res.json(abo.ecrireReglages(req.body || {}));
 });
 

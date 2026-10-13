@@ -39,7 +39,8 @@ const OPERATEURS = [["momo_orange", "Orange Money"], ["momo_mtn", "MTN MoMo"], [
 function instructions() {
   const r = abo.reglages();
   return {
-    operateurs: OPERATEURS.filter(([k]) => r[k]).map(([k, mode]) => ({ mode, numero: r[k], titulaire: r.momo_titulaire })),
+    // Wave est proposé dès que le propriétaire a renseigné son numéro ou son lien de paiement (affiché en QR code)
+    operateurs: OPERATEURS.filter(([k]) => r[k] || (k === "momo_wave" && r.lien_wave)).map(([k, mode]) => ({ mode, numero: r[k], titulaire: r.momo_titulaire, lien: k === "momo_wave" ? r.lien_wave || null : null })),
     // Paiement en ligne confirmé automatiquement (Orange Money, MTN, Moov, Wave via CinetPay)
     en_ligne: cinetpay.estConfigure(), en_ligne_test: cinetpay.estConfigure() && cinetpay.estBacASable(),
     contact_whatsapp: r.contact_whatsapp,

@@ -2,6 +2,9 @@
 (function () {
   const CLE = "gouabo-proprietaire";
   const app = document.getElementById("app");
+  // Ouverture depuis l'application MANU dev : le jeton arrive dans l'adresse (après #), puis il est retiré de la barre
+  const recu = /[#&]jeton=([A-Za-z0-9._-]{20,})/.exec(location.hash);
+  if (recu) { sessionStorage.setItem(CLE, recu[1]); history.replaceState(null, "", location.pathname); }
   let jeton = sessionStorage.getItem(CLE) || "";
   let t = null; // tableau de bord
   let filtre = "tous";
@@ -151,6 +154,7 @@
               <label>Numéro MTN MoMo<input name="momo_mtn" inputmode="tel" value="${e(r.momo_mtn)}" placeholder="05 …" /></label>
               <label>Numéro Moov Money<input name="momo_moov" inputmode="tel" value="${e(r.momo_moov)}" placeholder="01 …" /></label>
               <label>Numéro Wave<input name="momo_wave" inputmode="tel" value="${e(r.momo_wave)}" /></label>
+              <label>Lien de paiement Wave (affiché en QR code aux vendeurs)<input name="lien_wave" inputmode="url" value="${e(r.lien_wave || "")}" placeholder="https://pay.wave.com/m/…" /></label>
               <label>Nom du titulaire des comptes<input name="momo_titulaire" value="${e(r.momo_titulaire)}" /></label>
               <label>WhatsApp d'assistance<input name="contact_whatsapp" inputmode="tel" value="${e(r.contact_whatsapp)}" /></label>
             </div>

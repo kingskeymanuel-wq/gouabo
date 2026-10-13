@@ -5225,7 +5225,14 @@ function PageAbonnement({ verrou }) {
                 ) : (
                   <div className="etapes-paiement">
                     <div><span>1</span><div><b>Envoyez {fmt(abo.formules[choix].prix)}</b> sur l'un de ces numéros :
-                      <div className="chips" style={{ marginTop: 6 }}>{ops.map((o) => <span key={o.mode} className="chip">{o.mode} · <b>{o.numero}</b>{o.titulaire ? ` (${o.titulaire})` : ""}</span>)}</div></div></div>
+                      <div className="chips" style={{ marginTop: 6 }}>{ops.filter((o) => o.numero).map((o) => <span key={o.mode} className="chip">{o.mode} · <b>{o.numero}</b>{o.titulaire ? ` (${o.titulaire})` : ""}</span>)}</div>
+                      {ops.filter((o) => o.lien).map((o) => (
+                        <div key={o.mode} className="qr-paiement">
+                          <QrCode texte={o.lien} taille={148} />
+                          <div><b>Payer par {o.mode}</b><p>Scannez ce QR code avec l'application {o.mode}, ou touchez le bouton depuis votre téléphone. Montant à envoyer : <b>{fmt(abo.formules[choix].prix)}</b>.</p>
+                            <a className="btn btn-primary" href={o.lien} target="_blank" rel="noopener noreferrer"><Smartphone size={16} /><span>Ouvrir {o.mode}</span></a></div>
+                        </div>
+                      ))}</div></div>
                     <div><span>2</span><div><b>Notez l'ID de transaction</b> reçu par SMS après le transfert.</div></div>
                     <div><span>3</span><div><b>Déclarez le paiement</b> ci-dessous : votre pack est pris en compte automatiquement, à la fin de votre essai ou à la suite de votre période en cours.</div></div>
                   </div>
