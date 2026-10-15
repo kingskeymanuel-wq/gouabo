@@ -2353,13 +2353,13 @@ function PageAccueil() {
             <div className="grow" style={{ minWidth: 220 }}>
               <div className="strong" style={{ fontSize: 15 }}>Votre boutique est prête</div>
               <p className="muted" style={{ marginTop: 2 }}>
-                La base de données du serveur est vide. Ajoutez vos produits et clients, ou partez d'un exemple.
-                {!peutImporter && " Seul un administrateur peut charger des données d'exemple."}
+                {peutImporter ? "Ajoutez votre premier produit : une photo, un prix, une quantité. Il apparaît aussitôt dans votre boutique et sur GOUABO." : "Votre administrateur n'a pas encore ajouté de produit."}
               </p>
               <div className="row" style={{ marginTop: 12, flexWrap: "wrap" }}>
-                {peutImporter && <Btn variant="primary" icon={Plus} onClick={() => go("produits", "nouveau")}>Ajouter un produit</Btn>}
-                {peutImporter && local && <Btn icon={Upload} loading={chargement === "local"} onClick={() => demarrer("local")}>Importer les données de ce navigateur</Btn>}
-                {peutImporter && <Btn icon={Sparkles} loading={chargement === "demo"} onClick={() => demarrer("demo")}>Charger des données d'exemple</Btn>}
+                {peutImporter && <Btn variant="primary" icon={Plus} onClick={() => go("produits", "nouveau")}>Ajouter mon premier produit</Btn>}
+                {peutImporter && local && <Btn icon={Upload} loading={chargement === "local"} onClick={() => demarrer("local")}>Récupérer les produits saisis sur ce téléphone</Btn>}
+                {/* Les données d'exemple seraient publiées sur la place de marché : seulement en mode démonstration hors ligne */}
+                {peutImporter && mode !== "api" && <Btn icon={Sparkles} loading={chargement === "demo"} onClick={() => demarrer("demo")}>Charger des données d'exemple</Btn>}
               </div>
             </div>
           </div>
