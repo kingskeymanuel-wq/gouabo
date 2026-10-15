@@ -5829,9 +5829,10 @@ function AuthScreen({ onSuccess, mode }) {
   const params = new URLSearchParams(location.search);
   const espace = params.get("espace") === "vendeur" ? "vendeur" : "admin";
   const [etape, setEtape] = useState(enLigne && params.get("creer") ? "inscription" : "connexion"); // inscription | connexion
-  const [nom, setNom] = useState("");
-  const [boutique, setBoutique] = useState("");
-  const [tel, setTel] = useState("");
+  // Lien envoyé par MANU dev après une proposition acceptée : ?creer=1&nom=…&boutique=…&tel=… (champs pré-remplis)
+  const [nom, setNom] = useState((params.get("nom") || "").slice(0, 80));
+  const [boutique, setBoutique] = useState((params.get("boutique") || "").slice(0, 80));
+  const [tel, setTel] = useState((params.get("tel") || "").replace(/[^0-9+ ]/g, "").slice(0, 20));
   const [mdp, setMdp] = useState("");
   const [mdp2, setMdp2] = useState("");
   const [codeRequis, setCodeRequis] = useState(false);
