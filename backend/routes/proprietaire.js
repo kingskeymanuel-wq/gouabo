@@ -200,9 +200,15 @@ router.post("/essai", async (req, res) => {
   } catch (e) { res.status(502).json({ erreur: e.message }); }
 });
 router.put("/ia", (req, res) => {
-  const cle = String(req.body.cle || "").trim();
-  if (cle && !/^sk-ant-[A-Za-z0-9_-]{20,}$/.test(cle)) return res.status(400).json({ erreur: "Cette clé n'a pas le format d'une clé Anthropic (elle commence par sk-ant-)" });
-  ia.enregistrerCle(cle);
+  // Réglage complet (fournisseur gratuit ou payant) ; ancien format : { cle } = clé Anthropic
+  if (req.body.fournisseur === undefined) {
+    const cle = String(req.body.cle || "").trim();
+    if (cle && !/^sk-ant-[A-Za-z0-9_-]{20,}$/.test(cle)) return res.status(400).json({ erreur: "Cette clé n'a pas le format d'une clé Anthropic (elle commence par sk-ant-)" });
+    ia.enregistrerCle(cle);
+    return res.json(ia.etat());
+  }
+  const r = ia.regler(req.body);
+  if (r.erreur) return res.status(400).json(r);
   res.json(ia.etat());
 });
 
