@@ -108,7 +108,7 @@ router.get("/tableau", (req, res) => {
     formules: abo.formules(),
     // Boutiques de démonstration de la page d'accueil : le propriétaire les affiche ou les masque
     vitrine: { boutiques: boutiquesVitrine().length, masquee: vitrineMasquee() },
-    service: { ia: ia.etat(), sms: smsConfigure(), email: emailConfigure(), detourage: Boolean(process.env.REMOVE_BG_API_KEY || db.reglages.lire("detourage_cle")) },
+    service: { ia: ia.etat(), sms: smsConfigure(), email: emailConfigure(), sms_detail: require("../lib/sms").etat(), email_detail: require("../lib/email").etat(), detourage: Boolean(process.env.REMOVE_BG_API_KEY || db.reglages.lire("detourage_cle")) },
     mot_de_passe_cree: Boolean(db.reglages.lire(CLE_MDP)),
     alertes: alertes(espaces),
     espaces,
@@ -188,6 +188,17 @@ router.put("/detourage", (req, res) => {
   res.json({ detourage: Boolean(cle) });
 });
 
+// E-mail et SMS de la plateforme : utilisés par les agents, les campagnes, les alertes et les tickets
+const emailLib = require("../lib/email"), smsLib = require("../lib/sms");
+router.put("/email", (req, res) => { const r = emailLib.regler(req.body || {}); if (r.erreur) return res.status(400).json(r); res.json(emailLib.etat()); });
+router.put("/sms", (req, res) => { const r = smsLib.regler(req.body || {}); if (r.erreur) return res.status(400).json(r); res.json(smsLib.etat()); });
+router.post("/essai", async (req, res) => {
+  try {
+    if (req.body.canal === "email") { if (!emailLib.estConfigure()) return res.status(409).json({ erreur: "E-mail non réglé" }); await emailLib.envoyerEmail({ a: String(req.body.a || ""), sujet: "GOUABO — essai d'envoi", texte: "Les e-mails de GOUABO (agents, campagnes, tickets) fonctionnent." }); }
+    else { if (!smsLib.estConfigure()) return res.status(409).json({ erreur: "SMS non réglés" }); await smsLib.envoyerSms(String(req.body.a || ""), "GOUABO : les SMS (agents, alertes, campagnes) fonctionnent."); }
+    res.json({ ok: true });
+  } catch (e) { res.status(502).json({ erreur: e.message }); }
+});
 router.put("/ia", (req, res) => {
   const cle = String(req.body.cle || "").trim();
   if (cle && !/^sk-ant-[A-Za-z0-9_-]{20,}$/.test(cle)) return res.status(400).json({ erreur: "Cette clé n'a pas le format d'une clé Anthropic (elle commence par sk-ant-)" });
