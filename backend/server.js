@@ -111,7 +111,7 @@ app.use("/api/dashboard", adminOnly, dashboardRoutes);
 app.use("/api/donnees", donneesRoutes);
 app.use("/api/parametres", parametresRoutes);
 app.use("/api/livreurs", livreursRoutes);
-app.use("/api/depenses", depensesRoutes);
+app.use("/api/depenses", adminOnly, depensesRoutes); // les vendeurs ne gèrent pas l'argent de la boutique
 
 app.use("/api", (req, res) => res.status(404).json({ erreur: "Route introuvable" }));
 
