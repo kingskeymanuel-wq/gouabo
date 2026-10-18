@@ -116,3 +116,4 @@ td:not(:last-child), td small { white-space: nowrap; }
 .t-agents { background: var(--nuit); color: var(--or); }
 .t-abonnement { background: var(--bleu-fond); color: var(--bleu); }
 .t-service { background: #efebe4; color: var(--texte-2); }
+.carte-alerte { border-color: var(--or, #D4A64A); box-shadow: 0 0 0 1px var(--or, #D4A64A) inset; }

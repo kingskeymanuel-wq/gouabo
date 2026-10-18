@@ -9,6 +9,7 @@ const agents = require("../lib/agents");
 const { idOuNouveau, versIso, prochainNumero, ajouterEvenement } = require("../lib/outils");
 const { lireBoutique } = require("./parametres");
 const { adminOnly } = require("../middleware/auth");
+const { clientVisible } = require("../lib/clients");
 const router = express.Router();
 
 function enrichir(vente) {
@@ -41,7 +42,7 @@ router.get("/", (req, res) => {
 // GET /api/ventes/:id
 router.get("/:id", (req, res) => {
   const vente = db.prepare("SELECT * FROM ventes WHERE id = ?").get(req.params.id);
-  if (!vente) return res.status(404).json({ erreur: "Vente introuvable" });
+  if (!vente || !aMoi(vente, req)) return res.status(404).json({ erreur: "Vente introuvable" });
   res.json(enrichir(vente));
 });
 
@@ -57,7 +58,8 @@ router.post("/", (req, res) => {
   if (!client_id || demandees.some((l) => !l.pack_id)) {
     return res.status(400).json({ erreur: "client_id et au moins un article sont requis" });
   }
-  const client = db.prepare("SELECT * FROM clients WHERE id = ? AND supprime = 0").get(client_id);
+  // Un vendeur vend à ses propres clients (ou en enregistre un nouveau)
+  const client = clientVisible(client_id, req.user);
   if (!client) return res.status(404).json({ erreur: "Client introuvable" });
   const lignes = [], lotsParPack = new Map();
   for (const l of demandees) {

@@ -83,6 +83,7 @@
 
   function afficher() {
     const s = t.stats, r = t.reglages;
+    const enAttente = t.paiements.filter((p) => p.statut === "declare");
     const aValider = t.paiements.filter((p) => p.statut === "valide").slice(0, 12);
     const traites = t.paiements.slice(0, 40);
     const espaces = t.espaces.filter((x) => filtre === "tous" || (filtre === "paye" ? x.abonnement.paye : filtre === "non_paye" ? !x.abonnement.paye : filtre === "premium" ? x.abonnement.statut === "actif" && x.abonnement.formule === "premium" : x.abonnement.statut === filtre));
@@ -118,8 +119,23 @@
             : `${t.vitrine.boutiques} boutiques de démonstration remplissent la page d'accueil, sans commande possible. Masquez-les quand vos vrais vendeurs ont publié leurs produits.`}</p></div>
             <button class="btn ${t.vitrine.masquee ? "btn-or" : ""}" id="vitrine" data-masquee="${t.vitrine.masquee ? "0" : "1"}">${t.vitrine.masquee ? "Réafficher la vitrine" : "Masquer la vitrine"}</button></div>
         </section>` : ""}
+        <section class="carte${enAttente.length ? " carte-alerte" : ""}">
+          <div class="carte-tete"><div><h2>Paiements à confirmer${enAttente.length ? ` · ${enAttente.length}` : ""}</h2><p>Vérifiez sur votre compte Mobile Money ou Wave que l'argent est bien arrivé (montant et ID de transaction), puis confirmez : le pack démarre à la fin de l'essai gratuit, ou à la suite de l'abonnement en cours.</p></div></div>
+          ${enAttente.length === 0 ? `<div class="vide">Aucun paiement en attente.</div>` : enAttente.map((p) => `
+            <div class="paiement">
+              <div class="montant num">${e(fcfa(p.montant))}</div>
+              <div class="qui"><b>${e(p.boutique)}</b> ${pastille(p.formule, "Pack " + (t.formules[p.formule]?.nom || p.formule))}
+                <small>${e(p.operateur || "Mobile Money")} · depuis le ${e(p.telephone)} · ID de transaction : <b>${e(p.reference)}</b></small>
+                <small>Déclaré par ${e(p.auteur || "l'administrateur")} le ${e(dateHeure(p.cree_le))}</small></div>
+              <div class="actions">
+                <button class="btn btn-vert" data-paiement="${e(p.id)}" data-action="valider">Argent reçu : activer le pack</button>
+                <button class="btn btn-rouge" data-paiement="${e(p.id)}" data-action="refuser">Non reçu : refuser</button>
+              </div>
+            </div>`).join("")}
+        </section>
+
         <section class="carte">
-          <div class="carte-tete"><div><h2>Derniers paiements reçus</h2><p>Chaque paiement est pris en compte automatiquement : le pack démarre à la fin de l'essai gratuit, ou à la suite de l'abonnement en cours. Si un paiement n'est pas arrivé sur votre compte, annulez-le.</p></div></div>
+          <div class="carte-tete"><div><h2>Derniers paiements confirmés</h2><p>Si un paiement s'avère finalement non reçu, annulez-le : la durée correspondante est retirée.</p></div></div>
           ${aValider.length === 0 ? `<div class="vide">Aucun paiement pour l'instant.</div>` : aValider.map((p) => `
             <div class="paiement">
               <div class="montant num">${e(fcfa(p.montant))}</div>
@@ -226,11 +242,11 @@
     try {
       if (b.dataset.paiement) {
         const valider = b.dataset.action === "valider";
-        const note = valider ? "" : prompt("Motif de l'annulation (visible par le vendeur) :", "Paiement non reçu");
+        const note = valider ? "" : prompt(b.dataset.action === "refuser" ? "Motif du refus (visible par le vendeur) :" : "Motif de l'annulation (visible par le vendeur) :", "Paiement non reçu");
         if (!valider && note === null) return;
         b.disabled = true;
         await api("POST", `/paiements/${b.dataset.paiement}/${b.dataset.action}`, { note });
-        toast(valider ? "Paiement validé : pack activé" : "Paiement annulé : la durée a été retirée");
+        toast(valider ? "Paiement confirmé : pack activé" : b.dataset.action === "refuser" ? "Paiement refusé" : "Paiement annulé : la durée a été retirée");
       } else if (b.dataset.espace) {
         const id = b.dataset.espace, a = b.dataset.action;
         const nom = t.espaces.find((x) => x.id === id)?.nom || "cet espace";

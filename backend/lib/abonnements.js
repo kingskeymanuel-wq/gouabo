@@ -177,9 +177,9 @@ function declarerPaiement(boutiqueId, { formule, operateur, telephone, reference
   const id = nanoid();
   db.plateforme.prepare(
     `INSERT INTO paiements_abonnement (id, boutique_id, formule, montant, operateur, telephone, reference, statut, auteur, cree_le)
-     VALUES (?, ?, ?, ?, ?, ?, ?, 'valide', ?, ?)`
+     VALUES (?, ?, ?, ?, ?, ?, ?, 'declare', ?, ?)`
   ).run(id, boutiqueId, f.cle, f.prix, String(operateur || "").slice(0, 40), String(telephone || "").slice(0, 30), String(reference || "").slice(0, 60), String(auteur || "").slice(0, 80), new Date().toISOString());
-  payer(boutiqueId, f.cle); // pris en compte automatiquement, sans validation du propriétaire
+  // Le pack n'est activé qu'après vérification par le propriétaire que l'argent est bien arrivé sur son compte
   return lirePaiement(id);
 }
 
@@ -190,7 +190,7 @@ function traiterPaiement(id, valide, note = "") {
   if (p.statut !== "declare") return p;
   db.plateforme.prepare("UPDATE paiements_abonnement SET statut = ?, note = ?, traite_le = ? WHERE id = ?")
     .run(valide ? "valide" : "refuse", String(note || "").slice(0, 200) || null, new Date().toISOString(), id);
-  if (valide) activer(p.boutique_id, p.formule);
+  if (valide) payer(p.boutique_id, p.formule); // démarre à la fin de l'essai, ou à la suite de la période en cours
   return lirePaiement(id);
 }
 
