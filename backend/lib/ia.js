@@ -13,7 +13,7 @@ const { Anthropic, RateLimitError, AuthenticationError, APIConnectionError, APIE
 
 const MODELE = "claude-opus-5-5";
 const FOURNISSEURS = {
-  local: { nom: "IA locale (gratuite, sur votre serveur)", modele: "qwen2.5:3b", gratuit: true },
+  local: { nom: "IA locale (gratuite, sur votre serveur)", modele: "llama3.2:3b", gratuit: true },
   groq: { nom: "Groq (gratuit avec quota)", modele: "llama-3.3-70b-versatile", gratuit: true, url: "https://api.groq.com/openai/v1/chat/completions" },
   gemini: { nom: "Google Gemini (gratuit avec quota)", modele: "gemini-2.5-flash", gratuit: true, url: "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions" },
   anthropic: { nom: "Claude (payant, meilleure qualité)", modele: MODELE, gratuit: false },
