@@ -1740,3 +1740,30 @@ html, body { font-size: 14.5px; }
 .kpi-bouton .kpi-foot { display: flex; align-items: center; justify-content: space-between; }
 .top-produit:disabled { opacity: 1; cursor: default; }
 .top-produit:disabled:hover { background: none; }
+
+/* Fond de l'application : ivoire chaud, halos de lumière très doux (or en haut à droite, sauge en bas à gauche) */
+:root {
+  --fond-halo-1: rgba(226, 182, 87, .22);
+  --fond-halo-2: rgba(120, 160, 128, .14);
+  --fond-halo-3: rgba(255, 252, 245, .9);
+}
+:root[data-theme="dark"] {
+  --fond-halo-1: rgba(231, 190, 103, .12);
+  --fond-halo-2: rgba(110, 150, 120, .08);
+  --fond-halo-3: rgba(255, 249, 240, .03);
+}
+body::before {
+  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(60rem 40rem at 100% -10%, var(--fond-halo-1), transparent 60%),
+    radial-gradient(50rem 36rem at -10% 110%, var(--fond-halo-2), transparent 60%),
+    radial-gradient(40rem 30rem at 50% 40%, var(--fond-halo-3), transparent 70%),
+    var(--bg);
+}
+html { background: var(--bg); }
+body { background: transparent; }
+.app, .main { background: transparent; }
+/* Cartes légèrement translucides : le fond transparaît, sans gêner la lecture */
+.card { background: color-mix(in srgb, var(--surface) 94%, transparent); backdrop-filter: saturate(1.1); }
+.sidebar { background: color-mix(in srgb, var(--sidebar) 88%, transparent); backdrop-filter: blur(10px); }
+.auth, .verrou { background: transparent; }
