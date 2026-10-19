@@ -48,10 +48,10 @@ app.use(
         // Les interfaces sont préparées à l'avance (construire.js), React et icônes compris.
         // cdnjs : génération du PDF (jsPDF) et du QR code des tickets de caisse
         scriptSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
-        styleSrc: ["'self'", "'unsafe-inline'"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
         fontSrc: ["'self'"],
         // images.unsplash.com : photos des produits de démonstration (celles des interfaces sont dans /partage/photos)
-        imgSrc: ["'self'", "data:", "blob:", "https://images.unsplash.com"],
+        imgSrc: ["'self'", "data:", "blob:", "https://images.unsplash.com", "https://tile.openstreetmap.org", "https://cdnjs.cloudflare.com"],
         // Aperçu du ticket PDF généré dans le navigateur (blob:)
         frameSrc: ["'self'", "blob:"],
         connectSrc: ["'self'", "https://cdnjs.cloudflare.com"],
