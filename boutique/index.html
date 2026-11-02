@@ -27,7 +27,7 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="GOUABO" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <script>if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(() => {}));</script>
+  <script src="/demarrage.js"></script>
   <script src="/partage/installer.js" defer></script>
   <link rel="stylesheet" href="/partage/polices/polices.css" />
   <!-- Système de design commun (jetons, boutons, champs, ticket) puis styles de la boutique -->
@@ -35,12 +35,6 @@
   <link rel="stylesheet" href="/boutique.css" />
 
   <!-- Thème clair / sombre selon l'appareil du client -->
-  <script>
-    (function () {
-      var sombre = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-      document.documentElement.setAttribute("data-theme", sombre ? "dark" : "light");
-    })();
-  </script>
 
 </head>
 <body class="vitrine">
