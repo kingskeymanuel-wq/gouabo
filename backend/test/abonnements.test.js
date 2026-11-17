@@ -23,7 +23,9 @@ function espace(formule) {
   abo.creer(b.id, formule);
   return b.id;
 }
-const payerPar = (id, formule) => abo.declarerPaiement(id, { formule, operateur: "Wave", telephone: "0700000000", reference: "REF-" + ++n, auteur: "Test" });
+const declarer = (id, formule) => abo.declarerPaiement(id, { formule, operateur: "Wave", telephone: "0700000000", reference: "REF-" + ++n, auteur: "Test" });
+/** Paiement déclaré par le vendeur PUIS confirmé par le propriétaire (« Argent reçu ») : seul ce cas active le pack. */
+const payerPar = (id, formule) => abo.traiterPaiement(declarer(id, formule).id, true);
 
 after(() => { try { fs.rmSync(DOSSIER, { recursive: true, force: true }); } catch { /* fichiers encore ouverts (Windows) */ } });
 
@@ -52,6 +54,19 @@ test("essai terminé sans paiement : l'espace est expiré et verrouillé", () =>
   assert.equal(e.statut, "expire");
   assert.equal(e.acces, false);
   assert.equal(e.agents, false);
+});
+
+test("paiement déclaré : rien n'est accordé avant la confirmation du propriétaire ; « Non reçu » n'accorde rien", () => {
+  const id = espace();
+  abo.modifier(id, { essai_fin: hier() });
+  const p = declarer(id, "premium");
+  assert.equal(p.statut, "declare");
+  assert.equal(abo.etat(id).acces, false, "pas d'accès tant que l'argent n'est pas confirmé");
+  const refuse = abo.traiterPaiement(p.id, false, "Non reçu");
+  assert.equal(refuse.statut, "refuse");
+  assert.equal(abo.etat(id).acces, false);
+  assert.equal(abo.traiterPaiement(p.id, true).statut, "refuse", "une décision ne se change pas");
+  assert.equal(abo.etat(id).acces, false);
 });
 
 test("paiement pendant l'essai : l'essai continue, le pack démarrera à la fin de l'essai pour sa durée", () => {
