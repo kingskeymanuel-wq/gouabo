@@ -32,6 +32,15 @@ const appel = async (methode, chemin, corps, qui = "admin") => {
   return { status: r.status, data: await r.json().catch(() => null) };
 };
 
+test("rythme : réglé par le propriétaire, refusé s'il est incohérent", async () => {
+  assert.equal((await appel("PUT", "/repertoire/rythme", { jours: [], debut: 9, fin: 18, par_jour: 10 })).status, 400);
+  assert.equal((await appel("PUT", "/repertoire/rythme", { jours: [1], debut: 18, fin: 9, par_jour: 10 })).status, 400);
+  // Pour les tests suivants : tous les jours, toute la journée
+  const r = await appel("PUT", "/repertoire/rythme", { jours: [1, 2, 3, 4, 5, 6, 7], debut: 0, fin: 24, par_jour: 10 });
+  assert.equal(r.status, 200);
+  assert.equal(r.data.fenetre.ouverte, true);
+});
+
 test("import : doublons et numéros invalides écartés", async () => {
   const r = await appel("POST", "/importer", { contacts: [
     { nom: "Awa Koné", telephone: "+225 07 11 22 33 44" },
@@ -63,6 +72,42 @@ test("une invitation envoyée sort de la file ; le quota du jour est respecté",
   assert.equal(apres.data.du_jour.length, 0, "quota de 1 par jour atteint");
   assert.equal(apres.data.invites, 1);
   assert.equal(apres.data.restants, 1);
+});
+
+test("en dehors des jours choisis, l'agent ne prépare aucune invitation et dit quand il reprend", async () => {
+  // Un seul jour autorisé : demain, à l'heure d'Abidjan (1 = lundi … 7 = dimanche)
+  const aujourdhuiAbidjan = new Date(new Date().toLocaleDateString("fr-CA", { timeZone: "Africa/Abidjan" }) + "T12:00:00Z").getUTCDay();
+  const demain = (aujourdhuiAbidjan % 7) + 1;
+  try {
+    await appel("PUT", "/repertoire/rythme", { jours: [demain], debut: 9, fin: 18, par_jour: 10 });
+    const r = await appel("GET", "/prospection");
+    assert.equal(r.data.fenetre.ouverte, false);
+    assert.equal(r.data.du_jour.length, 0);
+    assert.match(r.data.fenetre.reprise, /demain à 9 h/);
+  } finally {
+    await appel("PUT", "/repertoire/rythme", { jours: [1, 2, 3, 4, 5, 6, 7], debut: 0, fin: 24, par_jour: 10 });
+  }
+});
+
+test("répertoire Google : facultatif (case d'accord obligatoire), et indisponible tant que Google n'est pas réglé", async () => {
+  const etat = await appel("GET", "/repertoire");
+  assert.equal(etat.data.google, false);
+  assert.equal((await appel("POST", "/repertoire/google", { email: "a@gmail.com" })).status, 400, "sans accord");
+  const sansReglage = await appel("POST", "/repertoire/google", { email: "a@gmail.com", accord: true });
+  assert.equal(sansReglage.status, 400);
+  assert.match(sansReglage.data.erreur, /pas encore disponible/);
+  // Avec un réglage Google : l'adresse de la page d'autorisation est donnée, l'accord est enregistré
+  process.env.GOOGLE_CLIENT_ID = "id-essai"; process.env.GOOGLE_CLIENT_SECRET = "secret-essai";
+  try {
+    const ok = await appel("POST", "/repertoire/google", { email: "awa@gmail.com", accord: true });
+    assert.equal(ok.status, 200);
+    assert.match(ok.data.url, /^https:\/\/accounts\.google\.com\/o\/oauth2\/v2\/auth\?/);
+    assert.match(ok.data.url, /contacts\.readonly/);
+    assert.match(ok.data.url, /login_hint=awa%40gmail\.com/);
+    assert.equal((await appel("GET", "/repertoire")).data.accord.email, "awa@gmail.com");
+    assert.equal((await appel("DELETE", "/repertoire/accord")).status, 200);
+    assert.equal((await appel("GET", "/repertoire")).data.accord, null);
+  } finally { delete process.env.GOOGLE_CLIENT_ID; delete process.env.GOOGLE_CLIENT_SECRET; }
 });
 
 test("un vendeur ne voit que les contacts qu'il a importés", async () => {

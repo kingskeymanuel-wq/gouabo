@@ -118,6 +118,9 @@ app.post("/api/abonnement-cinetpay/notification", abonnementRoutes.notification)
 app.use("/uploads", express.static(DOSSIER_UPLOADS, { maxAge: "30d", immutable: true, fallthrough: false }));
 
 // Le reste de l'API nécessite un utilisateur connecté.
+// Retour de la page d'autorisation Google (répertoire par l'adresse e-mail) — public, protégé par un jeton à usage unique
+app.get("/api/public/google/retour", clientsRoutes.retourGoogle);
+
 app.use("/api", authRequired);
 
 // L'abonnement reste consultable même verrouillé ; tout le reste exige un essai ou un abonnement en cours
